@@ -85,10 +85,12 @@ void rabota(const kvadrat& lk){
 	for(int i = 0; i < raz; i += por) for(int j = 0; j < por; j++) tempk[0][i + lk[i + j]] = j;
 	for(int j = 0; j < por; j++) for(int i = 0; i < por; i++) tempk[1][lk[i * por + j] * por + j] = i;
 	trans_dlx::search_symm_trans(srez);
+	/*
 	cerr << "ЛК# " << ++count << ": ";
 	int sum = 0;
 	for(int i = 0; i < ch_srez; i++) sum += kf_trans[i].size();
 	cerr << sum << endl;
+	*/
 	int count_kf = 0;
 	clock_t tb = clock(), te;
 	for(int i = 0; i < ch_srez; i++) for(auto q = kf_trans[i].begin(); q != kf_trans[i].end(); q++){
