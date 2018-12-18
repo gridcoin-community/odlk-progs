@@ -44,18 +44,18 @@ inline void zapis(char ch, kvadrat& kv){
 
 bool init(){
 	ifstream fin(input_tabl, ios::binary);
-	if(!fin) return error_input("Íåò ôàéëà ", input_tabl);
+	if(!fin) return error_input("ĞĞµÑ‚ Ñ„Ğ°Ğ¹Ğ»Ğ° ", input_tabl);
 	fin.read((char*)kanonizator::hash_tabl, sizeof(kanonizator::hash_tabl));
 	fin.close();
 	fin.open(input, ios::binary);
-	if(!fin) return error_input("Íåò ôàéëà ", input);
+	if(!fin) return error_input("ĞĞµÑ‚ Ñ„Ğ°Ğ¹Ğ»Ğ° ", input);
 	kvadrat tempk;
 	const int raz_buf = 0x1000;
 	char bufer[raz_buf];
 	while(fin.read(bufer, raz_buf)) for(int i = 0; i < raz_buf; i++) zapis(bufer[i], tempk);
 	if(fin.eof()) for(int i = 0; i < fin.gcount(); i++) zapis(bufer[i], tempk);
-	if(baza_lk.empty()) return error_input("Íåò ËÊ â ôàéëå ", input);
-	cout << "Ââåäåíî ËÊ: " << baza_lk.size() << endl << endl;
+	if(baza_lk.empty()) return error_input("ĞĞµÑ‚ Ğ›Ğš Ğ² Ñ„Ğ°Ğ¹Ğ»Ğµ ", input);
+	cout << "Ğ’Ğ²ĞµĞ´ĞµĞ½Ğ¾ Ğ›Ğš: " << baza_lk.size() << endl << endl;
 	for(int i = 0; i < ch_srez; i++) trans[i].reserve(max_trans);
 	trans_dlx::nodes.resize(trans_dlx::max_nodes);
 	return true;
@@ -85,7 +85,7 @@ void rabota(const kvadrat& lk){
 	for(int i = 0; i < raz; i += por) for(int j = 0; j < por; j++) tempk[0][i + lk[i + j]] = j;
 	for(int j = 0; j < por; j++) for(int i = 0; i < por; i++) tempk[1][lk[i * por + j] * por + j] = i;
 	trans_dlx::search_symm_trans(srez);
-	cout << "ËÊ# " << ++count << ": ";
+	cout << "Ğ›Ğš# " << ++count << ": ";
 	int sum = 0;
 	for(int i = 0; i < ch_srez; i++) sum += kf_trans[i].size();
 	cout << sum << endl;
@@ -130,22 +130,22 @@ void vyvod(bool flag){
 	}
 	ofstream fout(output, ios::binary);
 	for(auto q = baza_mar.begin(); q != baza_mar.end(); q++) out_kvadrat(fout, *q);
-	cout << "\nÍàéäåíî ìàğüÿæíûõ ÄËÊ: " << baza_mar.size() << " îíè çàïèñàíû â ôàéë " << output << endl;
+	cout << "\nĞĞ°Ğ¹Ğ´ĞµĞ½Ğ¾ Ğ¼Ğ°Ñ€ÑŒÑĞ¶Ğ½Ñ‹Ñ… Ğ”Ğ›Ğš: " << baza_mar.size() << " Ğ¾Ğ½Ğ¸ Ğ·Ğ°Ğ¿Ğ¸ÑĞ°Ğ½Ñ‹ Ğ² Ñ„Ğ°Ğ¹Ğ» " << output << endl;
 }
 
 int main(int argc, char* argv[]){
 	setlocale(LC_CTYPE, "rus");
-	cout << "Ïîèñê ìàğüÿæíûõ ÄËÊ (êğîìå ñèììåòğè÷íûõ) äëÿ ñåìåéñòâà ËÊ\n\n";
+	cout << "ĞŸĞ¾Ğ¸ÑĞº Ğ¼Ğ°Ñ€ÑŒÑĞ¶Ğ½Ñ‹Ñ… Ğ”Ğ›Ğš (ĞºÑ€Ğ¾Ğ¼Ğµ ÑĞ¸Ğ¼Ğ¼ĞµÑ‚Ñ€Ğ¸Ñ‡Ğ½Ñ‹Ñ…) Ğ´Ğ»Ñ ÑĞµĞ¼ĞµĞ¹ÑÑ‚Ğ²Ğ° Ğ›Ğš\n\n";
 	input = argc == 1 ? "input.txt" : argv[1];
 	if(init()){
 		clock_t t0 = clock();
 		for(auto q = baza_lk.begin(); q != baza_lk.end(); q++) rabota(*q);
-		if(baza_mar.empty()) cout << "\nÌàğüÿæíûõ ÄËÊ íåò\n";
+		if(baza_mar.empty()) cout << "\nĞœĞ°Ñ€ÑŒÑĞ¶Ğ½Ñ‹Ñ… Ğ”Ğ›Ğš Ğ½ĞµÑ‚\n";
 		else vyvod(argc == 1);
-		cout << "Âğåìÿ ğàáîòû â ñåê   : " << double(clock() - t0) / CLOCKS_PER_SEC << endl;
+		cout << "Ğ’Ñ€ĞµĞ¼Ñ Ñ€Ğ°Ğ±Ğ¾Ñ‚Ñ‹ Ğ² ÑĞµĞº   : " << double(clock() - t0) / CLOCKS_PER_SEC << endl;
 	}
 	if(argc == 1){
-		cout << "\nÄëÿ âûõîäà íàæìèòå ëşáóş êëàâèøó . . . ";
+		cout << "\nĞ”Ğ»Ñ Ğ²Ñ‹Ñ…Ğ¾Ğ´Ğ° Ğ½Ğ°Ğ¶Ğ¼Ğ¸Ñ‚Ğµ Ğ»ÑĞ±ÑƒÑ ĞºĞ»Ğ°Ğ²Ğ¸ÑˆÑƒ . . . ";
 		system("pause > nul");
 		cout << endl;
 	}

@@ -105,7 +105,7 @@ void trans_dlx::poisk_simm(const kvadrat& lk, const vector<transver>& tr, int sr
 
 void trans_dlx::poisk_simm_dlx(const kvadrat& lk, const vector<transver>& tr, int srez){
 
-	// Ηδερό αΰγ
+	// Π—Π΄ΠµΡΡ Π±Π°Π³
 
 	int lin;
 	bool flag = srez != 0;
