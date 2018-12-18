@@ -5,7 +5,7 @@ list<transver> d_trans;
 vector<transver> trans[ch_srez];
 list<pair<kvadrat, pair<transver, transver>>> kf_trans[ch_srez];
 set<kvadrat> baza_kf, baza_mar;
-char* input, *input_tabl = "hash_tabl.bin";
+const char* input, *input_tabl = "hash_tabl.bin";
 int cnt_trans;
 
 inline bool error_input(const char* text, const char* file){
@@ -55,7 +55,7 @@ bool init(){
 	while(fin.read(bufer, raz_buf)) for(int i = 0; i < raz_buf; i++) zapis(bufer[i], tempk);
 	if(fin.eof()) for(int i = 0; i < fin.gcount(); i++) zapis(bufer[i], tempk);
 	if(baza_lk.empty()) return error_input("Нет ЛК в файле ", input);
-	cout << "Введено ЛК: " << baza_lk.size() << endl << endl;
+	cerr << "Введено ЛК: " << baza_lk.size() << endl << endl;
 	for(int i = 0; i < ch_srez; i++) trans[i].reserve(max_trans);
 	trans_dlx::nodes.resize(trans_dlx::max_nodes);
 	return true;
@@ -85,16 +85,16 @@ void rabota(const kvadrat& lk){
 	for(int i = 0; i < raz; i += por) for(int j = 0; j < por; j++) tempk[0][i + lk[i + j]] = j;
 	for(int j = 0; j < por; j++) for(int i = 0; i < por; i++) tempk[1][lk[i * por + j] * por + j] = i;
 	trans_dlx::search_symm_trans(srez);
-	cout << "ЛК# " << ++count << ": ";
+	cerr << "ЛК# " << ++count << ": ";
 	int sum = 0;
 	for(int i = 0; i < ch_srez; i++) sum += kf_trans[i].size();
-	cout << sum << endl;
+	cerr << sum << endl;
 	int count_kf = 0;
 	clock_t tb = clock(), te;
 	for(int i = 0; i < ch_srez; i++) for(auto q = kf_trans[i].begin(); q != kf_trans[i].end(); q++){
 		count_kf++;
 		if((te = clock()) - tb > timeout){
-			cout << count_kf << endl;
+			cerr << count_kf << endl;
 			tb = te;
 		}
 		find_d_trans(q->second, trans[i]);
@@ -120,33 +120,29 @@ inline void out_kvadrat(ostream& out, const kvadrat& kv){
 	out.write((char*)tempk.data(), sizeof(tempk));
 }
 
-void vyvod(bool flag){
-	string output;
-	if(flag) output = "output.txt";
-	else{
-		output = input;
-		int temp = output.rfind('_');
-		output = "mar_d" + output.erase(temp + 1) + to_string((unsigned long long)baza_mar.size()) + ".txt";
-	}
-	ofstream fout(output, ios::binary);
-	for(auto q = baza_mar.begin(); q != baza_mar.end(); q++) out_kvadrat(fout, *q);
-	cout << "\nНайдено марьяжных ДЛК: " << baza_mar.size() << " они записаны в файл " << output << endl;
-}
 
 int main(int argc, char* argv[]){
 	setlocale(LC_CTYPE, "rus");
-	cout << "Поиск марьяжных ДЛК (кроме симметричных) для семейства ЛК\n\n";
-	input = argc == 1 ? "input.txt" : argv[1];
+	cerr << "Поиск марьяжных ДЛК (кроме симметричных) для семейства ЛК" << endl << endl;
+
+	input = "input.txt";
+	string output = "output.txt";
+
 	if(init()){
 		clock_t t0 = clock();
-		for(auto q = baza_lk.begin(); q != baza_lk.end(); q++) rabota(*q);
-		if(baza_mar.empty()) cout << "\nМарьяжных ДЛК нет\n";
-		else vyvod(argc == 1);
-		cout << "Время работы в сек   : " << double(clock() - t0) / CLOCKS_PER_SEC << endl;
-	}
-	if(argc == 1){
-		cout << "\nДля выхода нажмите любую клавишу . . . ";
-		system("pause > nul");
-		cout << endl;
-	}
+
+		for(auto q = baza_lk.begin(); q != baza_lk.end(); q++)
+			rabota(*q);
+
+		cerr << endl << "Время работы в сек   : " << double(clock() - t0) / CLOCKS_PER_SEC << endl;
+		cerr <<         "Найдено марьяжных ДЛК: " << baza_mar.size() << endl;
+
+		ofstream fout(output, ios::binary);
+		for(auto q = baza_mar.begin(); q != baza_mar.end(); q++)
+			out_kvadrat(fout, *q);
+		cerr << "Они записаны в файл " << output << endl;
+
+		return 0;
+	} else
+		return 1;
 }
