@@ -75,7 +75,7 @@ void kan_shab::norm0(shablon& sh){
 		nom[t] = i;
 	}
 	for(unsigned long f = flag1, r, c = 2; f; f &= f - 1){
-		_BitScanForward(&r, f);
+		psnip_intrin_BitScanForward(&r, f);
 		per_c[c++] = r;
 	}
 	shablon tempsh;
@@ -83,7 +83,7 @@ void kan_shab::norm0(shablon& sh){
 	unsigned long cv1, cv2, cv3;
 	flag2 ^= (1 << (cv1 = tempsh[2])) | (1 << (cv2 = tempsh[d + 2]));
 	per_v[cv1] = 1; per_v[cv2] = 3;
-	_BitScanForward(&cv3, flag2);
+	psnip_intrin_BitScanForward(&cv3, flag2);
 	per_v[cv3] = 2;
 	for(int i = 0; i < raz_m; i++) tempsh[i] = per_v[tempsh[i]];
 	for(int i = 0; i < por_m; i++) if(tempsh[i] > tempsh[d + i]){
@@ -272,7 +272,7 @@ bool kan_shab::is_obrabotka0(const std::vector<shablon>& formy, const std::vecto
 		for(int i = 0; i < por; i++) for(int j = 0; j < por_m; j++)
 			tempsh[i * por_m + j] = per_v[formy[sp[k]][per_r[i] * por_m + per_c[j]]];
 		for(unsigned long f = flag, r; f; f &= f - 1){
-			_BitScanForward(&r, f);
+			psnip_intrin_BitScanForward(&r, f);
 			std::swap(tempsh[r], tempsh[raz_m - por_m + r]);
 			std::swap(tempsh[por_m + r], tempsh[raz_m - por + r]);
 		}
@@ -328,7 +328,7 @@ void kan_shab::obrabotka0(const std::vector<shablon>& formy, const std::vector<i
 		for(int i = 0; i < por; i++) for(int j = 0; j < por_m; j++)
 			tempsh[i * por_m + j] = per_v[formy[sp[k]][per_r[i] * por_m + per_c[j]]];
 		for(unsigned long f = flag, r; f; f &= f - 1){
-			_BitScanForward(&r, f);
+			psnip_intrin_BitScanForward(&r, f);
 			std::swap(tempsh[r], tempsh[raz_m - por_m + r]);
 			std::swap(tempsh[por_m + r], tempsh[raz_m - por + r]);
 		}
@@ -431,7 +431,7 @@ super::super(const shablon& sh, bool kn):iter(0),cnt(0),ind(0x1f),kol(0),baz_sh(
 	stl[0] = 0;
 	zapoln(temp);
 	for(unsigned long f = ind & 0x1e, r, c = cnt; f; f &= f - 1){
-		_BitScanForward(&r, f);
+		psnip_intrin_BitScanForward(&r, f);
 		stl[++c] = r;
 	}
 	if(cnt += por_m - kol - (stl[0] == 0)){

@@ -42,7 +42,7 @@ class super_class{
 	void init(const int syst[], unsigned ch_ur){
 		for(unsigned long k = 0, r, j; k < ch_ur; k++){
 			if(syst[k] & 0x10){
-				_BitScanForward(&r, syst[k] & 0xf);
+				psnip_intrin_BitScanForward(&r, syst[k] & 0xf);
 				j = r + 1;
 				std::swap(init_shab[por_m + j], init_shab[raz_m - por + j]);
 			}
@@ -92,7 +92,7 @@ class super{
 		std::multimap<int, int>::const_iterator w;
 		int mass[por_m], c;
 		for(unsigned long f = flag1, r, t, tt; f; f &= f - 1){
-			_BitScanForward(&r, f);
+			psnip_intrin_BitScanForward(&r, f);
 			c = 0;
 			mass[c++] = r;
 			for(t = otn.find(r)->second, tt = r; flag2 & (1 << t); tt = t, t = w->second){
@@ -106,7 +106,7 @@ class super{
 			zapoln(mass, c);
 		}
 		for(unsigned long f = flag2, r, t, tt; f; f &= f - 1){
-			_BitScanForward(&r, f);
+			psnip_intrin_BitScanForward(&r, f);
 			c = 0;
 			mass[c++] = r;
 			for(t = otn.lower_bound(r)->second, tt = r; t != r; tt = t, t = w->second){
@@ -187,7 +187,7 @@ class kan_shab{
 		shablon tempsh;
 		for(int i = 0; i < raz_m; i += por_m) for(int j = 0; j < por_m; j++) tempsh[i + j] = per_v[sh[i + per_c[j]]];
 		for(unsigned long f = flag, r; f; f &= f - 1){
-			_BitScanForward(&r, f);
+			psnip_intrin_BitScanForward(&r, f);
 			std::swap(tempsh[r], tempsh[raz_m - por_m + r]);
 			std::swap(tempsh[por_m + r], tempsh[raz_m - por + r]);
 		}

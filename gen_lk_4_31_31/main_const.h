@@ -5,8 +5,8 @@
 #include <list>
 #include <string>
 #include <algorithm>
-#include <intrin.h>
 #include <ostream>
+#include "psnip/builtin/builtin.h"
 
 const int por = 10;
 const int por_m = por >> 1;
@@ -25,4 +25,14 @@ inline std::ostream& operator<<(std::ostream& out, const shablon& sh){
 	else out << char(sh[i] + '0') << (i % por_m != por_m - 1 ? ' ' : '\n');
 	out << '\n';
 	return out;
+}
+
+static inline void bitset( long *a, long b )
+{
+	*a |= ((unsigned long) 1) << b;
+}
+
+static inline void bitreset( long *a, long b )
+{
+	*a &= ~(((unsigned long) 1) << b);
 }

@@ -109,7 +109,7 @@ int bin_poisk(const int* mass, int dl, int x){
 
 bool unget_name(const string& name, shablon& sh, int patt, int flag){
 	for(unsigned long f = flag, r; f; f &= f - 1){
-		_BitScanForward(&r, f);
+		psnip_intrin_BitScanForward(&r, f);
 		swap(sh[por_m + r], sh[raz_m - por + r]);
 	}
 	if(patt == 2){if(!sogl_43423(sh)) return false;}
@@ -128,7 +128,7 @@ bool unget_name(const string& name, shablon& sh, int patt, int flag){
 			if(f & (t << 5)) f |= t;
 			else f |= t << 5;
 		}
-		_BitScanForward(&r, ~f);
+		psnip_intrin_BitScanForward(&r, ~f);
 		sh[d + j] = (unsigned char)r;
 	}
 	for(int i = 0, d = raz_m - por - por_m, t, f = 0; i < por_m; i++){
@@ -302,7 +302,7 @@ void rabota(){
 		get_baz_kv();
 		vizit(super_kl);
 		for(unsigned long i = 1, r, t, b; i < (1u << (blocks.size() - por_m)); i++){
-			_BitScanForward(&r, i);
+			psnip_intrin_BitScanForward(&r, i);
 			t = blocks[b = r + por_m].tip;
 			for(int j = 0; j < blocks[b].size; j++) baz_kv[blocks[b].koord[j]] ^= t;
 			vizit(super_kl);

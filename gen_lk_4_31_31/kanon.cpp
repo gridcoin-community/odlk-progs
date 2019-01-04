@@ -41,25 +41,25 @@ void kanonizator::kanon(const kvadrat& lk, std::list<izomorfizm>& avtom, kvadrat
 int kanonizator::get_type(morfizm& per){
 	long ret = 0;
 	unsigned long r;
-	for(unsigned long i = 0, c, flag = 0x3ff; flag; _BitScanForward(&i, flag)){
-		_bittestandreset((long*)&flag, i);
+	for(unsigned long i = 0, c, flag = 0x3ff; flag; psnip_intrin_BitScanForward(&i, flag)){
+		bitreset((long*)&flag, i);
 		c = 1;
 		for(int j = per[i]; j != i; j = per[j]){
-			_bittestandreset((long*)&flag, j);
+			bitreset((long*)&flag, j);
 			c++;
 		}
-		if(c == 4) _bittestandset(&ret, 4 + _bittest(&ret, 4));
-		else _bittestandset(&ret, c);
+		if(c == 4) psnip_intrin_bittest(&ret, 4 + psnip_intrin_bittest(&ret, 4));
+		else bitset(&ret, c);
 	}
-	_BitScanReverse(&r, ret);
-	_bittestandreset(&ret, r);
+	psnip_intrin_BitScanReverse(&r, ret);
+	bitreset(&ret, r);
 	switch(r){
 		case 10: ret = 11; break;
 		case 8: ret = 6; break;
 		case 7: ret = 8; break;
-		case 6: _BitScanForward(&r, ret); ret = r == 2 ? 3 : 9; break;
-		case 5: if(ret){_BitScanReverse(&r, ret); ret = r == 3 ? 4 : 5;} else ret = 10; break;
-		case 4: _BitScanForward(&r, ret); ret = r == 2 ? 1 : 7; break;
+		case 6: psnip_intrin_BitScanForward(&r, ret); ret = r == 2 ? 3 : 9; break;
+		case 5: if(ret){psnip_intrin_BitScanReverse(&r, ret); ret = r == 3 ? 4 : 5;} else ret = 10; break;
+		case 4: psnip_intrin_BitScanForward(&r, ret); ret = r == 2 ? 1 : 7; break;
 		case 3: ret = 2; break;
 		case 2: ret = 0;
 	}
@@ -79,7 +79,7 @@ void kanonizator::get_invar(const kvadrat* sec_lk[], invariant& invar, sootv& no
 				for(int l = 0; l < por; l++) temp[l] = kras[(*sec_lk[k])[j * por + l]];
 				temp_1[c++] = (get_type(temp) << 4) | j;
 			}
-			sort(temp_1.begin(), temp_1.end());
+			std::sort(temp_1.begin(), temp_1.end());
 			for(int j = 0, t; j < por - 1; j++){
 				temp_1[j] = (t = temp_1[j]) >> 4;
 				nom.a[k][i][j] = t & 0xf;
@@ -188,11 +188,11 @@ void kanonizator::get_cikly(const kvadrat& lk, int perv, int vtor, int lin, morf
 	for(int i = 0; i < por; i++) per[i] = kras[lk[vtor * por + i]];
 	int count = ckl[lin];
 	f_ind index = ind[lin];
-	for(unsigned long i = 0, c, cc, flag = 0x3ff; flag; _BitScanForward(&i, flag)){
-		_bittestandreset((long*)&flag, i);
+	for(unsigned long i = 0, c, cc, flag = 0x3ff; flag; psnip_intrin_BitScanForward(&i, flag)){
+		bitreset((long*)&flag, i);
 		temp[(c = 0)++] = (unsigned char)i;
 		for(int j = per[i]; j != i; j = per[j]){
-			_bittestandreset((long*)&flag, j);
+			bitreset((long*)&flag, j);
 			temp[c++] = j;
 		}
 		cc = index(c, count);

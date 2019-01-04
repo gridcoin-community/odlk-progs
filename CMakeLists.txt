@@ -21,3 +21,5 @@ add_executable(gen_lk_4_31_31
   gen_lk_4_31_31/izomorfizm.cpp
   gen_lk_4_31_31/kanon.cpp
   gen_lk_4_31_31/kan_shab_4_31_31.cpp)
+
+target_include_directories(gen_lk_4_31_31 PRIVATE ".")
