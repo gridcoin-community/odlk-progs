@@ -1,0 +1,3 @@
+[submodule "psnip"]
+	path = psnip
+	url = https://github.com/nemequ/portable-snippets.git
