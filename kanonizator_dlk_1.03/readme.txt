@@ -1,3 +1,6 @@
+This is the "1.03" version of DLS canonizator. There are other versions
+on boinc.ru and mathhelpplanet.com forums.
+
 Программа канонизации ДЛК10.
 
 Для работы программы нужен файл hash_tabl.bin, поместите его в одну папку

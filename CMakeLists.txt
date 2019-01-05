@@ -23,3 +23,8 @@ add_executable(gen_lk_4_31_31
   gen_lk_4_31_31/kan_shab_4_31_31.cpp)
 
 target_include_directories(gen_lk_4_31_31 PRIVATE ".")
+
+# Add an executable
+add_executable(kanonizator_dlk_1.03
+  kanonizator_dlk_1.03/kanonizator.cpp
+  kanonizator_dlk_1.03/main_kanon.cpp)

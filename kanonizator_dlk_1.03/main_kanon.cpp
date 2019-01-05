@@ -35,6 +35,7 @@ inline int error_input(const char* text, const char* file, int ret){
 
 void rabota();
 void vyvod();
+int init();
 
 int main(int argc, char* argv[]){
 	setlocale(LC_CTYPE, "rus");
