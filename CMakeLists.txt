@@ -3,8 +3,18 @@ cmake_minimum_required(VERSION 3.5)
 # Set the project name
 project (odlk)
 
+#Set the exe suffix. Otherwise the binary will collide
+# with a directory of the same name.
 if("${CMAKE_EXECUTABLE_SUFFIX}" STREQUAL "")
 	set(CMAKE_EXECUTABLE_SUFFIX ".exe")
+endif()
+
+find_file( PSNIP_BUILTIN_H "psnip/builtin/builtin.h" PATHS "." NO_DEFAULT_PATH)
+if(NOT PSNIP_BUILTIN_H)
+    # How can I exit cmake with an error message if bzlib.h does not exists?
+    message( FATAL_ERROR "Library psnip not found. Please initialize git "
+      "submodules or download portable snipets into psnip/ directory from "
+      "https://github.com/nemequ/portable-snippets" )
 endif()
 
 # Add an executable
