@@ -1,0 +1,3 @@
+usr/bin/cmakefbc_deps
+usr/share/cmakefbc
+cmake/cmakefbc usr/bin

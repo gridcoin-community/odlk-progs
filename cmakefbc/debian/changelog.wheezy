@@ -1,0 +1,70 @@
+cmakefbc (1.0.0d) wheezy; urgency=low
+
+  * NMU new source
+  * fix: standard directory structure
+  * fix: redundant entries in Doxyfile removed
+  * fix: CMAKE_Fbc_COMPILER_WORKS in cache (CMakeTestFbc.cmake)
+  * fix: UseFbDoc call for sh in quotes
+  * fix: size problems @ upload (mini-dinstall)
+  * fix: PATTERN tags in UseFbDoc.cmake
+  * fix: path problems for Debian package builds.
+  * new: tool renamed fb-doc -> fbdoc
+  * new: file renamed UseFb-Doc.cmake -> UseFbDoc.cmake
+  * new: file renamed FindFb-Doc.cmake -> FindFbDoc.cmake
+  * new: help and version output for cmakefbc_deps tool
+  * new: path options for cmakefbc_deps tool (-h: headers, -i: src)
+  * new: output upload time doc_www in file UseFbDoc~doc_www~target~touch
+  * fix: no more (false) warnings on existant fbc headers in default path
+  * fix: target doc_www file renamed -> UseFbDoc~doc_www~target~touch
+
+ -- Thomas Freiherr <Thomas.Freiherr@gmx.net>  Wed, 12 Sep 2018 06:26:37 +0200
+
+cmakefbc (0.1.7) wheezy; urgency=low
+
+  * Implemented out-of source build with cmake.
+
+ -- Arend Lammertink <lamare@gmail.com>  Thu, 24 Nov 2016 13:42:50 +0000
+
+cmakefbc (0.1.6) wheezy; urgency=low
+
+  * Install cmake modules in /usr/share/cmakefbc
+  * Install general include file to /etc/fbc.cmake
+
+ -- Arend Lammertink <lamare@gmail.com>  Tue, 22 Nov 2016 15:11:01 +0000
+
+cmakefbc (0.1.5) wheezy; urgency=low
+
+  * Strict dependency on cmake did not work.
+
+ -- Arend Lammertink <lamare@gmail.com>  Mon, 21 Nov 2016 23:04:29 +0000
+
+cmakefbc (0.1.4) wheezy; urgency=low
+
+  * Separate package for html documentation.
+  * Binay package now dependent on the major.minor version of cmake.
+
+ -- Arend Lammertink <lamare@gmail.com>  Mon, 21 Nov 2016 22:34:13 +0000
+
+cmakefbc (0.1.3) wheezy; urgency=low
+
+  * Implemented build clean-up, included documentation.
+
+ -- Arend Lammertink <lamare@gmail.com>  Sun, 20 Nov 2016 16:35:26 +0000
+
+cmakefbc (0.1.2) wheezy; urgency=low
+
+  * rebuild for wheezy.
+
+ -- Arend Lammertink <lamare@gmail.com>  Tue, 27 Sep 2016 00:59:30 +0200
+
+cmakefbc (0.1.1) unstable; urgency=low
+
+  * rebuild with fb-doc installed from debian package
+
+ -- Arend Lammertink <lamare@gmail.com>  Thu, 22 Sep 2016 23:47:23 +0200
+
+cmakefbc (0.1) unstable; urgency=low
+
+  * Initial Release.
+
+ -- Arend Lammertink <lamare@gmail.com>  Wed, 13 Jul 2016 21:38:19 +0000
