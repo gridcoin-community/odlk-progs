@@ -38,18 +38,6 @@ void gen_output(void* arg, int* square)
 }
 
 
-int init(){
-	cout << "Загружена хеш-таблица\n";
-	clock_t t0 = clock();
-	ifstream fin(input_1, ios::binary);
-	if(!fin) return error_input("Нет файла ", input_1, 1);
-	fin.read((char*)kanonizator::hash_tabl, sizeof(kanonizator::hash_tabl));
-	fin.close();
-	clock_t t01 = clock();
-	cout << "Время загрузки: \t" << double(t01 - t0) / CLOCKS_PER_SEC << " сек\n";
-	return 0;
-}
-
 inline void out_kvadrat(ostream& out, const kvadrat& kv){
 	static const int raz_kvb = 212;
 	array<char,raz_kvb> tempk;
@@ -69,7 +57,6 @@ inline void out_kvadrat(ostream& out, const kvadrat& kv){
 }
 
 int main(int argc, char* argv[]){
-  init();
 
   int inputx[] = {4,  3,  7,  2,  1,  9,  5,  6};
   //int inputx[] = {1,  2,  3,  4,  5,  6,  7,  8};
@@ -111,4 +98,13 @@ int main(int argc, char* argv[]){
   cout << "Общее время работы: \t" << double(t31 - t00) / CLOCKS_PER_SEC << " сек\n";
   return 0;
 }
+
+/*
+  gen -apk -o output.txt 1 2 3 4 5 6 7 8
+  -a : associative
+  -p : pseudo-associative
+  -k : canonicial form
+  -m : mariazhnye
+  -t : threads
+*/
 

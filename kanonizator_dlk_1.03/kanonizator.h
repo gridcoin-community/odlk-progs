@@ -48,7 +48,7 @@ class kanonizator{
 	static const int ukaz[ch_klass];
 	static const int dop_trans[ch_klass2][por];
 
-	static int hash_tabl[raz_hash_tabl];
+	static const unsigned int hash_tabl[raz_hash_tabl];
 
 	friend int init();
 	static unsigned long hash_f(const morfizm& a);

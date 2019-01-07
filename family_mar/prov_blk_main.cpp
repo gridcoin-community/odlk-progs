@@ -26,11 +26,7 @@ inline void zapis(char ch, kvadrat& kv){
 }
 
 int init(){
-	ifstream fin(input_tabl, ios::binary);
-	if(!fin) return error_input("Нет файла ", input_tabl);
-	fin.read((char*)kanonizator::hash_tabl, sizeof(kanonizator::hash_tabl));
-	fin.close();
-	fin.open(input, ios::binary);
+	ifstream fin(input, ios::binary);
 	if(!fin) return error_input("Нет файла ", input);
 	kvadrat tempk;
 	const int raz_buf = 0x1000;

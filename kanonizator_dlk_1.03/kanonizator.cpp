@@ -1,8 +1,6 @@
 #include "kanonizator.h"
 #include "massivy.h"
 
-int kanonizator::hash_tabl[];
-
 unsigned long kanonizator::hash_f(const kanonizator::morfizm& a){
 	unsigned long besp = 0, temp, temp2, mod;
 	for(int i = 0, t; i < por; i++){

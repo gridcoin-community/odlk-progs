@@ -24,6 +24,7 @@ endif()
 
 add_executable(family_mar
   kanonizator_dlk_1.03/kanonizator.cpp
+  kanonizator_dlk_1.03/hash_tabl.cpp
   family_mar/prov_blk_main.cpp
   family_mar/prov_blk_trans.cpp)
 
@@ -44,6 +45,7 @@ target_include_directories(gen_lk_4_31_31 PRIVATE ".")
 
 add_executable(kanonizator_dlk_1.03
   kanonizator_dlk_1.03/kanonizator.cpp
+  kanonizator_dlk_1.03/hash_tabl.cpp
   kanonizator_dlk_1.03/main_kanon.cpp)
 
 # PADS Generators
@@ -54,6 +56,7 @@ add_executable(test1
   psevdoass/ASS_DLK10A.BAS
   psevdoass/PSEVDOASS_DLK_new.BAS
   kanonizator_dlk_1.03/kanonizator.cpp
+  kanonizator_dlk_1.03/hash_tabl.cpp
   psevdoass/test1.cpp)
 
 target_include_directories(test1 PRIVATE ".")

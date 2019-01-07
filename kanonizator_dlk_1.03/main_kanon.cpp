@@ -50,8 +50,6 @@ int main(int argc, char* argv[]){
 	clock_t t1 = clock();
 	if(yes){
 		cout << "Общее время работы: \t" << double(t1 - t0) / CLOCKS_PER_SEC << " сек\n\n";
-		cout << "Для выхода нажмите любую клавишу . . . ";
-		system("pause > nul");
 	}
 	return ret;
 }
@@ -67,15 +65,8 @@ inline void zapis(char ch, kvadrat& kv, int& count){
 }
 
 int init(){
-	clock_t t0 = clock();
-	ifstream fin(input_1, ios::binary);
-	if(!fin) return error_input("Нет файла ", input_1, 1);
-	fin.read((char*)kanonizator::hash_tabl, sizeof(kanonizator::hash_tabl));
 	clock_t t01 = clock();
-	cout << "Загружена хеш-таблица\n";
-	cout << "Время загрузки: \t" << double(t01 - t0) / CLOCKS_PER_SEC << " сек\n";
-	fin.close();
-	fin.open(input_2, ios::binary);
+	ifstream fin(input_2, ios::binary);
 	if(!fin) return error_input("Нет файла ", input_2, 2);
 	kvadrat tempk;
 	int count = 0;
