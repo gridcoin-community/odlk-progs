@@ -23,10 +23,11 @@ endif()
 # The family_mar program
 
 add_executable(family_mar
+  kanonizator_dlk_1.03/kanonizator.cpp
   family_mar/prov_blk_main.cpp
-  family_mar/kanonizator.cpp
   family_mar/prov_blk_trans.cpp)
 
+target_include_directories(family_mar PRIVATE ".")
 #target_compile_features(family_mar/family_mar PRIVATE cxx_std_11)
 
 # gen_lk_4_31_31

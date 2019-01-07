@@ -1,3 +1,4 @@
+#pragma once
 #include <array>
 
 const int por = 10;
@@ -95,6 +96,6 @@ class kanonizator{
 
 public:
 
-	static void kanon(kvadrat& dlk, kvadrat& kf);
+	static int kanon(kvadrat& dlk, kvadrat& kf);
 };
 

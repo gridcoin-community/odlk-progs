@@ -23,13 +23,15 @@ unsigned long kanonizator::hash_f(const kanonizator::morfizm& a){
 	return hash_tabl[++temp + ((besp ^ (besp >> temp2)) & mod)];
 }
 
-void kanonizator::kanon(kvadrat& dlk, kvadrat& kf){
+int kanonizator::kanon(kvadrat& dlk, kvadrat& kf){
 	normaliz(dlk);
 	morfizm perest;
 	for(int i = 0, j = por - 1; i < por; j += por - 1, i++) perest[i] = dlk[j];
 	int izo = hash_f(perest);
 	preobraz(dlk, kf, izo);
-	perebor(kf, izo >> 22);
+	int lin = izo >> 22;
+	perebor(kf, lin);
+	return lin;
 }
 
 void kanonizator::perebor(kvadrat& kf, int klass){

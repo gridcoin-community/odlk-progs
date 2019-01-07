@@ -1,4 +1,4 @@
-#include "kanonizator.h"
+#include "prov_blk_trans.h"
 
 	trans_dlx::data* trans_dlx::O[];
 	trans_dlx::data trans_dlx::heads[];

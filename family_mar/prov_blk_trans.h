@@ -81,7 +81,7 @@ class trans_dlx{
 	static void poisk_simm(const kvadrat& lk, const vector<transver>& tr, int flag);
 	static void poisk_simm_dlx(const kvadrat& lk, const vector<transver>& tr, int flag);
 	static void init_mar();
-	friend bool init();
+	friend int init();
 
 	trans_dlx(){}
 

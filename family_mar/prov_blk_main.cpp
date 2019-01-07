@@ -1,4 +1,5 @@
-#include "kanonizator.h"
+#include "prov_blk_trans.h"
+
 
 list<kvadrat> baza_lk;
 list<transver> d_trans;
@@ -13,24 +14,6 @@ inline bool error_input(const char* text, const char* file){
 	return false;
 }
 
-inline bool is_lk(const kvadrat& kv){
-	for(int i = 0, flag; i < raz; i += por){
-		flag = 0;
-		for(int j = 0, t; j < por; j++){
-			if(flag & (t = 1 << kv[i + j])) return false;
-			flag |= t;
-		}
-	}
-	for(int i = 0, flag; i < por; i++){
-		flag = 0;
-		for(int j = 0, t; j < raz; j += por){
-			if(flag & (t = 1 << kv[i + j])) return false;
-			flag |= t;
-		}
-	}
-	return true;
-}
-
 inline void zapis(char ch, kvadrat& kv){
 	static int count;
 	if(ch >= '0' && ch <= '9'){
@@ -42,7 +25,7 @@ inline void zapis(char ch, kvadrat& kv){
 	}
 }
 
-bool init(){
+int init(){
 	ifstream fin(input_tabl, ios::binary);
 	if(!fin) return error_input("Нет файла ", input_tabl);
 	fin.read((char*)kanonizator::hash_tabl, sizeof(kanonizator::hash_tabl));
