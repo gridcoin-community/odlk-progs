@@ -104,9 +104,22 @@ int main(int argc, char* argv[]){
 	if(init()){
 		cerr << "Введено ЛК: " << baza_lk.size() << endl;
 		clock_t t0 = clock();
+		clock_t t1;
+		unsigned c1 = 0;
 
-		for(auto q = baza_lk.begin(); q != baza_lk.end(); q++)
+		for(auto q = baza_lk.begin(); q != baza_lk.end(); q++){
 			rabota(*q);
+
+			if(c1<=64){
+				if(c1==4) t1 = clock();
+				if(c1==64){
+					long s = double (clock() - t1) / CLOCKS_PER_SEC / 60 * (baza_lk.size()-64);
+					long h = s / 3600; float m = (s%3600)/60.0;
+					cerr << "ETA: " << h << "h " << m << "m " << endl;
+				}
+				c1++;
+			}
+		}
 
 		cerr << "Проверено ДЛК: " << count_dlk << endl;
 		cerr << "Время работы в сек: " << double(clock() - t0) / CLOCKS_PER_SEC << endl;
