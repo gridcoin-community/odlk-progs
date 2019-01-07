@@ -62,8 +62,8 @@ const char help_text[] =
 " -a : use ASS_DLK10A generator\n"
 " -b : use PSEVDOASS_DLK_NEW generator\n"
 " -k : find canonicial form\n"
-" output : file to write results to"
-" X1-8   : generator parameters"
+" output : file to write results to\n"
+" X1-8   : generator parameters\n"
 /*
 	-m : mariazhnye
 	-t : threads
