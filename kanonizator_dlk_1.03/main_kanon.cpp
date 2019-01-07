@@ -10,7 +10,6 @@ using namespace std;
 typedef list<kvadrat>::iterator iter_dlk;
 typedef set<kvadrat>::iterator iter_kf;
 
-const char* const input_1 = "hash_tabl.bin";
 const char* input_2 = "input.txt";
 const char* output = "output.txt";
 

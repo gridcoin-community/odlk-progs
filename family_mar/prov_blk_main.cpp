@@ -6,7 +6,7 @@ list<transver> d_trans;
 vector<transver> trans[ch_srez];
 list<pair<kvadrat, pair<transver, transver>>> kf_trans[ch_srez];
 set<kvadrat> baza_kf, baza_mar;
-const char* input, *input_tabl = "hash_tabl.bin";
+const char* input;
 int cnt_trans, count_dlk;
 
 inline bool error_input(const char* text, const char* file){
@@ -27,13 +27,13 @@ inline void zapis(char ch, kvadrat& kv){
 
 int init(){
 	ifstream fin(input, ios::binary);
-	if(!fin) return error_input("Нет файла ", input);
+	if(!fin) return error_input("File not Found ", input);
 	kvadrat tempk;
 	const int raz_buf = 0x1000;
 	char bufer[raz_buf];
 	while(fin.read(bufer, raz_buf)) for(int i = 0; i < raz_buf; i++) zapis(bufer[i], tempk);
 	if(fin.eof()) for(int i = 0; i < fin.gcount(); i++) zapis(bufer[i], tempk);
-	if(baza_lk.empty()) return error_input("Нет ЛК в файле ", input);
+	if(baza_lk.empty()) return error_input("No LS in file ", input);
 	for(int i = 0; i < ch_srez; i++) trans[i].reserve(max_trans);
 	trans_dlx::nodes.resize(trans_dlx::max_nodes);
 	return true;
@@ -90,15 +90,27 @@ inline void out_kvadrat(ostream& out, const kvadrat& kv){
 }
 
 
+const char help_text[] =
+"Search for Fancy Diagonal Latin Squares.\n"
+"family_mar.exe input output\n"
+" input : file to read Latin Squares from\n"
+" output: file to write Fancy Diagonal Latin Squares to\n"
+;
+
 int main(int argc, char* argv[]){
 	setlocale(LC_CTYPE, "rus");
 	cerr << "Поиск марьяжных ДЛК (кроме симметричных) для семейства ЛК" << endl;
+
+	if(argc!=3){
+		cerr << "Expected 2 arguments" << endl << help_text;
+		return 2;
+	}
 
 	input = argv[1];
 	string output = argv[2];
 
 	if(init()){
-		cerr << "Введено ЛК: " << baza_lk.size() << endl;
+		cerr << "Have LS: " << baza_lk.size() << endl;
 		clock_t t0 = clock();
 		clock_t t1;
 		unsigned c1 = 0;
@@ -117,9 +129,9 @@ int main(int argc, char* argv[]){
 			}
 		}
 
-		cerr << "Проверено ДЛК: " << count_dlk << endl;
-		cerr << "Время работы в сек: " << double(clock() - t0) / CLOCKS_PER_SEC << endl;
-		cerr << "Найдено марьяжных ДЛК: " << baza_mar.size() << endl;
+		cerr << "Checked DLK: " << count_dlk << endl;
+		cerr << "Run Time (s): " << double(clock() - t0) / CLOCKS_PER_SEC << endl;
+		cerr << "Found Fancy DLS: " << baza_mar.size() << endl;
 
 		ofstream fout(output, ios::binary);
 		for(auto q = baza_mar.begin(); q != baza_mar.end(); q++)
