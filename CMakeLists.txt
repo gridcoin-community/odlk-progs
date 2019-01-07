@@ -50,13 +50,14 @@ add_executable(kanonizator_dlk_1.03
 
 # PADS Generators
 
-SET(CMAKE_Fbc_FLAGS "${CMAKE_Fbc_FLAGS} -lang deprecated -g")
+SET(CMAKE_Fbc_FLAGS "${CMAKE_Fbc_FLAGS} -lang deprecated")
+SET(CMAKE_Fbc_FLAGS_DEBUG "${CMAKE_Fbc_FLAGS} -lang deprecated -g")
 
-add_executable(test1
+add_executable(psevdoass
   psevdoass/ASS_DLK10A.BAS
   psevdoass/PSEVDOASS_DLK_new.BAS
   kanonizator_dlk_1.03/kanonizator.cpp
   kanonizator_dlk_1.03/hash_tabl.cpp
-  psevdoass/test1.cpp)
+  psevdoass/psevdoass.cpp)
 
-target_include_directories(test1 PRIVATE ".")
+target_include_directories(psevdoass PRIVATE ".")
