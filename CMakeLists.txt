@@ -65,6 +65,11 @@ add_executable(psevdoass
   psevdoass/PSEVDOASS_DLK_new.BAS
   kanonizator_dlk_1.03/kanonizator.cpp
   kanonizator_dlk_1.03/hash_tabl.cpp
+  family_mar/prov_blk_trans.cpp
   psevdoass/psevdoass.cpp)
 
 target_include_directories(psevdoass PRIVATE ".")
+# Paralelism
+target_compile_features(psevdoass PRIVATE cxx_std_11)
+target_compile_definitions(psevdoass PRIVATE USE_THREADS)
+target_link_libraries(psevdoass ${CMAKE_THREAD_LIBS_INIT})
