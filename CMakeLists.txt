@@ -5,6 +5,9 @@ LIST(APPEND CMAKE_MODULE_PATH cmakefbc/cmake/Modules)
 # Set the project name
 project (odlk C CXX Fbc)
 
+# Paralelism
+find_package( Threads )
+
 #Set the exe suffix. Otherwise the binary will collide
 # with a directory of the same name.
 if("${CMAKE_EXECUTABLE_SUFFIX}" STREQUAL "")
@@ -29,8 +32,11 @@ add_executable(family_mar
   family_mar/prov_blk_trans.cpp)
 
 target_include_directories(family_mar PRIVATE ".")
-target_link_libraries(family_mar pthread)
-#target_compile_features(family_mar/family_mar PRIVATE cxx_std_11)
+
+# Paralelism
+target_compile_features(family_mar PRIVATE cxx_std_11)
+target_compile_definitions(family_mar PRIVATE USE_THREADS)
+target_link_libraries(family_mar ${CMAKE_THREAD_LIBS_INIT})
 
 # gen_lk_4_31_31
 

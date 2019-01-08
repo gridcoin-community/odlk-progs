@@ -1,14 +1,18 @@
 #include "prov_blk_trans.h"
-#include <thread>
 #include <cassert>
+#ifdef USE_THREADS
+#include <thread>
 #include <mutex>
+#endif
 
 
 vector<kvadrat> baza_lk;
 set<kvadrat> baza_mar;
 const char* input;
 long long count_dlk;
+#ifdef USE_THREADS
 mutex cs_main;
+#endif
 
 inline bool error_input(const char* text, const char* file){
 	cerr << text << file << endl;
@@ -62,11 +66,15 @@ void kusok_raboty(vector<kvadrat>::iterator lki, vector<kvadrat>::iterator lkend
 			}
 		}
 	}
+	#ifdef USE_THREADS
 	cs_main.lock();
+	#endif
 	//cout<<"batch finish, dlk "<<l_count<<endl;
 	copy(l_mar.begin(),l_mar.end(),inserter(baza_mar,baza_mar.begin()));
 	count_dlk += l_count;
+	#ifdef USE_THREADS
 	cs_main.unlock();
+	#endif
 }
 
 inline void out_kvadrat(ostream& out, const kvadrat& kv){
@@ -89,7 +97,7 @@ inline void out_kvadrat(ostream& out, const kvadrat& kv){
 
 
 const char help_text[] =
-"Search for Fancy Diagonal Latin Squares.\n"
+"Search for Fancy by Family Diagonal Latin Squares (not symmetric).\n"
 "family_mar.exe input output\n"
 " input : file to read Latin Squares from\n"
 " output: file to write Fancy Diagonal Latin Squares to\n"
@@ -113,27 +121,31 @@ int main(int argc, char* argv[]){
 		time_t rt0 = time(0);
 		clock_t t1;
 		time_t rt1;
-		unsigned c1 = 0;
 
+		#ifdef USE_THREADS
+    vector<kvadrat>::iterator baza_lk_i = baza_lk.begin();
 		unsigned nb_threads = std::thread::hardware_concurrency();
 		if(!nb_threads) nb_threads = 8;
 		cerr << "nb_threads: "<<nb_threads<<endl;
 		unsigned batch_size = baza_lk.size() / nb_threads;
 		unsigned batch_reminder = baza_lk.size() % nb_threads;
+    std::vector< std::thread > my_threads(nb_threads-1);
 
-    std::vector< std::thread > my_threads(nb_threads);
-    vector<kvadrat>::iterator baza_lk_i = baza_lk.begin();
-
-		for(unsigned thi = 0; thi < nb_threads; ++thi)
+		for(unsigned thi = 0; thi < nb_threads-1; ++thi)
 		{
-			unsigned batch = thi ? batch_size : batch_size+batch_reminder;
-			my_threads[thi] = std::thread( &kusok_raboty, baza_lk_i, baza_lk_i+batch );
-			baza_lk_i+=batch;
+			my_threads[thi] = std::thread( &kusok_raboty, baza_lk_i, baza_lk_i+batch_size );
+			baza_lk_i+=batch_size;
 		}
+
+		kusok_raboty(baza_lk_i, baza_lk_i+batch_size+batch_reminder );
+		baza_lk_i+=batch_size+batch_reminder;
 
 		for( auto& th : my_threads)
 			th.join();
 		assert(baza_lk_i==baza_lk.end());
+		#else
+		kusok_raboty(baza_lk.begin(), baza_lk.end() );
+		#endif
 
 		cerr << "Checked DLK: " << count_dlk << endl;
 		cerr << "Run Time (s): " << double(clock() - t0) / CLOCKS_PER_SEC << endl;
