@@ -12,4 +12,7 @@ copyright Belyshev. Also known as "whitefox" on boinc.ru and mathhelpplanet.com 
 
 Commits by Tomáš Brada <tomasbrod@azet.sk> are under MIT license.
 
+BASIC files in psevdoass/ are copyright Natalia Makarova. But the main algorithm
+body is not been published. You need to contact the author to get them.
+
 The program is distributed with the condition of AS IS.
