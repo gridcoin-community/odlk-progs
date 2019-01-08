@@ -1,6 +1,6 @@
 #include "prov_blk.h"
 
-class trans_dlx{
+class Trans_DLx{
 	static const int ch_cols = 3 * por + 1;
 	static const int ch_cols_simm = 4 * por + 1;
 	static const int max_cols = raz + 1;
@@ -18,11 +18,14 @@ class trans_dlx{
 		};
 	};
 
-	static data* O[por];
-	static data heads[max_cols];
-	static vector<data> nodes;
+	data* O[por];
+	data heads[max_cols];
+	vector<data> nodes;
 
-	static data* choose_column(){
+	list<transver> d_trans;
+	//array<vector<transver>,ch_srez> trans;
+
+	data* choose_column(){
 		data* c = heads->right;
 		int s = c->size, ss;
 		if(!s) return 0;
@@ -33,7 +36,7 @@ class trans_dlx{
 		return c;
 	}
 
-	static void cover_column(data* p){
+	void cover_column(data* p){
 		p->right->left = p->left;
 		p->left->right = p->right;
 		for(data* i = p->down; i != p; i = i->down){
@@ -45,7 +48,7 @@ class trans_dlx{
 		}
 	}
 
-	static void uncover_column(data* p){
+	void uncover_column(data* p){
 		for(data* i = p->up; i != p; i = i ->up){
 			for(data* j = i->left; j != i; j = j->left){
 				(heads + (j->column & 0x7f))->size++;
@@ -76,18 +79,24 @@ class trans_dlx{
 		for(int i = 0; i < por; i++) for(int j = 0; j < por; j++) dlk[i * por + j] = lk[rows[i] * por + cols[j]];
 	}
 
-	static void init_trans(const kvadrat& lk);
-	static bool init_simm(const kvadrat& lk, const transver& tr);
-	static void poisk_simm(const kvadrat& lk, const vector<transver>& tr, int flag);
-	static void poisk_simm_dlx(const kvadrat& lk, const vector<transver>& tr, int flag);
-	static void init_mar();
-	friend int init();
-
-	trans_dlx(){}
+	void init_trans(const kvadrat& lk);
+	bool init_simm(const kvadrat& lk, const transver& tr);
+	void poisk_simm(const kvadrat& lk, const vector<transver>& tr, int flag);
+	void poisk_simm_dlx(const kvadrat& lk, const vector<transver>& tr, int flag);
+	void init_mar();
 
 public:
 
-	static void search_trans(const kvadrat& lk);
-	static void search_symm_trans(const kvadrat* srez[]);
-	static bool is_mar();
+array<vector<transver>,ch_srez> trans;
+int cnt_trans;
+array<list<pair<kvadrat, pair<transver, transver>>>,ch_srez> kf_trans;
+set<kvadrat> baza_kf;
+
+
+	Trans_DLx(){}
+
+	void search_trans(const kvadrat& lk);
+	void search_symm_trans(const kvadrat* srez[]);
+	void find_d_trans(const pair<transver, transver>& simm_tr, const vector<transver>& tr);
+	bool is_mar();
 };

@@ -1,13 +1,14 @@
 #include "prov_blk_trans.h"
+#include <thread>
+#include <cassert>
+#include <mutex>
 
 
-list<kvadrat> baza_lk;
-list<transver> d_trans;
-vector<transver> trans[ch_srez];
-list<pair<kvadrat, pair<transver, transver>>> kf_trans[ch_srez];
-set<kvadrat> baza_kf, baza_mar;
+vector<kvadrat> baza_lk;
+set<kvadrat> baza_mar;
 const char* input;
-int cnt_trans, count_dlk;
+long long count_dlk;
+mutex cs_main;
 
 inline bool error_input(const char* text, const char* file){
 	cerr << text << file << endl;
@@ -34,41 +35,38 @@ int init(){
 	while(fin.read(bufer, raz_buf)) for(int i = 0; i < raz_buf; i++) zapis(bufer[i], tempk);
 	if(fin.eof()) for(int i = 0; i < fin.gcount(); i++) zapis(bufer[i], tempk);
 	if(baza_lk.empty()) return error_input("No LS in file ", input);
-	for(int i = 0; i < ch_srez; i++) trans[i].reserve(max_trans);
-	trans_dlx::nodes.resize(trans_dlx::max_nodes);
+	//TODO for(int i = 0; i < ch_srez; i++) trans[i].reserve(max_trans); may increase speed
 	return true;
 }
 
-void find_d_trans(const pair<transver, transver>& simm_tr, const vector<transver>& tr){
-	d_trans.clear();
-	for(int i = 0, c1, c2; i < cnt_trans; i++){
-		c1 = c2 = 0;
-		for(int j = 0, t; j < por; j++){
-			if((t = tr[i][j]) == simm_tr.first[j]) c1++;
-			if(c1 > 1) goto next;
-			if(t == simm_tr.second[j]) c2++;
-			if(c2 > 1) goto next;
-		}
-		if(c1 == 1 && c2 == 1) d_trans.push_back(tr[i]);
-		next:;
-	}
-}
-
-void rabota(const kvadrat& lk){
-	trans_dlx::search_trans(lk);
-	if((cnt_trans = trans[0].size()) <= 1) return;
-	kvadrat tempk[ch_srez - 1];
-	const kvadrat* srez[ch_srez] = {&lk, &tempk[0], &tempk[1]};
-	for(int i = 0; i < raz; i += por) for(int j = 0; j < por; j++) tempk[0][i + lk[i + j]] = j;
-	for(int j = 0; j < por; j++) for(int i = 0; i < por; i++) tempk[1][lk[i * por + j] * por + j] = i;
-	trans_dlx::search_symm_trans(srez);
-	for(int i = 0; i < ch_srez; i++){
-		count_dlk += kf_trans[i].size();
-		for(auto q = kf_trans[i].begin(); q != kf_trans[i].end(); q++){
-			find_d_trans(q->second, trans[i]);
-			if(trans_dlx::is_mar()) baza_mar.insert(q->first);
+void kusok_raboty(vector<kvadrat>::iterator lki, vector<kvadrat>::iterator lkend){
+	Trans_DLx trans_dlx{};
+	list<kvadrat> l_mar{};
+	long long l_count{0};
+	for(; lki!=lkend; lki++) {
+		kvadrat& lk = * lki;
+		trans_dlx.search_trans(lk);
+		if(trans_dlx.cnt_trans <= 1) return;
+		kvadrat tempk[ch_srez - 1];
+		const kvadrat* srez[ch_srez] = {&lk, &tempk[0], &tempk[1]};
+		for(int i = 0; i < raz; i += por) for(int j = 0; j < por; j++) tempk[0][i + lk[i + j]] = j;
+		for(int j = 0; j < por; j++) for(int i = 0; i < por; i++) tempk[1][lk[i * por + j] * por + j] = i;
+		trans_dlx.search_symm_trans(srez);
+		for(int i = 0; i < ch_srez; i++){
+			l_count += trans_dlx.kf_trans[i].size();
+			for(auto q = trans_dlx.kf_trans[i].begin(); q != trans_dlx.kf_trans[i].end(); q++){
+				trans_dlx.find_d_trans(q->second, trans_dlx.trans[i]);
+				if(trans_dlx.is_mar()){
+					l_mar.push_back(q->first);
+				}
+			}
 		}
 	}
+	cs_main.lock();
+	//cout<<"batch finish, dlk "<<l_count<<endl;
+	copy(l_mar.begin(),l_mar.end(),inserter(baza_mar,baza_mar.begin()));
+	count_dlk += l_count;
+	cs_main.unlock();
 }
 
 inline void out_kvadrat(ostream& out, const kvadrat& kv){
@@ -112,25 +110,34 @@ int main(int argc, char* argv[]){
 	if(init()){
 		cerr << "Have LS: " << baza_lk.size() << endl;
 		clock_t t0 = clock();
+		time_t rt0 = time(0);
 		clock_t t1;
+		time_t rt1;
 		unsigned c1 = 0;
 
-		for(auto q = baza_lk.begin(); q != baza_lk.end(); q++){
-			rabota(*q);
+		unsigned nb_threads = std::thread::hardware_concurrency();
+		if(!nb_threads) nb_threads = 8;
+		cerr << "nb_threads: "<<nb_threads<<endl;
+		unsigned batch_size = baza_lk.size() / nb_threads;
+		unsigned batch_reminder = baza_lk.size() % nb_threads;
 
-			if(c1<=64){
-				if(c1==4) t1 = clock();
-				if(c1==64){
-					long s = double (clock() - t1) / CLOCKS_PER_SEC / 60 * (baza_lk.size()-64);
-					long h = s / 3600; float m = (s%3600)/60.0;
-					cerr << "ETA: " << h << "h " << m << "m " << endl;
-				}
-				c1++;
-			}
+    std::vector< std::thread > my_threads(nb_threads);
+    vector<kvadrat>::iterator baza_lk_i = baza_lk.begin();
+
+		for(unsigned thi = 0; thi < nb_threads; ++thi)
+		{
+			unsigned batch = thi ? batch_size : batch_size+batch_reminder;
+			my_threads[thi] = std::thread( &kusok_raboty, baza_lk_i, baza_lk_i+batch );
+			baza_lk_i+=batch;
 		}
+
+		for( auto& th : my_threads)
+			th.join();
+		assert(baza_lk_i==baza_lk.end());
 
 		cerr << "Checked DLK: " << count_dlk << endl;
 		cerr << "Run Time (s): " << double(clock() - t0) / CLOCKS_PER_SEC << endl;
+		cerr << "Real Run Time (s): " << (time(0) - rt0) << endl;
 		cerr << "Found Fancy DLS: " << baza_mar.size() << endl;
 
 		ofstream fout(output, ios::binary);

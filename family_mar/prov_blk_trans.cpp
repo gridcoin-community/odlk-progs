@@ -1,10 +1,6 @@
 #include "prov_blk_trans.h"
 
-	trans_dlx::data* trans_dlx::O[];
-	trans_dlx::data trans_dlx::heads[];
-	vector<trans_dlx::data> trans_dlx::nodes;
-
-void trans_dlx::search_trans(const kvadrat& lk){
+void Trans_DLx::search_trans(const kvadrat& lk){
 	for(int i = 0; i < ch_srez; i++) trans[i].clear();
 	init_trans(lk);
 	transver tempt[ch_srez];
@@ -33,6 +29,7 @@ advance:
 backup:
 	uncover_column(c);
 backtrack:
+	cnt_trans = trans[0].size();
 	if(l == 0) return;
 	r = O[--l];
 	c = heads + (r->column & 0x7f);
@@ -42,7 +39,8 @@ recover:
 	goto advance;
 }
 
-void trans_dlx::init_trans(const kvadrat& lk){
+void Trans_DLx::init_trans(const kvadrat& lk){
+	if(nodes.size()<max_nodes) nodes.resize(max_nodes);
 	for(int i = 0; i < ch_cols; i++){
 		heads[i].right = heads + i + 1;
 		heads[i].left = heads + i - 1;
@@ -71,7 +69,7 @@ void trans_dlx::init_trans(const kvadrat& lk){
 	}
 }
 
-void trans_dlx::poisk_simm(const kvadrat& lk, const vector<transver>& tr, int srez){
+void Trans_DLx::poisk_simm(const kvadrat& lk, const vector<transver>& tr, int srez){
 	int rows[por], cols[por], lin;
 	bool flag = srez != 0;
 	kvadrat dlk, kf;
@@ -103,7 +101,7 @@ void trans_dlx::poisk_simm(const kvadrat& lk, const vector<transver>& tr, int sr
 	}
 }
 
-void trans_dlx::poisk_simm_dlx(const kvadrat& lk, const vector<transver>& tr, int srez){
+void Trans_DLx::poisk_simm_dlx(const kvadrat& lk, const vector<transver>& tr, int srez){
 
 	// Здесь баг
 
@@ -160,7 +158,7 @@ recover:
 	}
 }
 
-bool trans_dlx::init_simm(const kvadrat& lk, const transver& tr){
+bool Trans_DLx::init_simm(const kvadrat& lk, const transver& tr){
 	for(int i = 0; i < ch_cols_simm; i++){
 		heads[i].down = heads[i].up = heads + i;
 		heads[i].size = 0;
@@ -228,7 +226,7 @@ bool trans_dlx::init_simm(const kvadrat& lk, const transver& tr){
 	return !((rb & cb & v1b & v2b) ^ 0x3ff);
 }
 
-void trans_dlx::search_symm_trans(const kvadrat* srez[]){
+void Trans_DLx::search_symm_trans(const kvadrat* srez[]){
 	baza_kf.clear();
 	for(int i = 0; i < ch_srez; i++) kf_trans[i].clear();
 	for(int i = 0; i < ch_srez; i++){
@@ -237,7 +235,7 @@ void trans_dlx::search_symm_trans(const kvadrat* srez[]){
 	}
 }
 
-bool trans_dlx::is_mar(){
+bool Trans_DLx::is_mar(){
 	init_mar();
 	data* c;
 	data* r;
@@ -263,7 +261,7 @@ backtrack:
 	goto advance;
 }
 
-void trans_dlx::init_mar(){
+void Trans_DLx::init_mar(){
 	if(d_trans.size() > max_trans){
 		nodes.clear();
 		nodes.resize(d_trans.size() * por);
@@ -290,5 +288,20 @@ void trans_dlx::init_mar(){
 		nodes[count].left += por;
 		nodes[count + por - 1].right -= por;
 		count += por;
+	}
+}
+
+void Trans_DLx::find_d_trans(const pair<transver, transver>& simm_tr, const vector<transver>& tr){
+	d_trans.clear();
+	for(int i = 0, c1, c2; i < cnt_trans; i++){
+		c1 = c2 = 0;
+		for(int j = 0, t; j < por; j++){
+			if((t = tr[i][j]) == simm_tr.first[j]) c1++;
+			if(c1 > 1) goto next;
+			if(t == simm_tr.second[j]) c2++;
+			if(c2 > 1) goto next;
+		}
+		if(c1 == 1 && c2 == 1) d_trans.push_back(tr[i]);
+		next:;
 	}
 }

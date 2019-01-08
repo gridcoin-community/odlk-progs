@@ -29,6 +29,7 @@ add_executable(family_mar
   family_mar/prov_blk_trans.cpp)
 
 target_include_directories(family_mar PRIVATE ".")
+target_link_libraries(family_mar pthread)
 #target_compile_features(family_mar/family_mar PRIVATE cxx_std_11)
 
 # gen_lk_4_31_31
