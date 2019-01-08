@@ -231,12 +231,12 @@ int main( int argc, char* argv[] )
 	clock_t t30 = clock();
 	ofstream fout(output_name, ios::binary);
 
-	if(f_kanon){
-		for(iter_kf q = baza_kf.begin(); q != baza_kf.end(); q++) out_kvadrat(fout, *q);
-		cout << "CF DLS written to: \t" << output_name << endl;
-	} else if(f_mar) {
+	if(f_mar) {
 		for(iter_kf q = baza_mar.begin(); q != baza_mar.end(); q++) out_kvadrat(fout, *q);
 		cout << "Fancy DLS written to: \t" << output_name << endl;
+	} else if(f_kanon){
+		for(iter_kf q = baza_kf.begin(); q != baza_kf.end(); q++) out_kvadrat(fout, *q);
+		cout << "CF DLS written to: \t" << output_name << endl;
 	} else {
 		for(auto q = baza_dlk.begin(); q != baza_dlk.end(); q++) out_kvadrat(fout, *q);
 		cout << "DLK written to: \t" << output_name << endl;
