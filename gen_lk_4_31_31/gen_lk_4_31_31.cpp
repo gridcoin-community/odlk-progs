@@ -329,18 +329,18 @@ void out_kvadrat(ostream& out, const kvadrat& kv){
 
 int main(int argc, char* argv[]){
 	setlocale(LC_CTYPE, "rus");
-	cout << "Генератор ЛК с симметрией (4,31,31)\n\n";
-	if(argc < 2){cerr << "Нужен аргумент\n\n"; return 1;}
+	cout << "Generator of Latain Squares with (4,31,31) symmetry\n\n";
+	if(argc < 2){cerr << "Missing command line argument\n\n"; return 1;}
 	string name(argv[1]);
-	if(!is_correct(name)){cerr << "Некорректное имя семейства\n\n"; return 2;}
+	if(!is_correct(name)){cerr << "Incorrect family name\n\n"; return 2;}
 	for(int i = 0; i < ch_kl; i++) nom_strukt.insert(make_pair(string(strukt[i]), i));
-	cout << "Семейство " << name;
+	cout << "Family: " << name;
 	rabota();
-	if(baza.empty()){cout << " не содержит ЛК\n\n"; return 0;}
-	else cout << " содержит " << baza.size() << " ЛК\n";
+	if(baza.empty()){cout << " has no Latin Squares\n\n"; return 0;}
+	else cout << " has " << baza.size() << " Latin Squares\n";
 	ostringstream sout;
 	sout << "family_4_31_31_" << name << '_' << baza.size() << ".txt";
 	ofstream fout(sout.str(), ios::binary);
 	for(auto q = baza.begin(); q != baza.end(); q++) out_kvadrat(fout, *q);
-	cout << "Они записаны в файл " << sout.str() << endl << endl;
+	cout << "written to file " << sout.str() << endl << endl;
 }
