@@ -39,20 +39,20 @@ void kanonizator::kanon(const kvadrat& lk, std::list<izomorfizm>& avtom, kvadrat
 }
 
 int kanonizator::get_type(morfizm& per){
-	long ret = 0;
+	unsigned long ret = 0;
 	unsigned long r;
 	for(unsigned long i = 0, c, flag = 0x3ff; flag; psnip_intrin_BitScanForward(&i, flag)){
-		bitreset((long*)&flag, i);
+		bit_reset(&flag, i);
 		c = 1;
 		for(int j = per[i]; j != i; j = per[j]){
-			bitreset((long*)&flag, j);
+			bit_reset(&flag, j);
 			c++;
 		}
-		if(c == 4) psnip_intrin_bittest(&ret, 4 + psnip_intrin_bittest(&ret, 4));
-		else bitset(&ret, c);
+		if(c == 4) bit_set(&ret, 4 + psnip_intrin_bittest(&ret, 4));
+		else bit_set(&ret, c);
 	}
 	psnip_intrin_BitScanReverse(&r, ret);
-	bitreset(&ret, r);
+	bit_reset(&ret, r);
 	switch(r){
 		case 10: ret = 11; break;
 		case 8: ret = 6; break;
@@ -189,10 +189,10 @@ void kanonizator::get_cikly(const kvadrat& lk, int perv, int vtor, int lin, morf
 	int count = ckl[lin];
 	f_ind index = ind[lin];
 	for(unsigned long i = 0, c, cc, flag = 0x3ff; flag; psnip_intrin_BitScanForward(&i, flag)){
-		bitreset((long*)&flag, i);
+		bit_reset(&flag, i);
 		temp[(c = 0)++] = (unsigned char)i;
 		for(int j = per[i]; j != i; j = per[j]){
-			bitreset((long*)&flag, j);
+			bit_reset(&flag, j);
 			temp[c++] = j;
 		}
 		cc = index(c, count);

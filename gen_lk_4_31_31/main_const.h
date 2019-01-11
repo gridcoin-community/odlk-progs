@@ -27,12 +27,12 @@ inline std::ostream& operator<<(std::ostream& out, const shablon& sh){
 	return out;
 }
 
-static inline void bitset( long *a, long b )
+static inline void bit_set( unsigned long *a, unsigned long b )
 {
-	*a |= ((unsigned long) 1) << b;
+       *a |= ((unsigned long) 1) << b;
 }
 
-static inline void bitreset( long *a, long b )
+static inline void bit_reset( unsigned long *a, unsigned long b )
 {
-	*a &= ~(((unsigned long) 1) << b);
+       *a &= ~(((unsigned long) 1) << b);
 }
