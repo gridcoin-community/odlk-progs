@@ -339,7 +339,7 @@ int main(int argc, char* argv[]){
 	if(baza.empty()){cout << " has no Latin Squares\n\n"; return 0;}
 	else cout << " has " << baza.size() << " Latin Squares\n";
 	ostringstream sout;
-	sout << "family_4_31_31_" << name << '_' << baza.size() << ".txt";
+	sout << "family_4_31_31_" << name << ".txt";
 	ofstream fout(sout.str(), ios::binary);
 	for(auto q = baza.begin(); q != baza.end(); q++) out_kvadrat(fout, *q);
 	cout << "written to file " << sout.str() << endl << endl;
