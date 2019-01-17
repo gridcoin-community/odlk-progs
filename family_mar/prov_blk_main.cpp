@@ -50,7 +50,7 @@ void kusok_raboty(vector<kvadrat>::iterator lki, vector<kvadrat>::iterator lkend
 	for(; lki!=lkend; lki++) {
 		kvadrat& lk = * lki;
 		trans_dlx.search_trans(lk);
-		if(trans_dlx.cnt_trans <= 1) return;
+		if(trans_dlx.cnt_trans <= 1) continue;
 		kvadrat tempk[ch_srez - 1];
 		const kvadrat* srez[ch_srez] = {&lk, &tempk[0], &tempk[1]};
 		for(int i = 0; i < raz; i += por) for(int j = 0; j < por; j++) tempk[0][i + lk[i + j]] = j;
