@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e
-ninja || make
+ninja||make
 rm -rf test.tmp
 mkdir test.tmp
 cd test.tmp
