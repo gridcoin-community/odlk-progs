@@ -87,3 +87,34 @@ target_include_directories(psevdoass PRIVATE ".")
 target_compile_features(psevdoass PRIVATE cxx_std_11)
 target_compile_definitions(psevdoass PRIVATE USE_THREADS)
 target_link_libraries(psevdoass ${CMAKE_THREAD_LIBS_INIT})
+
+# Ortogon
+
+add_executable(ortogon
+  odlkcommon/kvio.cpp
+  ortogon/exact_cover.cpp
+  ortogon/main_ortogon.cpp)
+target_include_directories(ortogon PRIVATE ".")
+
+# Result processor 
+
+add_executable(postprocess
+  odlkcommon/kvio.cpp
+  kanonizator_lk/kanon.cpp
+  kanonizator_dlk/kanonizator.cpp
+  kanonizator_dlk/hash_tabl.cpp
+  family_mar/prov_blk_trans.cpp
+  ortogon/exact_cover.cpp
+  zamyk/postprocess.cpp)
+target_include_directories(postprocess PRIVATE ".")
+target_compile_features(postprocess PRIVATE cxx_std_11)
+target_link_libraries(postprocess ${CMAKE_THREAD_LIBS_INIT})
+
+add_executable(ortogoncnt
+  odlkcommon/kvio.cpp
+  kanonizator_lk/kanon.cpp
+  ortogon/exact_cover.cpp
+  zamyk/ortogoncnt.cpp)
+target_include_directories(ortogoncnt PRIVATE ".")
+target_compile_features(ortogoncnt PRIVATE cxx_std_11)
+target_link_libraries(ortogoncnt ${CMAKE_THREAD_LIBS_INIT})
