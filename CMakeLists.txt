@@ -1,9 +1,14 @@
 cmake_minimum_required(VERSION 3.5)
 
-LIST(APPEND CMAKE_MODULE_PATH cmakefbc/cmake/Modules)
+option(COMPILE_PSEVDOASS "Comple psevdoass.exe - you must have the sorces from Natalia Makarova" OFF)
 
-# Set the project name
-project (odlk C CXX Fbc)
+if( COMPILE_PSEVDOASS )
+  LIST(APPEND CMAKE_MODULE_PATH cmakefbc/cmake/Modules)
+  project (odlk C CXX Fbc)
+else()
+  # Set the project name
+  project (odlk C CXX)
+endif()
 
 # Paralelism
 find_package( Threads )
@@ -69,28 +74,27 @@ add_executable(kanonizator_lk
 
 target_include_directories(kanonizator_lk PRIVATE ".")
 
-if(0)
 
-# PADS Generators
+# PADLS Experiment
 
-SET(CMAKE_Fbc_FLAGS "${CMAKE_Fbc_FLAGS} -lang deprecated")
-SET(CMAKE_Fbc_FLAGS_DEBUG "${CMAKE_Fbc_FLAGS} -lang deprecated -g")
+if( COMPILE_PSEVDOASS )
+set(CMAKE_Fbc_FLAGS "${CMAKE_Fbc_FLAGS} -lang deprecated")
+set(CMAKE_Fbc_FLAGS_DEBUG "${CMAKE_Fbc_FLAGS} -lang deprecated -g")
 
 add_executable(psevdoass
   psevdoass/ASS_DLK10A.BAS
   psevdoass/PSEVDOASS_DLK_new.BAS
-  kanonizator_dlk_1.03/kanonizator.cpp
-  kanonizator_dlk_1.03/hash_tabl.cpp
+  kanonizator_dlk/kanonizator.cpp
+  kanonizator_dlk/hash_tabl.cpp
   family_mar/prov_blk_trans.cpp
   psevdoass/psevdoass.cpp)
 
 target_include_directories(psevdoass PRIVATE ".")
-# Paralelism
 target_compile_features(psevdoass PRIVATE cxx_std_11)
 target_compile_definitions(psevdoass PRIVATE USE_THREADS)
 target_link_libraries(psevdoass ${CMAKE_THREAD_LIBS_INIT})
-
 endif()
+
 
 # Ortogon
 

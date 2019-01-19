@@ -70,6 +70,7 @@ IF(NOT CMAKE_Fbc_DEPS_TOOL)
     ENDIF()
     MESSAGE(STATUS "Check for working cmakefbc_deps tool OK ==> ${version_string}")
   ENDIF()
+  unset(pathnam)
 ENDIF()
 
 SET(CMAKE_COMPILER_IS_FBC 1)
