@@ -9,7 +9,7 @@
 #include <thread>
 #include <mutex>
 #endif
-#include "kanonizator_dlk_1.03/kanonizator.h"
+#include "kanonizator_dlk/kanonizator.h"
 #include "family_mar/prov_blk_trans.h"
 
 using namespace std;
@@ -88,12 +88,12 @@ void kusok_raboty_mar(set<kvadrat>::iterator lki, set<kvadrat>::iterator lkend){
 		const kvadrat& lk = * lki;
 		trans_dlx.search_trans(lk);
 		if(trans_dlx.cnt_trans <= 1) continue;
-		kvadrat tempk[ch_srez - 1];
-		const kvadrat* srez[ch_srez] = {&lk, &tempk[0], &tempk[1]};
+		kvadrat tempk[Trans_DLx::ch_srez - 1];
+		const kvadrat* srez[Trans_DLx::ch_srez] = {&lk, &tempk[0], &tempk[1]};
 		for(int i = 0; i < raz; i += por) for(int j = 0; j < por; j++) tempk[0][i + lk[i + j]] = j;
 		for(int j = 0; j < por; j++) for(int i = 0; i < por; i++) tempk[1][lk[i * por + j] * por + j] = i;
 		trans_dlx.search_symm_trans(srez);
-		for(int i = 0; i < ch_srez; i++){
+		for(int i = 0; i < Trans_DLx::ch_srez; i++){
 			l_count += trans_dlx.kf_trans[i].size();
 			for(auto q = trans_dlx.kf_trans[i].begin(); q != trans_dlx.kf_trans[i].end(); q++){
 				trans_dlx.find_d_trans(q->second, trans_dlx.trans[i]);
@@ -183,7 +183,7 @@ int main( int argc, char* argv[] )
 		clock_t t20 = clock();
 		kvadrat kf;
 		for(iter_dlk q = baza_dlk.begin(); q != baza_dlk.end(); q++){
-			kanonizator::kanon(*q, kf);
+			Kanonizator_dlk::kanon(*q, kf);
 			baza_kf.insert(kf);
 		}
 		clock_t t21 = clock();
