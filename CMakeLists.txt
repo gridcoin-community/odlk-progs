@@ -69,6 +69,8 @@ add_executable(kanonizator_lk
 
 target_include_directories(kanonizator_lk PRIVATE ".")
 
+if(0)
+
 # PADS Generators
 
 SET(CMAKE_Fbc_FLAGS "${CMAKE_Fbc_FLAGS} -lang deprecated")
@@ -87,6 +89,8 @@ target_include_directories(psevdoass PRIVATE ".")
 target_compile_features(psevdoass PRIVATE cxx_std_11)
 target_compile_definitions(psevdoass PRIVATE USE_THREADS)
 target_link_libraries(psevdoass ${CMAKE_THREAD_LIBS_INIT})
+
+endif()
 
 # Ortogon
 

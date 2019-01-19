@@ -17,8 +17,4 @@ echo Check kanonizator_dlk
 ../kanonizator_dlk.exe ../kanonizator_dlk/input.txt kan_out.txt >/dev/null
 cmp kan_out.txt ../kanonizator_dlk/output.txt
 
-echo Check psevdoass
-../psevdoass.exe -abk pskan.txt 4 3 7 2 1 9 5 6 >/dev/null
-cmp pskan.txt ../psevdoass/mar_abk_4.3.7.2.1.9.5.6.txt
-
 echo ok
