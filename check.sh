@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e
-make
+ninja || make
 rm -rf test.tmp
 mkdir test.tmp
 cd test.tmp
@@ -14,8 +14,8 @@ echo Check family_mar
 cmp mar_out.txt ../family_mar/output.txt
 
 echo Check kanonizator_dlk
-../kanonizator_dlk_1.03.exe ../kanonizator_dlk_1.03/input.txt kan_out.txt >/dev/null
-cmp kan_out.txt ../kanonizator_dlk_1.03/output.txt
+../kanonizator_dlk.exe ../kanonizator_dlk/input.txt kan_out.txt >/dev/null
+cmp kan_out.txt ../kanonizator_dlk/output.txt
 
 echo Check psevdoass
 ../psevdoass.exe -abk pskan.txt 4 3 7 2 1 9 5 6 >/dev/null

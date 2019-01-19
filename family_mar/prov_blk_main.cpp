@@ -1,3 +1,4 @@
+#include "odlkcommon/common.h"
 #include "prov_blk_trans.h"
 #include <cassert>
 #ifdef USE_THREADS
@@ -45,18 +46,20 @@ int init(){
 
 void kusok_raboty(vector<kvadrat>::iterator lki, vector<kvadrat>::iterator lkend){
 	Trans_DLx trans_dlx{};
+	//find only non-symmetric solutions
+	trans_dlx.f_simm= false;
 	list<kvadrat> l_mar{};
 	long long l_count{0};
 	for(; lki!=lkend; lki++) {
 		kvadrat& lk = * lki;
 		trans_dlx.search_trans(lk);
 		if(trans_dlx.cnt_trans <= 1) continue;
-		kvadrat tempk[ch_srez - 1];
-		const kvadrat* srez[ch_srez] = {&lk, &tempk[0], &tempk[1]};
+		kvadrat tempk[Trans_DLx::ch_srez - 1];
+		const kvadrat* srez[Trans_DLx::ch_srez] = {&lk, &tempk[0], &tempk[1]};
 		for(int i = 0; i < raz; i += por) for(int j = 0; j < por; j++) tempk[0][i + lk[i + j]] = j;
 		for(int j = 0; j < por; j++) for(int i = 0; i < por; i++) tempk[1][lk[i * por + j] * por + j] = i;
 		trans_dlx.search_symm_trans(srez);
-		for(int i = 0; i < ch_srez; i++){
+		for(int i = 0; i < Trans_DLx::ch_srez; i++){
 			l_count += trans_dlx.kf_trans[i].size();
 			for(auto q = trans_dlx.kf_trans[i].begin(); q != trans_dlx.kf_trans[i].end(); q++){
 				trans_dlx.find_d_trans(q->second, trans_dlx.trans[i]);
@@ -77,23 +80,6 @@ void kusok_raboty(vector<kvadrat>::iterator lki, vector<kvadrat>::iterator lkend
 	#endif
 }
 
-inline void out_kvadrat(ostream& out, const kvadrat& kv){
-	static const int raz_kvb = 212;
-	array<char,raz_kvb> tempk;
-	char* p = tempk.data();
-	for(int i = 0; i < raz; i += por){
-		*p++ = kv[i] + '0';
-		for(int j = 1; j < por; j++){
-			*p++ = ' ';
-			*p++ = kv[i + j] + '0';
-		}
-		*p++ = '\r';
-		*p++ = '\n';
-	}
-	*p++ = '\r';
-	*p = '\n';
-	out.write((char*)tempk.data(), sizeof(tempk));
-}
 
 
 const char help_text[] =

@@ -1,14 +1,14 @@
 #include "main_const.h"
 #include "izomorfizm.h"
 #include "kanon.h"
-#include "massivy.h"
+#include "kanonizator_lk/massivy.h"
 
-std::vector<kvadrat> kanonizator::formy;
-std::vector<izomorfizm> kanonizator::iformy;
-std::vector<int> kanonizator::spisok[2];
-int kanonizator::ch_form;
+std::vector<kvadrat> Kanonizator_lk::formy;
+std::vector<izomorfizm> Kanonizator_lk::iformy;
+std::vector<int> Kanonizator_lk::spisok[2];
+int Kanonizator_lk::ch_form;
 
-void kanonizator::kanon(const kvadrat& lk, kvadrat& kf){
+void Kanonizator_lk::kanon(const kvadrat& lk, kvadrat& kf){
 	int lin = init(lk), ind, kol;
 	ind = ukaz[lin][0];
 	kol = ukaz[lin][1];
@@ -21,7 +21,7 @@ void kanonizator::kanon(const kvadrat& lk, kvadrat& kf){
 	for(int i = 0; i < kol; i++) obrabotka(trans[ind + i], kf);
 }
 
-void kanonizator::kanon(const kvadrat& lk, std::list<izomorfizm>& avtom, kvadrat* kanf){
+void Kanonizator_lk::kanon(const kvadrat& lk, std::list<izomorfizm>& avtom, kvadrat* kanf){
 	int lin = init(lk), ind, kol;
 	ind = ukaz[lin][0];
 	kol = ukaz[lin][1];
@@ -38,7 +38,7 @@ void kanonizator::kanon(const kvadrat& lk, std::list<izomorfizm>& avtom, kvadrat
 	if(kanf) *kanf = kf;
 }
 
-int kanonizator::get_type(morfizm& per){
+int Kanonizator_lk::get_type(morfizm& per){
 	unsigned long ret = 0;
 	unsigned long r;
 	for(unsigned long i = 0, c, flag = 0x3ff; flag; psnip_intrin_BitScanForward(&i, flag)){
@@ -66,7 +66,7 @@ int kanonizator::get_type(morfizm& per){
 	return ret;
 }
 
-void kanonizator::get_invar(const kvadrat* sec_lk[], invariant& invar, sootv& nom){
+void Kanonizator_lk::get_invar(const kvadrat* sec_lk[], invariant& invar, sootv& nom){
 	morfizm temp, kras;
 	invariant_1 temp_1;
 	std::array<std::pair<invariant_1, int>, por> temp_2;
@@ -100,7 +100,7 @@ void kanonizator::get_invar(const kvadrat* sec_lk[], invariant& invar, sootv& no
 	}
 }
 
-void kanonizator::kratn(const invariant& invar, sootv& krat){
+void Kanonizator_lk::kratn(const invariant& invar, sootv& krat){
 	invariant_2 temp_1 = invar[0];
 	krat.c[0] = 1;
 	int count = 0;
@@ -142,7 +142,7 @@ void kanonizator::kratn(const invariant& invar, sootv& krat){
 	}
 }
 
-int kanonizator::analiz(const invariant& invar){
+int Kanonizator_lk::analiz(const invariant& invar){
 	sootv krat;
 	kratn(invar, krat);
 	int ves_s = 0xfffff, best_k, best_i, best_j, best_b;
@@ -182,7 +182,7 @@ int kanonizator::analiz(const invariant& invar){
 	return (best_k << 24) | (best_i << 16) | (best_j << 8) | best_b;
 }
 
-void kanonizator::get_cikly(const kvadrat& lk, int perv, int vtor, int lin, morfizm& cikly){
+void Kanonizator_lk::get_cikly(const kvadrat& lk, int perv, int vtor, int lin, morfizm& cikly){
 	morfizm kras, per, temp;
 	for(int i = 0; i < por; i++) kras[lk[perv * por + i]] = i;
 	for(int i = 0; i < por; i++) per[i] = kras[lk[vtor * por + i]];
@@ -200,7 +200,7 @@ void kanonizator::get_cikly(const kvadrat& lk, int perv, int vtor, int lin, morf
 	}
 }
 
-void kanonizator::postr_formu(const kvadrat& lk, const morfizm& per, int perv, int& count, int sek){
+void Kanonizator_lk::postr_formu(const kvadrat& lk, const morfizm& per, int perv, int& count, int sek){
 	kvadrat tempk;
 	morfizm tempm;
 	for(int i = 0; i < raz; i += por) for(int j = 0; j < por; j++) tempk[i + j] = lk[i + per[j]];
@@ -215,7 +215,7 @@ void kanonizator::postr_formu(const kvadrat& lk, const morfizm& per, int perv, i
 	count++;
 }
 
-void kanonizator::postr_sdvigi(const kvadrat& lk, int perv, int vtor, int lin, int& count, int sek){
+void Kanonizator_lk::postr_sdvigi(const kvadrat& lk, int perv, int vtor, int lin, int& count, int sek){
 	morfizm cikly, tempm;
 	get_cikly(lk, perv, vtor, lin, cikly);
 	int ind = ind_sdv[lin], kol = ch_sdv[lin];
@@ -225,7 +225,7 @@ void kanonizator::postr_sdvigi(const kvadrat& lk, int perv, int vtor, int lin, i
 	}
 }
 
-void kanonizator::get_formy(const kvadrat* sec_lk[], const sootv& nom, int best){
+void Kanonizator_lk::get_formy(const kvadrat* sec_lk[], const sootv& nom, int best){
 	int sek, perv, vtor, lin, krat_s, krat_r, krat_b;
 	sek = best >> 28; krat_s = (best >> 24) & 0xf;
 	perv = (best >> 20) & 0xf; krat_r = (best >> 16) & 0xf;
@@ -254,7 +254,7 @@ void kanonizator::get_formy(const kvadrat* sec_lk[], const sootv& nom, int best)
 	}
 }
 
-int kanonizator::init(const kvadrat& lk){
+int Kanonizator_lk::init(const kvadrat& lk){
 	kvadrat t_lk, ic_lk;
 	for(int i = 0; i < por; i++) for(int j = 0; j < por; j++) t_lk[i * por + j] = lk[j * por + i];
 	for(int j = 0; j < por; j++) for(int i = 0; i < por; i++) ic_lk[j + lk[j + i * por] * por] = i;
@@ -267,7 +267,7 @@ int kanonizator::init(const kvadrat& lk){
 	return best & 0xff;
 }
 
-void kanonizator::obrabotka(const int* perest, kvadrat& kf){
+void Kanonizator_lk::obrabotka(const int* perest, kvadrat& kf){
 	int x, minz, index = 0, count[2];
 	const int* ob_perest = perest + por;
 	for(int i = 0; i < ch_form; i++) spisok[0][i] = i;
@@ -299,7 +299,7 @@ void kanonizator::obrabotka(const int* perest, kvadrat& kf){
 	}
 }
 
-void kanonizator::obrabotka(const int* perest, kvadrat& kf, std::list<izomorfizm>& avtom){
+void Kanonizator_lk::obrabotka(const int* perest, kvadrat& kf, std::list<izomorfizm>& avtom){
 	int x, minz, index = 0, count[2];
 	izomorfizm tempizo;
 	const int* ob_perest = perest + por;
@@ -339,7 +339,7 @@ void kanonizator::obrabotka(const int* perest, kvadrat& kf, std::list<izomorfizm
 	}
 }
 
-void kanonizator::get_avtom(int nom_formy, const int* perest, const int* ob_perest, izomorfizm& tempizo){
+void Kanonizator_lk::get_avtom(int nom_formy, const int* perest, const int* ob_perest, izomorfizm& tempizo){
 	tempizo.parastrof = iformy[nom_formy].parastrof;
 	for(int i = 0; i < por; i++){
 		tempizo.izotop[0][i] = iformy[nom_formy].izotop[0][perest[i]];

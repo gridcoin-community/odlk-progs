@@ -1,6 +1,8 @@
 #include "prov_blk.h"
 
 class Trans_DLx{
+	typedef array<unsigned char, por> transver;
+	static const int max_trans = 5504;
 	static const int ch_cols = 3 * por + 1;
 	static const int ch_cols_simm = 4 * por + 1;
 	static const int max_cols = raz + 1;
@@ -87,13 +89,18 @@ class Trans_DLx{
 
 public:
 
+	static const int ch_srez = 3;
+
 array<vector<transver>,ch_srez> trans;
 int cnt_trans;
 array<list<pair<kvadrat, pair<transver, transver>>>,ch_srez> kf_trans;
 set<kvadrat> baza_kf;
+bool f_simm;
 
 
-	Trans_DLx(){}
+	Trans_DLx()
+		:f_simm(0)
+	{}
 
 	void search_trans(const kvadrat& lk);
 	void search_symm_trans(const kvadrat* srez[]);

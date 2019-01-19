@@ -88,14 +88,16 @@ void Trans_DLx::poisk_simm(const kvadrat& lk, const vector<transver>& tr, int sr
 					l++;
 				}
 			for(int ii = 0; ii < por; ii++) for(int jj = 0; jj < por; jj++) dlk[ii * por + jj] = lk[rows[ii] * por + cols[jj]];
-			lin = kanonizator::kanon(dlk, kf);
+			lin = Kanonizator_dlk::kanon(dlk, kf);
 			if(flag){
 				flag = false;
 				if(!baza_kf.insert(kf).second) return;
 				else if(!is_simm(kf, lin)) kf_trans[srez].push_back(make_pair(kf, make_pair(tr[i], tr[j])));
 			}
-			else if(baza_kf.insert(kf).second)
-				if(!is_simm(kf, lin)) kf_trans[srez].push_back(make_pair(kf, make_pair(tr[i], tr[j])));
+			else if(baza_kf.insert(kf).second) {
+				if( f_simm || !is_simm(kf, lin) ) {
+					kf_trans[srez].push_back(make_pair(kf, make_pair(tr[i], tr[j])));
+			}}
 			next:;
 		}
 	}
@@ -104,6 +106,7 @@ void Trans_DLx::poisk_simm(const kvadrat& lk, const vector<transver>& tr, int sr
 void Trans_DLx::poisk_simm_dlx(const kvadrat& lk, const vector<transver>& tr, int srez){
 
 	// Здесь баг
+	// todo: copy from the new version
 
 	int lin;
 	bool flag = srez != 0;
@@ -133,7 +136,7 @@ advance:
 				tempt[(t >> 8) & 0xf] = t & 0xf;
 			}
 			postr(dlk, lk, (const data**)O);
-			lin = kanonizator::kanon(dlk, kf);
+			lin = Kanonizator_dlk::kanon(dlk, kf);
 			if(flag){
 				flag = false;
 				if(!baza_kf.insert(kf).second) return;

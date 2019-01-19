@@ -26,8 +26,9 @@ endif()
 # The family_mar program
 
 add_executable(family_mar
-  kanonizator_dlk_1.03/kanonizator.cpp
-  kanonizator_dlk_1.03/hash_tabl.cpp
+  odlkcommon/kvio.cpp
+  kanonizator_dlk/kanonizator.cpp
+  kanonizator_dlk/hash_tabl.cpp
   family_mar/prov_blk_main.cpp
   family_mar/prov_blk_trans.cpp)
 
@@ -41,6 +42,7 @@ target_link_libraries(family_mar ${CMAKE_THREAD_LIBS_INIT})
 # gen_lk_4_31_31
 
 add_executable(gen_lk_4_31_31
+  odlkcommon/kvio.cpp
   gen_lk_4_31_31/gen_lk_4_31_31.cpp
   gen_lk_4_31_31/izomorfizm.cpp
   gen_lk_4_31_31/kanon.cpp
@@ -48,12 +50,24 @@ add_executable(gen_lk_4_31_31
 
 target_include_directories(gen_lk_4_31_31 PRIVATE ".")
 
-# The kanonizator program
+# The kanonizator_lk_po_dlk program
 
-add_executable(kanonizator_dlk_1.03
-  kanonizator_dlk_1.03/kanonizator.cpp
-  kanonizator_dlk_1.03/hash_tabl.cpp
-  kanonizator_dlk_1.03/main_kanon.cpp)
+add_executable(kanonizator_dlk
+  odlkcommon/kvio.cpp
+  kanonizator_dlk/kanonizator.cpp
+  kanonizator_dlk/hash_tabl.cpp
+  kanonizator_dlk/main_kanon.cpp)
+
+target_include_directories(kanonizator_dlk PRIVATE ".")
+
+# The kanonizator_lk program
+
+add_executable(kanonizator_lk
+  odlkcommon/kvio.cpp
+  kanonizator_lk/kanon.cpp
+  kanonizator_lk/main.cpp)
+
+target_include_directories(kanonizator_lk PRIVATE ".")
 
 # PADS Generators
 

@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include "odlkcommon/common.h"
 #include "main_const.h"
 #include "kan_shab_4_31_31.h"
 #include "izomorfizm.h"
@@ -228,7 +229,7 @@ bool in_family(const izomorfizm& avtom){
 void vizit(set<kvadrat>& super_kl){
 	kvadrat kf;
 	list<izomorfizm> avtom;
-	kanonizator::kanon(baz_kv, avtom, &kf);
+	Kanonizator_lk::kanon(baz_kv, avtom, &kf);
 	if(!super_kl.insert(kf).second) return;
 	for(auto w = avtom.begin(); w != avtom.end(); w++){
 		if(*w == etalon_simm) continue;
@@ -308,23 +309,6 @@ void rabota(){
 			vizit(super_kl);
 		}
 	}while(dt.next(baz_sh));
-}
-
-void out_kvadrat(ostream& out, const kvadrat& kv){
-	char tempk[212];
-	char* p = tempk;
-	for(int i = 0; i < raz; i += por){
-		*p++ = kv[i] + '0';
-		for(int j = 1; j < por; j++){
-			*p++ = ' ';
-			*p++ = kv[i + j] + '0';
-		}
-		*p++ = '\r';
-		*p++ = '\n';
-	}
-	*p++ = '\r';
-	*p++ = '\n';
-	out.write(tempk, p - tempk);
 }
 
 int main(int argc, char* argv[]){

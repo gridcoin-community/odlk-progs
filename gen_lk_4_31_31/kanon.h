@@ -1,4 +1,4 @@
-class kanonizator{
+class Kanonizator_lk{
 	typedef std::array<unsigned char, por - 1> invariant_1;
 	typedef std::array<invariant_1, por> invariant_2;
 	typedef std::array<invariant_2, 3> invariant;
@@ -106,7 +106,7 @@ class kanonizator{
 		return 0;
 	}
 
-	kanonizator(){}
+	Kanonizator_lk(){}
 public:
 	static void kanon(const kvadrat& lk, kvadrat& kf);
 	static void kanon(const kvadrat& lk, std::list<izomorfizm>& avtom, kvadrat* kf = 0);

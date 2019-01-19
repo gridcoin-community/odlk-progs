@@ -6,15 +6,13 @@
 #include <string>
 #include <algorithm>
 #include <ostream>
+#include "odlkcommon/common.h"
 #include "psnip/builtin/builtin.h"
 
-const int por = 10;
 const int por_m = por >> 1;
 const int raz_m = por * por_m;
-const int raz = por * por;
 
 typedef std::array<unsigned char, raz_m> shablon;
-typedef std::array<unsigned char, raz> kvadrat;
 typedef std::array<unsigned char, por> morfizm;
 
 inline std::ostream& operator<<(std::ostream& out, const shablon& sh){
