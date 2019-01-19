@@ -264,6 +264,14 @@ class Ortocnt
       }
       cerr<<"Written file: "<<ss.str()<<endl;
     }
+    {
+      // kf mates
+      ofstream fout("out_kf_mates.txt", ios::binary);
+      for(auto q=mates.begin(); q!=mates.end(); ++q){
+        out_kvadrat(fout,*q);
+      }
+      cerr<<"Written file: "<<"out_kf_mates.txt"<<endl;
+    }
   }
 };
 
