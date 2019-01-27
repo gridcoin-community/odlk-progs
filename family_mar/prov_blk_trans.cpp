@@ -92,7 +92,7 @@ void Trans_DLx::poisk_simm(const kvadrat& lk, const vector<transver>& tr, int sr
 			if(flag){
 				flag = false;
 				if(!baza_kf.insert(kf).second) return;
-				else if(!is_simm(kf, lin)) kf_trans[srez].push_back(make_pair(kf, make_pair(tr[i], tr[j])));
+				else if( f_simm || !is_simm(kf, lin) ) kf_trans[srez].push_back(make_pair(kf, make_pair(tr[i], tr[j])));
 			}
 			else if(baza_kf.insert(kf).second) {
 				if( f_simm || !is_simm(kf, lin) ) {
