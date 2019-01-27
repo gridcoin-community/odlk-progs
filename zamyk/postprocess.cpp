@@ -201,6 +201,7 @@ class Postprocess
       cerr<<"mar "<<mar.size()<<endl;
       cerr<<"sum "<<sum.size()<<endl;
       kan.clear();
+      mates.clear();
       stepnum++;
 
       batch_parallel( mar,
