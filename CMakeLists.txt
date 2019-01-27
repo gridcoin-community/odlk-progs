@@ -126,3 +126,14 @@ add_executable(ortogoncnt
 target_include_directories(ortogoncnt PRIVATE ".")
 target_compile_features(ortogoncnt PRIVATE cxx_std_11)
 target_link_libraries(ortogoncnt ${CMAKE_THREAD_LIBS_INIT})
+
+add_executable(check
+  odlkcommon/kvio.cpp
+  kanonizator_lk/kanon.cpp
+  kanonizator_dlk/kanonizator.cpp
+  kanonizator_dlk/hash_tabl.cpp
+  ortogon/exact_cover.cpp
+  zamyk/check.cpp)
+target_include_directories(check PRIVATE ".")
+target_compile_features(check PRIVATE cxx_std_11)
+target_link_libraries(check ${CMAKE_THREAD_LIBS_INIT})
