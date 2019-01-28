@@ -92,24 +92,6 @@ void rabota(){
 	cout << "Время поиска: \t\t" << double(t1 - t0) / CLOCKS_PER_SEC << " сек\n";
 }
 
-inline void out_kvadrat(ostream& out, const kvadrat& kv){
-	static const int raz_kvb = 212;
-	array<char,raz_kvb> tempk;
-	char* p = tempk.data();
-	for(int i = 0; i < raz; i += por){
-		*p++ = kv[i] + '0';
-		for(int j = 1; j < por; j++){
-			*p++ = ' ';
-			*p++ = kv[i + j] + '0';
-		}
-		*p++ = '\r';
-		*p++ = '\n';
-	}
-	*p++ = '\r';
-	*p++ = '\n';
-	out.write((char*)tempk.data(), sizeof(tempk));
-}
-
 void vyvod(){
 	clock_t t0 = clock();
 	ofstream fout(output, ios::binary);
