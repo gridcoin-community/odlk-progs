@@ -90,8 +90,8 @@ const char help_text[] =
 ;
 
 int main(int argc, char* argv[]){
-	setlocale(LC_CTYPE, "rus");
-	cerr << "Поиск марьяжных ДЛК (кроме симметричных) для семейства ЛК" << endl;
+	//setlocale(LC_CTYPE, "rus");
+	//cerr << "Поиск марьяжных ДЛК (кроме симметричных) для семейства ЛК" << endl;
 
 	if(argc!=3){
 		cerr << "Expected 2 arguments" << endl << help_text;
@@ -141,7 +141,7 @@ int main(int argc, char* argv[]){
 		ofstream fout(output, ios::binary);
 		for(auto q = baza_mar.begin(); q != baza_mar.end(); q++)
 			out_kvadrat(fout, *q);
-		cerr << "Они записаны в файл " << output << endl;
+		cerr << "Written to file " << output << endl;
 
 		return 0;
 	} else
