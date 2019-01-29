@@ -118,6 +118,8 @@ target_include_directories(postprocess PRIVATE ".")
 target_compile_features(postprocess PRIVATE cxx_std_11)
 target_link_libraries(postprocess ${CMAKE_THREAD_LIBS_INIT})
 
+# ortogoncnt
+
 add_executable(ortogoncnt
   odlkcommon/kvio.cpp
   kanonizator_lk/kanon.cpp
@@ -126,3 +128,12 @@ add_executable(ortogoncnt
 target_include_directories(ortogoncnt PRIVATE ".")
 target_compile_features(ortogoncnt PRIVATE cxx_std_11)
 target_link_libraries(ortogoncnt ${CMAKE_THREAD_LIBS_INIT})
+
+# Database Operations
+
+add_executable(dlkdbop
+  kanonizator_dlk/kanonizator.cpp
+  kanonizator_dlk/hash_tabl.cpp
+  odlkcommon/kvio.cpp
+  zamyk/dlkdbop.cpp)
+target_include_directories(dlkdbop PRIVATE ".")
