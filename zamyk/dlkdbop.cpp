@@ -341,7 +341,7 @@ void append_db()
     cerr<<"Wrtiting "<<name_db<<".new error!"<<endl;
     exit(4);
   }
-  if(0!=rename((name_db+".new").c_str(),name_in.c_str())) {
+  if(0!=rename((name_db+".new").c_str(),name_db.c_str())) {
     cerr<<"Rename of "<<name_db<<".new to "<<name_db<<" failed!"<<endl;
     exit(4);
   }
