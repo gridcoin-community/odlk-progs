@@ -221,10 +221,6 @@ set<kvadrat> workset;
 
 void save_work()
 {
-  if(0!=rename(name_in.c_str(),(name_in+".old").c_str())) {
-    /*cerr<<"Rename of "<<name_in<<" to "<<name_in<<".old failed!"<<endl;
-    exit(4); Ignore the error. */
-  }
 
   ofstream fout { name_in+".new", ios::binary };
   if(f_out==FMT_DLK){
@@ -246,6 +242,10 @@ void save_work()
   if(!fout.good()) {
     cerr<<"Wrtiting "<<name_in<<".new error!"<<endl;
     exit(4);
+  }
+  if(0!=rename(name_in.c_str(),(name_in+".old").c_str())) {
+    /*cerr<<"Rename of "<<name_in<<" to "<<name_in<<".old failed!"<<endl;
+    exit(4); Ignore the error. */
   }
   if(0!=rename((name_in+".new").c_str(),name_in.c_str())) {
     cerr<<"Rename of "<<name_in<<".new to "<<name_in<<" failed!"<<endl;
@@ -339,6 +339,10 @@ void append_db()
 
   if(!fout.good()) {
     cerr<<"Wrtiting "<<name_db<<".new error!"<<endl;
+    exit(4);
+  }
+  if(0!=rename(name_db.c_str(),(name_db+".old").c_str())) {
+    cerr<<"Rename of "<<name_db<<" to "<<name_db<<".old failed!"<<endl;
     exit(4);
   }
   if(0!=rename((name_db+".new").c_str(),name_db.c_str())) {
