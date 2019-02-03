@@ -135,5 +135,6 @@ add_executable(dlkdbop
   kanonizator_dlk/kanonizator.cpp
   kanonizator_dlk/hash_tabl.cpp
   odlkcommon/kvio.cpp
+  odlkcommon/namechdlk10.cpp
   zamyk/dlkdbop.cpp)
 target_include_directories(dlkdbop PRIVATE ".")

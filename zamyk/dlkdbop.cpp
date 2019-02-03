@@ -15,8 +15,7 @@
 #include "kanonizator_dlk/kanonizator.h"
 #include "family_mar/prov_blk_trans.h"
 #include "ortogon/exact_cover.h"
-
-#include "namechdlk10.cpp"
+#include "odlkcommon/namechdlk10.h"
 
 /* Program to operate on database of DLK10
 
@@ -72,17 +71,6 @@ enum TFormat {
   FMT_BIN=4,
 };
 string name_db, name_in;
-
-const unsigned char debase58[128] = {
-  255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,
-  255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,
-  255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,
-  255,0,1,2,3,4,5,6,7,8,255,255,255,255,255,255,
-  255,9,10,11,12,13,14,15,16,255,17,18,19,20,21,255,
-  22,23,24,25,26,27,28,29,30,31,32,255,255,255,255,255,
-  255,33,34,35,36,37,38,39,40,41,42,43,255,44,45,46,
-  47,48,49,50,51,52,53,54,55,56,57,255,255,255,255,255
-};
 
 class CDbReader
 {
@@ -143,6 +131,7 @@ class CDbReader
 
   bool read(kvadrat& kv)
   {
+    using NamerCHDLK10::debase58;
     if(format!=FMT_BIN)
     {
       int kvi=0;
@@ -232,7 +221,11 @@ set<kvadrat> workset;
 
 void save_work()
 {
-  //rename...
+  if(0!=rename(name_in.c_str(),(name_in+".old").c_str())) {
+    /*cerr<<"Rename of "<<name_in<<" to "<<name_in<<".old failed!"<<endl;
+    exit(4); Ignore the error. */
+  }
+
   ofstream fout { name_in+".new", ios::binary };
   if(f_out==FMT_DLK){
     for(auto q=workset.begin(); q!=workset.end(); ++q)
@@ -249,7 +242,15 @@ void save_work()
     }
   }
   else assert(0);
-  //rename...
+
+  if(!fout.good()) {
+    cerr<<"Wrtiting "<<name_in<<".new error!"<<endl;
+    exit(4);
+  }
+  if(0!=rename((name_in+".new").c_str(),name_in.c_str())) {
+    cerr<<"Rename of "<<name_in<<".new to "<<name_in<<" failed!"<<endl;
+    exit(4);
+  }
 }
 
 bool getNameBin(const kvadrat& kv, unsigned char *nb)
@@ -300,16 +301,15 @@ bool getNameBin(const kvadrat& kv, unsigned char *nb)
 void append_db()
 {
   ofstream fout { name_db+".new", ios::binary };
-  cerr<<"fout good? "<<fout.good()<<endl;
 
   {
     ifstream fin { name_db, ios::binary };
-    //todo check
-    cerr<<"fin good? "<<fin.good()<<endl;
     fin >> fout.rdbuf();
+    if(fin.bad() || fout.fail()) {
+      cerr<<"Copying database to new file failed!"<<endl;
+      exit(4);
+    }
   }
-  cerr<<"fout good? "<<fout.good()<<endl;
-    //exit(69);
   
   if(f_db==FMT_DLK) {
     for(auto q=workset.begin(); q!=workset.end(); ++q)
@@ -336,8 +336,15 @@ void append_db()
     }
   }
   else assert(0);
-  cerr<<"fout good? "<<fout.good()<<endl;
-  //rename
+
+  if(!fout.good()) {
+    cerr<<"Wrtiting "<<name_db<<".new error!"<<endl;
+    exit(4);
+  }
+  if(0!=rename((name_db+".new").c_str(),name_in.c_str())) {
+    cerr<<"Rename of "<<name_db<<".new to "<<name_db<<" failed!"<<endl;
+    exit(4);
+  }
 }
 
 void op_convert()
