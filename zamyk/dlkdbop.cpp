@@ -189,6 +189,7 @@ class CDbReader
           }
         }
         else if(state<=stext && ch>0 && ch<255) {} //ignore
+        else if(state==sreml || state==sremb) {} //ignore
         else if(state==snothing && ch==255) return false; //EOF
         else
         {
