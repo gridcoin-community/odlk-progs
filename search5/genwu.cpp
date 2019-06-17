@@ -112,12 +112,14 @@ int main(int argc, char** argv) {
 		inp.skip_below= 0;
 		inp.skip_fast= 0;
 		inp.skip_rule= {0};
-		inp.lim_sn= 0xFFFFFFFFFFFF;
-		inp.lim_kf= 0xFFFFFFFF;
-		inp.writeInput(buf);
+		inp.lim_sn= 1905000000;
+		inp.lim_kf= 112000;
 		std::stringstream wuname;
 		(wuname<<"tot5_"<<item.rule<<"a_").write(item.next.data(),item.next.size());
 		cout<<"WU "<<wuname.str()<<endl;
+		if(!f_write)
+			continue;
+		inp.writeInput(buf);
 		std::stringstream fninp;
 		fninp<<config.download_dir<<"/"<<wuname.str()<<".dat";
 		std::ofstream fhinp(fninp.str(),ios::binary);
@@ -126,11 +128,11 @@ int main(int argc, char** argv) {
 		DB_WORKUNIT wu; wu.clear();
 		wu.appid = app.id;
 		strcpy(wu.name, wuname.str().c_str());
-		wu.rsc_fpops_est = 1e12;  //TODO
-		wu.rsc_fpops_bound = 1e14;
-		wu.rsc_memory_bound = 1e8;
-		wu.rsc_disk_bound = 1e8;
-		wu.delay_bound = 86400;
+		wu.rsc_fpops_est = 14e12;  //TODO - 1 hour
+		wu.rsc_fpops_bound = 1e16;
+		wu.rsc_memory_bound = 1e8; //todo 100M
+		wu.rsc_disk_bound = 1e8; //todo 100m
+		wu.delay_bound = 43200; //todo 6h
 		wu.target_nresults= wu.min_quorum = 1;
 		wu.max_error_results= wu.max_total_results= 8;
 		wu.max_success_results= 1;
@@ -139,7 +141,6 @@ int main(int argc, char** argv) {
 		if(retval) exit(6);
 	}
 
-	//create input file
-	//create_work()
+	// TODOcommit
 	return 1;
 }
