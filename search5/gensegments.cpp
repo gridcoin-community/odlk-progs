@@ -63,7 +63,7 @@ int main(int argc, char** argv) {
 	rule = strtol(argv[2],&check1,10);
 	gen_mod = strtol(argv[4],&check2,10);
 	level = strtol(argv[3],&check3,10);
-	if((argv[1][0]!='n' && !f_db) || *check1 || *check2) {
+	if((argv[1][0]!='n' && !f_db) || *check1 || *check2 || *check3) {
 			cerr<<"Invalid argument format"<<endl;
 			exit(2);
 	}
@@ -95,14 +95,15 @@ int main(int argc, char** argv) {
 				{ cerr<<"Failed to get Name"<<endl; exit(3); }
 			if(f_db) {
 				std::stringstream qr{};
-				qr<<"insert into tot_segment (rule,ix,start,next,minl) VALUES (";
+				qr<<"insert ignore into tot_segment (rule,ix,start,next,minl) VALUES (";
+				// FIXME: ignore only duplicate errors and no others
 				qr<<rule <<","<<cnt1 <<",\"";
 				qr.write(n58.data(),n58.size()) <<"\",\"";
 				qr.write(n58.data(),n58.size()) <<"\",";
 				qr <<db_minl <<");";
 				int retval = boinc_db.do_query(qr.str().c_str());
 				if(retval) {
-					cerr<<"Error while inserting"<<endl;
+					cerr<<"Error while inserting "<<retval<<endl;
 					exit(5);
 				}
 			} else {
