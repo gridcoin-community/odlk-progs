@@ -96,9 +96,9 @@ int main(int argc, char** argv) {
 			if(f_db) {
 				std::stringstream qr{};
 				qr<<"insert into tot_segment (rule,ix,start,next,minl) VALUES (";
-				qr<<rule <<","<<cnt1 <<",";
-				qr.write(n58.data(),n58.size()) <<",";
-				qr.write(n58.data(),n58.size()) <<",";
+				qr<<rule <<","<<cnt1 <<",\"";
+				qr.write(n58.data(),n58.size()) <<"\",\"";
+				qr.write(n58.data(),n58.size()) <<"\",";
 				qr <<db_minl <<");";
 				int retval = boinc_db.do_query(qr.str().c_str());
 				if(retval)
