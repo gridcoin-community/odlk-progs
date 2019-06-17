@@ -81,7 +81,7 @@ int main(int argc, char** argv) {
 	kvadrat start1{0};
 	gen1.init(rule-1,start1); //this will return false as lk is invalid, but would still initialize
 	gen1.max_l=level;
-	unsigned long long cnt1=0, cnt2=0;
+	unsigned long long cnt1=0, cnt2=0, cnt3=0;
 	while(gen1.next()) {
 		cnt1++;
 		if(cnt1%gen_mod)
@@ -92,7 +92,7 @@ int main(int argc, char** argv) {
 		if(gen2.next()) {
 			NamerCHDLK10::NameStr n58;
 			if(!NamerCHDLK10::getName58(gen2.dlk,n58))
-				continue; //TODO
+				{cnt3++; continue; }
 			if(f_db) {
 				std::stringstream qr{};
 				qr<<"insert into tot_segment (rule,ix,start,next,minl) VALUES (";
@@ -101,7 +101,7 @@ int main(int argc, char** argv) {
 				qr.write(n58.data(),n58.size()) <<",";
 				qr <<db_minl <<");";
 				int retval = boinc_db.do_query(qr.str().c_str());
-				if(retval) 
+				if(retval)
 					continue;
 			} else {
 				write_square(cout,gen2.dlk,CSquareReader::NAME58);
@@ -109,7 +109,7 @@ int main(int argc, char** argv) {
 			cnt2++;
 		}
 	}
-	cerr <<"cnt1="<<cnt1<<" cnt2="<<cnt2<<endl;
+	cerr <<"cnt1="<<cnt1<<" cnt2="<<cnt2<<" cnt3="<<cnt3<<endl;
 	if((cnt1/gen_mod)!=cnt2) {
 		cerr<<"Error: generator failed"<<endl;
 		exit(3);
