@@ -101,8 +101,10 @@ int main(int argc, char** argv) {
 				qr.write(n58.data(),n58.size()) <<"\",";
 				qr <<db_minl <<");";
 				int retval = boinc_db.do_query(qr.str().c_str());
-				if(retval)
-					continue;
+				if(retval) {
+					cerr<<"Error while inserting"<<endl;
+					exit(5);
+				}
 			} else {
 				write_square(cout,gen2.dlk,CSquareReader::NAME58);
 			}
@@ -116,7 +118,7 @@ int main(int argc, char** argv) {
 	}
 	if(f_db) {
 		if(!boinc_db.commit_transaction()) {
-			cerr<<"Can't commit transaction!";
+			cerr<<"Can't commit transaction!"<<endl;
 			exit(1);
 		}
 		boinc_db.close();
