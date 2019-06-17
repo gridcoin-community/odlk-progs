@@ -25,7 +25,7 @@ struct Generator {
 	{
 		this->lin= lin;
 		l= min_l= 0;
-		max_l= 80; // = n
+		max_l= n;
 		for(int i = 0; i < por; i++){
 			row[i] = (1 << i) | (1 << diag[lin][i]);
 			col[i] = (1 << i) | (1 << diag[lin][por - 1 - i]);
@@ -56,12 +56,11 @@ struct Generator {
 
 	__attribute__((noinline)) bool next ()
 	{
-		/* if(l<n) goto enter_level_l; testme */
-		/* todo respect max_l */
+		if(l<max_l) goto enter_level_l;
 		goto backtrack;
 
 		enter_level_l: 
-			if(l >= n){
+			if(l >= max_l){
 				get_dlk(formy[0]);
 				return true;
 			}

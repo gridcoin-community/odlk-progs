@@ -73,3 +73,13 @@ skipr <rule>
 Flops estimate? Estimate x hours on my cpu.
 
 // TODO: check mar overflow!!!
+
+segment:
+s in: primary key and index of the segment
+s minl: min level
+s start: first sndlk in segment
+r last: current last sndlk
+r ended: boolean
+r last_wu: id of last wu unassimilated in the segment
+i (all the stats)
+
