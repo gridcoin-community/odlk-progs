@@ -38,7 +38,7 @@ class CStream
 		cur= cur + displacement;
 	}
 
-	size_t pos() {
+	size_t pos() const {
 		return cur - base;
 	}
 

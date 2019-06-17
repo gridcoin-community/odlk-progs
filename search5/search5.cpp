@@ -33,7 +33,7 @@ void writeAtomFile(const char* fn, const CStream& buf, bool resolv=false) {
 		FILE* f = boinc_fopen("tmp", "w");
 		if(!f)
 			throw std::runtime_error("fopen");
-		if( fwrite(buf.getbase(), 1, buf.length(), f) !=buf.length())
+		if( fwrite(buf.getbase(), 1, buf.pos(), f) !=buf.pos())
 			throw std::runtime_error("fwrite");
 		fclose(f);
 		if( rename("tmp",fn) <0)
