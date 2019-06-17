@@ -86,11 +86,10 @@ int main(int argc, char** argv) {
 		exit(4);
 	//do generate actually
 	NamerCHDLK10::init();
+	std::stringstream qr;
+	qr<<"where cur_wu is null and next is not null and enabled limit "<<gen_limit<<";";
+	DB_GENITEM item;
 	while(1) {
-		std::stringstream qr;
-		qr<<"where cur_wu is null and next is not null and enabled limit "
-		<<gen_limit<<";";
-		DB_GENITEM item;
 		int retval= item.enumerate(qr.str().c_str());
 		if(retval) {
 			if (retval != ERR_DB_NOT_FOUND) {
