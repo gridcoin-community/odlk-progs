@@ -122,7 +122,7 @@ int main(int argc, char** argv) {
 		inp.writeInput(buf);
 		std::stringstream fninp;
 		fninp<<config.download_dir<<"/"<<wuname.str()<<".dat";
-		std::ofstream fhinp(fninp.str(),ios::binary);
+		std::ofstream fhinp(fninp.str(),ios::binary); // todo - noclobber
 		fhinp.write((char*)buf.getbase(),buf.pos());
 		fhinp.close(); if(!fhinp) {cerr<<"file error"<<endl;exit(6);}
 		DB_WORKUNIT wu; wu.clear();
@@ -141,6 +141,12 @@ int main(int argc, char** argv) {
 		if(retval) exit(6);
 	}
 
-	// TODOcommit
-	return 1;
+	if(f_write) {
+		if(boinc_db.commit_transaction()) {
+			cerr<<"Can't commit transaction!"<<endl;
+			exit(1);
+		}
+	}
+	boinc_db.close();
+	return 0;
 }
