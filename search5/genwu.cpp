@@ -87,6 +87,11 @@ int main(int argc, char** argv) {
 		cerr<<"can't find app tot5\n";
 		exit(4);
 	}
+	char* in_template;
+	if (read_file_malloc(config.project_path("templates/tot5_in"), in_template)) {
+			cerr<<"can't read input template templates/tot5_in\n";
+			exit(4);
+	}
 	if(boinc_db.start_transaction())
 		exit(4);
 	//do generate actually
@@ -137,7 +142,7 @@ int main(int argc, char** argv) {
 		wu.max_error_results= wu.max_total_results= 8;
 		wu.max_success_results= 1;
 		const char* infiles[1] = { fninp.str().c_str() };
-		retval= create_work(wu, "templates/tot5_in","templates/tot5_out",0,infiles,1,config,0,0,0);
+		retval= create_work(wu, in_template,"templates/tot5_out",0,infiles,1,config,0,0,0);
 		if(retval) exit(6);
 		std::stringstream qr{};
 		qr<<"update tot_segment set cur_wu="<<wu.id<<" where id="<<item.id<<" limit 1;";
