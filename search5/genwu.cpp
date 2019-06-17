@@ -69,6 +69,7 @@ int main(int argc, char** argv) {
 	bool f_write;
 	long gen_limit;
 	char *check1;
+	DB_APP app;
 	if(argc!=3) {
 			cerr<<"Expect 2 command line argument: f_write limit"<<endl;
 			exit(2);
@@ -82,6 +83,10 @@ int main(int argc, char** argv) {
 	cerr<<"f_write="<<f_write<<" limit="<<gen_limit<<endl;
 	//connect db if requested
 	initz();
+	if (app.lookup("where name='tot5'")) {
+		cerr<<"can't find app tot5\n";
+		exit(4);
+	}
 	if(boinc_db.start_transaction())
 		exit(4);
 	//do generate actually
@@ -98,10 +103,42 @@ int main(int argc, char** argv) {
 			}
 			break;
 		}
-		(cout<<"Itm"<<item.id<<" r"<<item.rule<<" m"<<item.minl<<" next").write(item.next.data(),item.next.size())<<endl;
+		Input inp;
+		CDynamicStream buf;
+		inp.rule= item.rule;
+		if(!NamerCHDLK10::fromName58(item.next,inp.start))
+			exit(5); //todo
+		inp.min_level= item.minl;
+		inp.skip_below= 0;
+		inp.skip_fast= 0;
+		inp.skip_rule= {0};
+		inp.lim_sn= 0xFFFFFFFFFFFF;
+		inp.lim_kf= 0xFFFFFFFF;
+		inp.writeInput(buf);
+		std::stringstream wuname;
+		(wuname<<"tot5_"<<item.rule<<"a_").write(item.next.data(),item.next.size());
+		cout<<"WU "<<wuname.str()<<endl;
+		std::stringstream fninp;
+		fninp<<config.download_dir<<"/"<<wuname.str()<<".dat";
+		std::ofstream fhinp(fninp.str(),ios::binary);
+		fhinp.write((char*)buf.getbase(),buf.pos());
+		fhinp.close(); if(!fhinp) {cerr<<"file error"<<endl;exit(6);}
+		DB_WORKUNIT wu; wu.clear();
+		wu.appid = app.id;
+		strcpy(wu.name, wuname.str().c_str());
+		wu.rsc_fpops_est = 1e12;  //TODO
+		wu.rsc_fpops_bound = 1e14;
+		wu.rsc_memory_bound = 1e8;
+		wu.rsc_disk_bound = 1e8;
+		wu.delay_bound = 86400;
+		wu.target_nresults= wu.min_quorum = 1;
+		wu.max_error_results= wu.max_total_results= 8;
+		wu.max_success_results= 1;
+		const char* infiles[1] = { fninp.str().c_str() };
+		retval= create_work(wu, "templates/tot5_in","templates/tot5_out",0,infiles,1,config,0,0,0);
+		if(retval) exit(6);
 	}
 
-	//select * from tot_segment where cur_wu is null and next is not null and enabled;
 	//create input file
 	//create_work()
 	return 1;
