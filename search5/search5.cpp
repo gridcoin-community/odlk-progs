@@ -182,7 +182,6 @@ void maybe_checkpoint(){
 void check_kf(const kvadrat& sn) {
 	Trans_DLx trans_dlx;
 	unsigned long l_count=0;
-	state.last_kf = generator.dlk; //optimize copy
 	//find_trans
 	trans_dlx.search_trans(sn);
 	state.max_trans= std::max( (signed long) trans_dlx.cnt_trans, state.max_trans );
@@ -214,6 +213,7 @@ void work() {
 		state.nsn++;
 		if(generator.is_kf()) {
 			state.nkf++;
+			state.last_kf = generator.dlk; //optimize copy
 			check_kf(generator.dlk);
 		}
 		if(!generator.next())

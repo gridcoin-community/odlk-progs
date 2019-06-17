@@ -39,7 +39,11 @@ struct Generator {
 			col[c] |= x;
 			S[l] = s & -x;
 		}
-		return l == n;
+		if(l==n) {
+			get_dlk(formy[0]);
+			return true;
+		}
+		return false;
 	}
 
 	bool init(int lin, const kvadrat& start) {
