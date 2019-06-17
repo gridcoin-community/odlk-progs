@@ -5,6 +5,7 @@
 #include <ctime>
 #include <unistd.h>
 #include <cstdlib>
+#include <iomanip>
 #include <sys/stat.h>
 
 #include "odlkcommon/common.h"
@@ -68,6 +69,7 @@ int main(int argc, char** argv) {
 	cout<<"#n_daugh "<<inp.ndaugh<<endl;
 	cout<<"#n_daugh_avg "<<(double(inp.ndaugh)/double(inp.nkf))<<endl;
 	cout<<"#last "; write_square(cout, inp.last, CSquareReader::NAME58);
+	cout<<"#last_kf "; write_square(cout, inp.last_kf, CSquareReader::NAME58);
 	cout<<"#n_kf_skip_below "<<inp.nkf_skip_below<<endl;
 	cout<<"#n_kf_skip_below "<<inp.nkf_skip_below<<endl;
 	cout<<"#max_trans "<<inp.max_trans<<endl;
@@ -79,10 +81,21 @@ int main(int argc, char** argv) {
 	cout<<"#n_odlk "<<inp.odlk.size()<<endl;
 	for(const NamerCHDLK10::NameBin& odlk_n : inp.odlk) {
 		kvadrat odlk;
-		//int lin, k;
-		//CSquareReader::fromNameBin(odlk_n,odlk);
-		cout<<"#?"<<endl;
-		//write_square(cout,odlk,CSquareReader::NAME58);
+		int rule, k;
+		NamerCHDLK10::Name nm;
+		NamerCHDLK10::NameStr nms;
+		NamerCHDLK10::decodeNameBin(odlk_n, nm);
+		NamerCHDLK10::encodeName58(nm,nms);
+		rule=nm[9]+1;
+		k=0;
+		/*if(NamerCHDLK10::fromName(nm,odlk)) {
+			cout<<"# rule="<<rule<<" k="<<k<<endl;
+			write_square(cout,odlk,CSquareReader::NAME58);
+		} else cout<<"#odlk with invalid name??";*/
+		cout .write(nms.data(),nms.size()) <<" # rule="
+		<<setfill('0') <<setw(2) <<rule
+		/*<<" k=" <<setw(2) <<k*/
+		<<endl;
 	}
 	return 0;
 }

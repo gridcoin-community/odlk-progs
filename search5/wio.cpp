@@ -15,6 +15,7 @@ struct Input {
 
 struct State : Input {
 	kvadrat last;
+	kvadrat last_kf;
 	unsigned long long nsn;
 	unsigned long nkf;
 	unsigned long long ndaugh;
@@ -100,6 +101,7 @@ void State::writeState(CStream& s) {
 	s.w6(interval_t);
 	s.w1(!!ended);
 	s.w4(userid);
+	writeNameBin(s, last_kf);
 	s.w4(odlk.size());
 	for( const NamerCHDLK10::NameBin& bin : odlk) {
 		s.write(&bin, sizeof(NamerCHDLK10::NameBin));
@@ -115,6 +117,7 @@ void State::readInput(CStream& s) {
 	interval_rsm= 0;
 	interval_t= 0;//?
 	ended= 0;
+	last_kf={0};
 	odlk.clear();
 	last = start;
 }
@@ -133,6 +136,7 @@ void State::readState(CStream& s) {
 	interval_t= s.r6();
 	ended= !!s.r1();
 	userid= s.r4();
+	readNameBin(s, last_kf);
 	unsigned cnt= s.r4();
 	odlk.resize(cnt);
 	for(unsigned i=0; i<cnt; ++i) {

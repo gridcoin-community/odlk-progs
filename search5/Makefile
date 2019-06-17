@@ -1,7 +1,7 @@
 all: search mksample show
 
 search: kan_hash.o kanonizator.o prov_blk_trans.o search5.cpp Stream.cpp wio.cpp gener.cpp Makefile
-	g++ -o $@ -g -O2 -I .. -I ../boinc/api -I ../boinc/lib -I ../boinc search5.cpp kan_hash.o kanonizator.o prov_blk_trans.o ../boinc/api/libboinc_api.a ../boinc/lib/libboinc.a -lpthread
+	g++ -o $@ -O3 -static -I .. -I ../boinc/api -I ../boinc/lib -I ../boinc search5.cpp kan_hash.o kanonizator.o prov_blk_trans.o ../boinc/api/libboinc_api.a ../boinc/lib/libboinc.a -lpthread
 
 show: show.cpp Stream.cpp wio.cpp Makefile
 	g++ -o $@ -g -O0 -I .. show.cpp

@@ -32,7 +32,7 @@ int main(void) {
 			9,7,5,1,2,3,0,6,8,4,
 			8,6,4,2,3,7,1,5,0,9,
 		},
-		.min_level=45,
+		.min_level=0,
 		.skip_below=0,
 		.skip_fast=0,
 		.skip_rule={},

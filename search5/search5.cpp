@@ -115,12 +115,14 @@ void init() {
 
 void checkpoint() {
 	CDynamicStream s;
+	state.last= generator.dlk; //important
 	state.writeState(s);
 	writeAtomFile("checkpoint",s);
 }
 
 void result_upload() {
 	CDynamicStream s;
+	state.last= generator.dlk; //important
 	state.writeState(s);
 	writeAtomFile("output.dat",s,true);
 }
@@ -132,10 +134,11 @@ void report_cpu_ops() {
 void maybe_checkpoint(){
 	if( boinc_time_to_checkpoint() || boinc_status.suspended
 		|| boinc_status.quit_request || boinc_status.no_heartbeat
-		|| boinc_status.abort_request)
+		|| boinc_status.abort_request
+		//|| (state.nkf>=state.lim_kf)
+		)
 	{
 		bool upload1= state.nsn>=state.lim_sn || state.nkf>=state.lim_kf;
-		state.last= generator.dlk; //important
 		if(( ( upload1 && !boinc_status.no_heartbeat)
 			|| boinc_status.abort_request
 			) && 1)
@@ -179,6 +182,7 @@ void maybe_checkpoint(){
 void check_kf(const kvadrat& sn) {
 	Trans_DLx trans_dlx;
 	unsigned long l_count=0;
+	state.last_kf = generator.dlk; //optimize copy
 	//find_trans
 	trans_dlx.search_trans(sn);
 	state.max_trans= std::max( (signed long) trans_dlx.cnt_trans, state.max_trans );
@@ -217,7 +221,6 @@ void work() {
 	//cout << "took: " << double(clock() - t1) / CLOCKS_PER_SEC << " s\n";
 	//cout << "sn: "<<state.nsn<<" kf: "<<state.nkf<<" dk: "<<state.ndaugh<<endl;
 	state.ended= true;
-	state.last= generator.dlk; //important
 	//if state.ended -> checkpoint, upload, set correct flops, exit
 	result_upload();
 	report_cpu_ops();
