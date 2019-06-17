@@ -139,6 +139,13 @@ int main(int argc, char** argv) {
 		const char* infiles[1] = { fninp.str().c_str() };
 		retval= create_work(wu, "templates/tot5_in","templates/tot5_out",0,infiles,1,config,0,0,0);
 		if(retval) exit(6);
+		std::stringstream qr{};
+		qr<<"update tot_segment set cur_wu="<<wu.id<<" where id="<<item.id<<" limit 1;";
+		retval = boinc_db.do_query(qr.str().c_str());
+		if(retval || boinc_db.affected_rows()!=1) {
+			cerr<<"db error"<<retval<<endl;
+			exit(4);
+		}
 	}
 
 	if(f_write) {
