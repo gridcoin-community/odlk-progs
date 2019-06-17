@@ -107,7 +107,7 @@ void init() {
 		state.userid= binitdata.userid;
 		message("Start from Input",-1,0);
 	}
-	retval= generator.init(state.rule-1, state.last);
+	retval= generator.init(state.rule-1, state.next);
 	if(!retval)
 		message("Failed to initialize generator",2,0);
 	generator.min_l= state.min_level;
@@ -115,14 +115,14 @@ void init() {
 
 void checkpoint() {
 	CDynamicStream s;
-	state.last= generator.dlk; //important
+	state.next= generator.dlk; //important FIXME off by one
 	state.writeState(s);
 	writeAtomFile("checkpoint",s);
 }
 
 void result_upload() {
 	CDynamicStream s;
-	state.last= generator.dlk; //important
+	state.next= generator.dlk; //important FIXME off by one
 	state.writeState(s);
 	writeAtomFile("output.dat",s,true);
 }
@@ -210,17 +210,20 @@ void check_kf(const kvadrat& sn) {
 
 void work() {
 	//clock_t t1 = clock();
-	while(generator.next()) {
+	while(1) {
 		state.nsn++;
 		if(generator.is_kf()) {
 			state.nkf++;
 			check_kf(generator.dlk);
 		}
-		maybe_checkpoint();
+		if(!generator.next())
+			break;
+		else maybe_checkpoint();
 	}
 	//cout << "took: " << double(clock() - t1) / CLOCKS_PER_SEC << " s\n";
 	//cout << "sn: "<<state.nsn<<" kf: "<<state.nkf<<" dk: "<<state.ndaugh<<endl;
 	state.ended= true;
+	state.next= state.start; // this is not necessary
 	//if state.ended -> checkpoint, upload, set correct flops, exit
 	result_upload();
 	report_cpu_ops();

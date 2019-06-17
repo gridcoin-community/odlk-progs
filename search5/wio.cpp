@@ -14,7 +14,7 @@ struct Input {
 };
 
 struct State : Input {
-	kvadrat last;
+	kvadrat next;
 	kvadrat last_kf;
 	unsigned long long nsn;
 	unsigned long nkf;
@@ -89,7 +89,6 @@ void Input::writeInput(CStream& s) {
 
 void State::writeState(CStream& s) {
 	writeInput(s);
-	writeNameBin(s, last);
 	s.w6(nsn);
 	s.w4(nkf);
 	s.w6(ndaugh);
@@ -101,7 +100,10 @@ void State::writeState(CStream& s) {
 	s.w6(interval_t);
 	s.w1(!!ended);
 	s.w4(userid);
-	writeNameBin(s, last_kf);
+	if(!ended)
+		writeNameBin(s, next);
+	if(nkf)
+		writeNameBin(s, last_kf);
 	s.w4(odlk.size());
 	for( const NamerCHDLK10::NameBin& bin : odlk) {
 		s.write(&bin, sizeof(NamerCHDLK10::NameBin));
@@ -119,12 +121,11 @@ void State::readInput(CStream& s) {
 	ended= 0;
 	last_kf={0};
 	odlk.clear();
-	last = start;
+	next = start;
 }
 
 void State::readState(CStream& s) {
 	readInput(s);
-	readNameBin(s, last);
 	nsn= s.r6();
 	nkf= s.r4();
 	ndaugh= s.r6();
@@ -136,7 +137,10 @@ void State::readState(CStream& s) {
 	interval_t= s.r6();
 	ended= !!s.r1();
 	userid= s.r4();
-	readNameBin(s, last_kf);
+	if(!ended)
+		readNameBin(s, next);
+	if(nkf)
+		readNameBin(s, last_kf);
 	unsigned cnt= s.r4();
 	odlk.resize(cnt);
 	for(unsigned i=0; i<cnt; ++i) {
