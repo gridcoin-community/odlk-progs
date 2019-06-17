@@ -1,4 +1,4 @@
-all: search mksample show gensegments
+all: search mksample show gensegments genwu
 
 search: kan_hash.o kanonizator.o prov_blk_trans.o search5.cpp Stream.cpp wio.cpp gener.cpp Makefile
 	g++ -o $@ -O3 -static -I .. -I ../boinc/api -I ../boinc/lib -I ../boinc search5.cpp kan_hash.o kanonizator.o prov_blk_trans.o ../boinc/api/libboinc_api.a ../boinc/lib/libboinc.a -lpthread
@@ -11,6 +11,9 @@ mksample: mksample.cpp Stream.cpp wio.cpp Makefile
 
 gensegments: gensegments.cpp Stream.cpp wio.cpp Makefile
 	g++ -o $@ -g -O0 -I .. -I .. -I ../boinc/api -I ../boinc/lib -I ../boinc/tools -I ../boinc/sched -I ../boinc/db -I /usr/include/mysql -I ../boinc gensegments.cpp ../boinc/sched/libsched.a ../boinc/api/libboinc_api.a ../boinc/lib/libboinc.a -lmysqlclient -lpthread
+
+genwu: genwu.cpp Stream.cpp wio.cpp Makefile
+	g++ -o $@ -g -O0 -I .. -I .. -I ../boinc/api -I ../boinc/lib -I ../boinc/tools -I ../boinc/sched -I ../boinc/db -I /usr/include/mysql -I ../boinc genwu.cpp ../boinc/sched/libsched.a ../boinc/api/libboinc_api.a ../boinc/lib/libboinc.a -lmysqlclient -lpthread
 
 kan_hash.o: ../kanonizator_dlk/hash_tabl.cpp Makefile
 	gcc -o $@ -c -O3 -I .. ../kanonizator_dlk/hash_tabl.cpp
