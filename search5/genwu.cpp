@@ -126,7 +126,7 @@ int main(int argc, char** argv) {
 			continue;
 		inp.writeInput(buf);
 		std::stringstream fninp;
-		fninp<<config.download_dir<<"/"<<wuname.str()<<".dat";
+		fninp<<config.download_dir<<"/"<<wuname.str()<<".in";
 		std::ofstream fhinp(fninp.str(),ios::binary); // todo - noclobber
 		fhinp.write((char*)buf.getbase(),buf.pos());
 		fhinp.close(); if(!fhinp) {cerr<<"file error"<<endl;exit(6);}
@@ -144,7 +144,7 @@ int main(int argc, char** argv) {
 		
     vector<INFILE_DESC> infile_specs(1);
 		infile_specs[0].is_remote = false;
-		strcpy(infile_specs[0].name, fninp.str().c_str());
+		strcpy(infile_specs[0].name, (wuname.str()+".in").c_str());
 		retval= create_work2(wu, in_template,"templates/tot5_out",0,infile_specs,config,0,0,0);
 		if(retval) exit(6);
 		std::stringstream qr{};
