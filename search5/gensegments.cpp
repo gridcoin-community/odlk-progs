@@ -117,7 +117,7 @@ int main(int argc, char** argv) {
 		//exit(3);
 	}
 	if(f_db) {
-		if(!boinc_db.commit_transaction()) {
+		if(boinc_db.commit_transaction()) {
 			cerr<<"Can't commit transaction!"<<endl;
 			exit(1);
 		}
