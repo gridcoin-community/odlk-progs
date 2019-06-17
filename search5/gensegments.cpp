@@ -92,7 +92,7 @@ int main(int argc, char** argv) {
 		if(gen2.next()) {
 			NamerCHDLK10::NameStr n58;
 			if(!NamerCHDLK10::getName58(gen2.dlk,n58))
-				{cnt3++; continue; }
+				{ cerr<<"Failed to get Name"<<endl; exit(3); }
 			if(f_db) {
 				std::stringstream qr{};
 				qr<<"insert into tot_segment (rule,ix,start,next,minl) VALUES (";
@@ -111,8 +111,8 @@ int main(int argc, char** argv) {
 	}
 	cerr <<"cnt1="<<cnt1<<" cnt2="<<cnt2<<" cnt3="<<cnt3<<endl;
 	if((cnt1/gen_mod)!=cnt2) {
-		cerr<<"Error: generator failed"<<endl;
-		exit(3);
+		cerr<<"Warning: not all requested was generated"<<endl;
+		//exit(3);
 	}
 	if(f_db) {
 		if(!boinc_db.commit_transaction()) {
