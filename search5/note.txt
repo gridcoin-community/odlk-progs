@@ -1,0 +1,74 @@
+Next search.
+use generator_lk and family_mar search
+gen <- rule, start, stop
+gen -> checkpoint, cf count, sn count, min, max, end_flag
+mar -> transversal num, (d-trans?), daughter num ... aggregate
+mar -> per-rule count
+mar -> mar
+
+search will run for fixed time (or fixed flops?)
+checkpoint regulary
+upload checkpoints?
+checkpoint and upload file when aborted/requested_to_exit
+
+on server have multiple work-fronts
+each task will generate next task in the front if not exhausted
+each result is inserted into db
+what we want: 
+1. the odls
+2. min and max number of transversals in cf
+3. cf density (cf per sn) in intervals
+
+nice to have:
+odls density
+daughter square count and spread
+transversal average
+
+For the front: need more than the first line. How many fronts? Level between 9 and 11.
+Lets go for level 11, but do not launch all of them. Only like every 12 th.
+
+rule 51, level  8,    6204
+rule 51, level  9,   37224 6
+rule 51, level 10,  197600 5.3
+rule 15, level 10,  190182
+rule 38, level 10,  197500
+rule 51, level 11,  785997 3.98
+rule 51, level 12, 2629687 3.34
+rule 51, level 13, 6873318 2.61
+rule 51, level 14, 13610917 1.98
+rule 51, level 15, 16350666 1.20
+rule 51, level 16, 18446672 1.13
+               17, 84584914 4.59
+               18 400792600 4.74
+
+When result is received a new wu that will continue is generated.
+The continuation wu has the last checkpoint of the previous wu as it's input.
+How to make this more reliable? Run each wu twice? that does not work,
+becouse size is dynamic. Run full front twice? Any error would make
+entire front failure. Better: run without quorum and then do quick or precise
+verification run.
+
+App wishlist:
+* it will run for predictable, maybe even configurable time
+* checkpoint regularly
+* trickle credit
+
+On start app loads config file (a simple key-value file). The config file readin
+is not enabled when building from source by default.
+
+Input file: line number, start sn, end sn, min backtrack num, whether to upload checkpoints.
+(no data can be stored in init_data, must use separate input file)
+Format? binary or simple text. Binary. There will be python script to r/w the binary.
+<eg>
+rule 51
+start Xnxnxnx
+level 11
+upload 1
+</eg>
+<skip>
+skipauto
+skipr <rule>
+
+
+Flops estimate? Estimate x hours on my cpu.
+
