@@ -132,6 +132,7 @@ int main(int argc, char** argv) {
 		fhinp.close(); if(!fhinp) {cerr<<"file error"<<endl;exit(6);}
 		DB_WORKUNIT wu; wu.clear();
 		wu.appid = app.id;
+		wu.batch=15;
 		strcpy(wu.name, wuname.str().c_str());
 		wu.rsc_fpops_est = 14e12;  //TODO - 1 hour
 		wu.rsc_fpops_bound = 1e16;
