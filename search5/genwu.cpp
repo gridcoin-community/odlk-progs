@@ -141,8 +141,11 @@ int main(int argc, char** argv) {
 		wu.target_nresults= wu.min_quorum = 1;
 		wu.max_error_results= wu.max_total_results= 8;
 		wu.max_success_results= 1;
-		const char* infiles[1] = { fninp.str().c_str() };
-		retval= create_work(wu, in_template,"templates/tot5_out",0,infiles,1,config,0,0,0);
+		
+    vector<INFILE_DESC> infile_specs(1);
+		infile_specs[0].is_remote = false;
+		strcpy(infile_specs[0].name, fninp.str().c_str());
+		retval= create_work2(wu, in_template,"templates/tot5_out",0,infile_specs,config,0,0,0);
 		if(retval) exit(6);
 		std::stringstream qr{};
 		qr<<"update tot_segment set cur_wu="<<wu.id<<" where id="<<item.id<<" limit 1;";
