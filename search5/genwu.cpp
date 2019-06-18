@@ -68,15 +68,17 @@ public:
 int main(int argc, char** argv) {
 	bool f_write;
 	long gen_limit;
-	char *check1;
+	int batchno;
+	char *check1, *check2;
 	DB_APP app;
-	if(argc!=3) {
-			cerr<<"Expect 2 command line argument: f_write limit"<<endl;
+	if(argc!=4) {
+			cerr<<"Expect 3 command line argument: f_write batch limit"<<endl;
 			exit(2);
 	}
 	f_write = (argv[1][0]=='y');
-	gen_limit = strtol(argv[2],&check1,10);
-	if((argv[1][0]!='n' && !f_write) || *check1) {
+	batchno = strtol(argv[2],&check1,10);
+	gen_limit = strtol(argv[3],&check2,10);
+	if((argv[1][0]!='n' && !f_write) || *check1 || *check2) {
 			cerr<<"Invalid argument format"<<endl;
 			exit(2);
 	}
@@ -120,7 +122,7 @@ int main(int argc, char** argv) {
 		inp.lim_sn= 1905000000;
 		inp.lim_kf= 112000;
 		std::stringstream wuname;
-		(wuname<<"tot5_"<<item.rule<<"a_").write(item.next.data(),item.next.size());
+		((wuname<<"tot5_"<<item.rule<<char(batchno+'a'))<<"_").write(item.next.data(),item.next.size());
 		cout<<"WU "<<wuname.str()<<endl;
 		if(!f_write)
 			continue;
@@ -132,7 +134,7 @@ int main(int argc, char** argv) {
 		fhinp.close(); if(!fhinp) {cerr<<"file error"<<endl;exit(6);}
 		DB_WORKUNIT wu; wu.clear();
 		wu.appid = app.id;
-		wu.batch=15;
+		wu.batch=20+batchno;
 		strcpy(wu.name, wuname.str().c_str());
 		wu.rsc_fpops_est = 14e12;  //TODO - 1 hour
 		wu.rsc_fpops_bound = 1e16;

@@ -160,7 +160,8 @@ void maybe_checkpoint(){
 			exit(204 /*EXIT_UNKNOWN*/);
 		}
 		if(boinc_status.abort_request) {
-			message("EXIT_ABORTED_BY_CLIENT",194,false);
+			/*std::string s ("output.dat"); boinc_upload_file(s);*/
+			message("EXIT_ABORTED_BY_CLIENT",0,false);
 		}
 		if(boinc_status.suspended) {
 			while(boinc_status.suspended) sleep(10);
@@ -227,7 +228,7 @@ void work() {
 	//if state.ended -> checkpoint, upload, set correct flops, exit
 	result_upload();
 	report_cpu_ops();
-	message("End of Group",0,false);
+	message("End of Segment",0,false);
 }
 
 int main(void) {
