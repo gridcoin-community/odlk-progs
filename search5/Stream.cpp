@@ -2,8 +2,8 @@
 
 typedef unsigned char byte;
 
-class EStreamOutOufBounds
-	: public std::exception
+struct EStreamOutOufBounds
+	: std::exception
 { const char * what () const noexcept {return "Stream access Out Ouf Bounds";} };
 
 class CStream
