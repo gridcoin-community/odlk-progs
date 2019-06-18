@@ -69,10 +69,12 @@ int main(int argc, char** argv) {
 	cout<<"#n_daugh "<<inp.ndaugh<<endl;
 	cout<<"#n_daugh_avg "<<(double(inp.ndaugh)/double(inp.nkf))<<endl;
 	cout<<"#ended "<<inp.ended<<endl;
-	if(!inp.ended)
+	if(!inp.ended) {
 		cout<<"#next "; write_square(cout, inp.next, CSquareReader::NAME58);
-	if(inp.nkf)
+	}
+	if(inp.nkf) {
 		cout<<"#last_kf "; write_square(cout, inp.last_kf, CSquareReader::NAME58);
+	}
 	cout<<"#n_kf_skip_below "<<inp.nkf_skip_below<<endl;
 	cout<<"#n_kf_skip_below "<<inp.nkf_skip_below<<endl;
 	cout<<"#max_trans "<<inp.max_trans<<endl;
