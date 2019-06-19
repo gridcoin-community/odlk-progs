@@ -22,6 +22,7 @@
 #include "sched_config.h"
 #include "sched_util.h"
 #include "validate_util.h"
+#include "credit.h"
 
 #include "odlkcommon/namechdlk10.cpp"
 #include "odlkcommon/kvio.cpp"
@@ -140,6 +141,116 @@ public:
 		}
 };
 
+struct EDatabase	: std::runtime_error { using runtime_error::runtime_error; };
+struct EInvalid	: std::runtime_error { using runtime_error::runtime_error; };
+static int retval;
+
+void validate_result_output(State& rstate) {
+	return; //todo
+}
+
+void process_result(DB_RESULT& result) {
+	// Read the result file
+	CDynamicStream buf;
+	retval=read_output_file(result,buf);
+	if(retval) throw EDatabase("can't read the output file");
+	// TODO: if file missing -> EInvalid("Output file absent")
+	State rstate;
+	try {
+		rstate.readState(buf);
+	} catch (EStreamOutOufBounds& e){ throw EInvalid("can't deserialize output file"); }
+	// get the segment
+	NamerCHDLK10::NameStr sn_first, sn_last_kf, sn_next;
+	NamerCHDLK10::getName58(rstate.start,sn_first);
+	NamerCHDLK10::getName58(rstate.last_kf,sn_last_kf);
+	NamerCHDLK10::getName58(rstate.next,sn_next);
+	std::stringstream qr; qr<<"where cur_wu="<<result.workunitid<<" limit 1";
+	DB_SEGMENT segment;
+	retval = segment.lookup(qr.str().c_str());
+	bool have_segment = (retval==0);
+	if(retval && retval!=ERR_DB_NOT_FOUND) throw EDatabase("DB error reading segment");
+	if(have_segment) {
+		// copare segment with rstate
+		if(rstate.rule!=segment.rule || rstate.min_level!=segment.minl) throw EInvalid("Result config does not match segment");
+		if(sn_first!=segment.next) throw EInvalid("Result config.start does not match segment");
+	} else {
+		strncat(result.stderr_out,"Validator: segment not found, but validating anyway\n",BLOB_SIZE);
+	}
+	validate_result_output(rstate);
+	// create tot_result
+	qr=std::stringstream(); qr<<"insert tot_result SET ";
+	if(have_segment) {
+		qr<<"segment="<<segment.id<<", ";
+	}
+	qr<<"minl="<<rstate.min_level<<", skip="<<rstate.skip<<", ended="<<rstate.ended<<", userid="<<result.userid<<", ";
+	qr<<"n_sn="<<rstate.nsn<<", n_kf="<<rstate.nkf<<", n_daugh="<<rstate.ndaugh<<", boinc_result="<<result.id<<", ";
+	qr<<"n_kf_skip_below="<<rstate.nkf_skip_below<<", n_kf_skip_rule="<<rstate.nkf_skip_rule<<", ";
+	qr<<"max_trans="<<rstate.max_trans<<", n_trans="<<rstate.ntrans<<", resume_cnt="<<rstate.interval_rsm;
+	qr<<", first='"; qr.write(sn_first.data(),sn_first.size());
+	qr<<"', next='"; qr.write(sn_next.data(),sn_next.size());
+	qr<<"', last_kf='"; qr.write(sn_last_kf.data(),sn_last_kf.size());
+	qr<<"';";
+	retval=boinc_db.do_query(qr.str().c_str());
+	if(retval) throw EDatabase("result row insert failed");
+	DB_ID_TYPE result_id = boinc_db.insert_id();
+	// insert into tot_odlk (odlk) values('...');
+	// insert into tot_result_odlk (segment,result,odlk) values(segment.id,result_id,LAST_INSERT_ID());
+	for( const NamerCHDLK10::NameBin& odlk_bin : rstate.odlk) {
+		NamerCHDLK10::Name odlk_nm;
+		NamerCHDLK10::NameStr odlk_n58;
+		NamerCHDLK10::decodeNameBin(odlk_bin, odlk_nm);
+		NamerCHDLK10::encodeName58(odlk_nm, odlk_n58);
+		qr=std::stringstream(); // i am not satisfied with how this query looks, but seems to work
+		qr<<"insert into tot_odlk set odlk='";
+		qr.write(odlk_n58.data(),odlk_n58.size());
+		qr<<"' on duplicate key update id=LAST_INSERT_ID(id); insert into tot_result_odlk SET ";
+		if(have_segment) {
+			qr<<"segment="<<segment.id<<", ";
+		}
+		qr<<"result="<<result_id<<", odlk=LAST_INSERT_ID();";
+		retval=boinc_db.do_query(qr.str().c_str());
+		if(retval) throw EDatabase("odlk row insert failed");
+	}
+	//TODO
+	float credit = 69; //todo
+	DB_HOST host;
+	DB_WORKUNIT wu;
+	qr=std::stringstream();
+	if(host.lookup_id(result.hostid)) throw EDatabase("Host not found");
+	if(wu.lookup_id(result.workunitid)) throw EDatabase("Workunit not found");
+	//is_valid
+	double turnaround = result.received_time - result.sent_time;
+	compute_avg_turnaround(host, turnaround);
+	//-hav.max_jobs_per_day++;
+	//-hav.consecutive_valid++; not for unreplicated
+	//grant_credit
+	result.granted_credit = credit;
+	grant_credit(host, result.sent_time, result.granted_credit);
+	if(host.update()) throw EDatabase("Host update error");
+	//update result (?)
+	if(result.update()) throw EDatabase("Result update error");
+	//update wu
+	wu.canonical_resultid = result.id; //seg
+	wu.assimilate_state = ASSIMILATE_DONE;
+	wu.need_validate = 0;
+	wu.transition_time = time(0);
+	//todo: unsent -> RESULT_OUTCOME_DIDNT_NEED
+	if(have_segment) {
+		wu.canonical_resultid = result.id;
+		wu.canonical_credit = result.granted_credit;
+	}
+	if(wu.update()) throw EDatabase("Workunit update error");
+}
+
+void set_result_invalid(DB_RESULT& result) {
+	DB_WORKUNIT wu;
+	if(wu.lookup_id(result.workunitid)) throw EDatabase("Workunit not found");
+	//hav - do not care
+	result.validate_state=VALIDATE_STATE_INVALID;
+	if(result.update()) throw EDatabase("Result update error");
+	if(wu.update()) throw EDatabase("Workunit update error");
+}
+
 int main(int argc, char** argv) {
 	bool f_write;
 	long gen_limit;
@@ -184,61 +295,18 @@ int main(int argc, char** argv) {
 			break;
 		}
 		cout<<"result "<<result.name<<endl;
-		// Read the result file
-		CDynamicStream buf;
-		retval=read_output_file(result,buf);
-		if(retval) { log_messages.printf(MSG_CRITICAL,
-            "[RESULT#%lu %s] can't read the output file %d\n",
-            result.id, result.name, retval); exit(4);	}
-		State rstate;
 		try {
-			rstate.readState(buf);
-		} catch (EStreamOutOufBounds& e){ log_messages.printf(MSG_CRITICAL,
-            "[RESULT#%lu %s] can't deserialize output file %s\n",
-						// TODO: This means the result is invalid - mark and continue
-            result.id, result.name,e.what()); exit(4);	}
-		// get the segment
-		NamerCHDLK10::NameStr sn_first, sn_last_kf, sn_next;
-		NamerCHDLK10::getName58(rstate.start,sn_first);
-		NamerCHDLK10::getName58(rstate.last_kf,sn_last_kf);
-		NamerCHDLK10::getName58(rstate.next,sn_next);
-		std::stringstream qr; qr<<"where cur_wu="<<result.workunitid<<" limit 1";
-		DB_SEGMENT segment;
-		retval = segment.lookup(qr.str().c_str());
-		if(retval) { log_messages.printf(MSG_CRITICAL,
-            "[RESULT#%lu %s] segment not found\n",
-						 // TODO: still grant credit and proper error report
-            result.id, result.name); exit(4);	}
-		// TODO copare segment with rstate
-		// create tot_result
-		qr=std::stringstream(); qr<<"insert into tot_result "
-		<<"(segment, minl, skip, ended, userid, n_sn, n_kf, n_daugh, n_kf_skip_below, n_kf_skip_rule, max_trans, n_trans, resume_cnt, boinc_result, "
-		"first, next, last_kf)"
-		<<" VALUES("
-		<<segment.id<<","<<rstate.min_level<<","<<rstate.skip<<","<<rstate.ended<<","<<result.userid
-		<<","<<rstate.nsn<<","<<rstate.nkf<<","<<rstate.ndaugh<<","<<rstate.nkf_skip_below<<","<<rstate.nkf_skip_rule
-		<<","<<rstate.max_trans<<","<<rstate.ntrans<<","<<rstate.interval_rsm<<","<<result.id;
-		qr<<",'"; qr.write(sn_first.data(),sn_first.size());
-		qr<<"','"; qr.write(sn_next.data(),sn_next.size());
-		qr<<"','"; qr.write(sn_last_kf.data(),sn_last_kf.size());
-		qr<<"');";
-		retval=boinc_db.do_query(qr.str().c_str());
-		DB_ID_TYPE result_id = boinc_db.insert_id();
-		// insert into tot_odlk (odlk) values('...');
-		// insert into tot_result_odlk (segment,result,odlk) values(segment.id,result_id,LAST_INSERT_ID());
-		for( const NamerCHDLK10::NameBin& odlk_bin : rstate.odlk) {
-			NamerCHDLK10::Name odlk_n58;
-			NamerCHDLK10::NameStr odlk_nm;
-			NamerCHDLK10::decodeNameBin(odlk_bin, odlk_nm);
-			NamerCHDLK10::encodeName58(odlk_name, odlk_n58);
+			process_result(result);
+		} catch (EInvalid& e) {
+			strncat(result.stderr_out,"Validator: ",BLOB_SIZE-1);
+			strncat(result.stderr_out,e.what(),BLOB_SIZE-1);
+			set_result_invalid(result);
 		}
-		qr=std::stringstream();
-		qr<<"insert into tot_odlk (odlk) values('";
-		qr.write(odlk_n58.data(),odlk_n58.size());
-		qr<<"'); insert into tot_result_odlk (segment,result,odlk) values("
-		<<segment.id<<","<<result_id
-		<<",LAST_INSERT_ID());";
-		//TODO
+		// Possible outcomes:
+		// a) invalid - no credit, no results
+		// b) error - unexpected error
+		// c) valid - result saved, segment updated, credit granted
+		// d) redundant/unnown - result saved, segment not found, credit granted -> valid
 		
 	}
 
