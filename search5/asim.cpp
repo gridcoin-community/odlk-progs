@@ -275,7 +275,7 @@ void set_result_invalid(DB_RESULT& result) {
 	if(wu.lookup_id(result.workunitid)) throw EDatabase("Workunit not found");
 	//hav - do not care
 	result.validate_state=VALIDATE_STATE_INVALID;
-	result.file_delete_state=FILE_DELETE_READY;
+	//result.file_delete_state=FILE_DELETE_READY; - keep for analysis
 	if(result.update()) throw EDatabase("Result update error");
 	if(wu.update()) throw EDatabase("Workunit update error");
 }
