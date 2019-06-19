@@ -149,6 +149,13 @@ void validate_result_output(State& rstate) {
 	return; //todo
 }
 
+const float credit_m=0.007975* 1e-6;
+const float
+	credit_sn=1.8898,
+	credit_kf=1942.5503,
+	//credit_trans=0, todo
+	credit_daugh=49.8299;
+
 void process_result(DB_RESULT& result) {
 	// Read the result file
 	CDynamicStream buf;
@@ -188,7 +195,9 @@ void process_result(DB_RESULT& result) {
 	qr<<"max_trans="<<rstate.max_trans<<", n_trans="<<rstate.ntrans<<", resume_cnt="<<rstate.interval_rsm;
 	qr<<", first='"; qr.write(sn_first.data(),sn_first.size());
 	qr<<"', next='"; qr.write(sn_next.data(),sn_next.size());
-	qr<<"', last_kf='"; qr.write(sn_last_kf.data(),sn_last_kf.size());
+	if(rstate.nkf) {
+		qr<<"', last_kf='"; qr.write(sn_last_kf.data(),sn_last_kf.size());
+	}
 	qr<<"';";
 	retval=boinc_db.do_query(qr.str().c_str());
 	if(retval) throw EDatabase("result row insert failed");
@@ -200,19 +209,32 @@ void process_result(DB_RESULT& result) {
 		NamerCHDLK10::NameStr odlk_n58;
 		NamerCHDLK10::decodeNameBin(odlk_bin, odlk_nm);
 		NamerCHDLK10::encodeName58(odlk_nm, odlk_n58);
-		qr=std::stringstream(); // i am not satisfied with how this query looks, but seems to work
+		qr=std::stringstream();
 		qr<<"insert into tot_odlk set odlk='";
 		qr.write(odlk_n58.data(),odlk_n58.size());
-		qr<<"' on duplicate key update id=LAST_INSERT_ID(id); insert into tot_result_odlk SET ";
-		if(have_segment) {
-			qr<<"segment="<<segment.id<<", ";
-		}
-		qr<<"result="<<result_id<<", odlk=LAST_INSERT_ID();";
+		qr<<"' on duplicate key update id=LAST_INSERT_ID(id)";
 		retval=boinc_db.do_query(qr.str().c_str());
 		if(retval) throw EDatabase("odlk row insert failed");
+		DB_ID_TYPE odlk_id = boinc_db.insert_id();
+		if(have_segment) {
+			qr=std::stringstream();
+			qr<<"insert into tot_result_odlk SET segment="<<segment.id<<", ";
+			qr<<"result="<<result_id<<", odlk="<<odlk_id;
+			retval=boinc_db.do_query(qr.str().c_str());
+			if(retval) throw EDatabase("odlk row insert failed");
+		}
+	}
+	// update tot_segment set next=rstate.next where id=segment.id
+	if(have_segment) {
+		qr=std::stringstream();
+		qr<<"update tot_segment set next='";
+		qr.write(sn_next.data(),sn_next.size());
+		qr<<"' where id="<<segment.id<<";";
+		retval=boinc_db.do_query(qr.str().c_str());
+		if(retval) throw EDatabase("tot_segment row update failed");
 	}
 	//TODO
-	float credit = 69; //todo
+	float credit = credit_m*( rstate.nsn*credit_sn + rstate.nkf*credit_kf + rstate.ndaugh*credit_daugh );
 	DB_HOST host;
 	DB_WORKUNIT wu;
 	qr=std::stringstream();
@@ -225,21 +247,27 @@ void process_result(DB_RESULT& result) {
 	//-hav.consecutive_valid++; not for unreplicated
 	//grant_credit
 	result.granted_credit = credit;
+	result.validate_state=VALIDATE_STATE_VALID;
+	result.file_delete_state=FILE_DELETE_READY;
 	grant_credit(host, result.sent_time, result.granted_credit);
 	if(host.update()) throw EDatabase("Host update error");
 	//update result (?)
 	if(result.update()) throw EDatabase("Result update error");
 	//update wu
-	wu.canonical_resultid = result.id; //seg
 	wu.assimilate_state = ASSIMILATE_DONE;
+	//wu.file_delete_state=FILE_DELETE_READY;
 	wu.need_validate = 0;
 	wu.transition_time = time(0);
 	//todo: unsent -> RESULT_OUTCOME_DIDNT_NEED
 	if(have_segment) {
 		wu.canonical_resultid = result.id;
 		wu.canonical_credit = result.granted_credit;
+	} else {
+		//wu.assimilate_state = ASSIMILATE_DONE;
+		// what to do? abort it?
 	}
 	if(wu.update()) throw EDatabase("Workunit update error");
+	cout<<" have_segment "<<have_segment<< " credit="<<result.granted_credit<<endl;
 }
 
 void set_result_invalid(DB_RESULT& result) {
@@ -247,6 +275,7 @@ void set_result_invalid(DB_RESULT& result) {
 	if(wu.lookup_id(result.workunitid)) throw EDatabase("Workunit not found");
 	//hav - do not care
 	result.validate_state=VALIDATE_STATE_INVALID;
+	result.file_delete_state=FILE_DELETE_READY;
 	if(result.update()) throw EDatabase("Result update error");
 	if(wu.update()) throw EDatabase("Workunit update error");
 }
@@ -283,7 +312,7 @@ int main(int argc, char** argv) {
 	//enumerate results
 	//the updating is incredibly stupid, but we will see
 	enum_qr<<"where appid="<<app.id<<" and server_state="<<RESULT_SERVER_STATE_OVER
-	<<" and outcome="<<RESULT_OUTCOME_SUCCESS<<" limit "<<gen_limit<<";";
+	<<" and outcome="<<RESULT_OUTCOME_SUCCESS<<" and validate_state="<<VALIDATE_STATE_INIT<<" limit "<<gen_limit<<";";
 	DB_RESULT result;
 	while(1) {
 		int retval= result.enumerate(enum_qr.str().c_str());
@@ -298,6 +327,7 @@ int main(int argc, char** argv) {
 		try {
 			process_result(result);
 		} catch (EInvalid& e) {
+			cout<<" Invalid: "<<e.what()<<endl;
 			strncat(result.stderr_out,"Validator: ",BLOB_SIZE-1);
 			strncat(result.stderr_out,e.what(),BLOB_SIZE-1);
 			set_result_invalid(result);
@@ -309,8 +339,6 @@ int main(int argc, char** argv) {
 		// d) redundant/unnown - result saved, segment not found, credit granted -> valid
 		
 	}
-
-	return 69;
 	if(f_write) {
 		if(boinc_db.commit_transaction()) {
 			cerr<<"Can't commit transaction!"<<endl;

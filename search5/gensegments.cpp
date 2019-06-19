@@ -95,11 +95,10 @@ int main(int argc, char** argv) {
 				{ cerr<<"Failed to get Name"<<endl; exit(3); }
 			if(f_db) {
 				std::stringstream qr{};
-				qr<<"insert ignore into tot_segment (rule,ix,start,next,minl) VALUES (";
+				qr<<"insert ignore into tot_segment (rule,ix,start,minl) VALUES (";
 				// FIXME: ignore only duplicate errors and no others
-				qr<<rule <<","<<cnt1 <<",\"";
-				qr.write(n58.data(),n58.size()) <<"\",\"";
-				qr.write(n58.data(),n58.size()) <<"\",";
+				qr<<rule <<","<<cnt1 <<",'";
+				qr.write(n58.data(),n58.size()) <<"',";
 				qr <<db_minl <<");";
 				int retval = boinc_db.do_query(qr.str().c_str());
 				if(retval) {
