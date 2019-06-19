@@ -216,13 +216,13 @@ void process_result(DB_RESULT& result) {
 		retval=boinc_db.do_query(qr.str().c_str());
 		if(retval) throw EDatabase("odlk row insert failed");
 		DB_ID_TYPE odlk_id = boinc_db.insert_id();
+		qr=std::stringstream();
+		qr<<"insert into tot_result_odlk SET result="<<result_id<<", odlk="<<odlk_id;
 		if(have_segment) {
-			qr=std::stringstream();
-			qr<<"insert into tot_result_odlk SET segment="<<segment.id<<", ";
-			qr<<"result="<<result_id<<", odlk="<<odlk_id;
-			retval=boinc_db.do_query(qr.str().c_str());
-			if(retval) throw EDatabase("odlk row insert failed");
+			qr<<", segment="<<segment.id;
 		}
+		retval=boinc_db.do_query(qr.str().c_str());
+		if(retval) throw EDatabase("tot_result_odlk row insert failed");
 	}
 	// update tot_segment set next=rstate.next where id=segment.id
 	if(have_segment) {
