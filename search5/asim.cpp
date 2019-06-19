@@ -229,7 +229,7 @@ void process_result(DB_RESULT& result) {
 		qr=std::stringstream();
 		qr<<"update tot_segment set next='";
 		qr.write(sn_next.data(),sn_next.size());
-		qr<<"' where id="<<segment.id<<";";
+		qr<<"', cur_wu=NULL where id="<<segment.id<<";";
 		retval=boinc_db.do_query(qr.str().c_str());
 		if(retval) throw EDatabase("tot_segment row update failed");
 	}
