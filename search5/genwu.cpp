@@ -141,6 +141,7 @@ int main(int argc, char** argv) {
 		wu.rsc_memory_bound = 1e8; //todo 100M
 		wu.rsc_disk_bound = 1e8; //todo 100m
 		wu.delay_bound = 43200; //todo 6h
+		wu.priority = 1; //TODO!
 		wu.target_nresults= wu.min_quorum = 1;
 		wu.max_error_results= wu.max_total_results= 8;
 		wu.max_success_results= 1;
