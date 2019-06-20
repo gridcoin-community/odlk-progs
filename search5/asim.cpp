@@ -243,8 +243,13 @@ void process_result(DB_RESULT& result) {
 	//is_valid
 	double turnaround = result.received_time - result.sent_time;
 	compute_avg_turnaround(host, turnaround);
-	//-hav.max_jobs_per_day++;
-	//-hav.consecutive_valid++; not for unreplicated
+	DB_HOST_APP_VERSION hav,hav0;
+	retval = hav_lookup(hav0, result.hostid,
+			generalized_app_version_id(result.app_version_id, result.appid)
+	);
+	hav=hav0;
+	hav.max_jobs_per_day++;
+	hav.consecutive_valid++;
 	//grant_credit
 	result.granted_credit = credit;
 	result.validate_state=VALIDATE_STATE_VALID;
@@ -267,17 +272,27 @@ void process_result(DB_RESULT& result) {
 		// what to do? abort it?
 	}
 	if(wu.update()) throw EDatabase("Workunit update error");
+	if (hav.host_id && hav.update_validator(hav0)) throw EDatabase("Host-App-Version update error");
 	cout<<" have_segment "<<have_segment<< " credit="<<result.granted_credit<<endl;
 }
 
 void set_result_invalid(DB_RESULT& result) {
 	DB_WORKUNIT wu;
 	if(wu.lookup_id(result.workunitid)) throw EDatabase("Workunit not found");
-	//hav - do not care
+	DB_HOST_APP_VERSION hav, hav0;
+	retval = hav_lookup(hav0, result.hostid,
+			generalized_app_version_id(result.app_version_id, result.appid)
+	);
+	hav= hav0;
+	hav.consecutive_valid = 0;
+	if (hav.max_jobs_per_day > config.daily_result_quota) {
+			hav.max_jobs_per_day--;
+	}
 	result.validate_state=VALIDATE_STATE_INVALID;
 	//result.file_delete_state=FILE_DELETE_READY; - keep for analysis
 	if(result.update()) throw EDatabase("Result update error");
 	if(wu.update()) throw EDatabase("Workunit update error");
+	if (hav.host_id && hav.update_validator(hav0)) throw EDatabase("Host-App-Version update error");
 }
 
 int main(int argc, char** argv) {
