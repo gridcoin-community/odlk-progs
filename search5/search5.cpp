@@ -50,7 +50,10 @@ void readFile(const char* fn, CDynamicStream& buf, bool resolv=false) {
 	} else {
 		FILE* f = boinc_fopen(fn, "r");
 		if(!f) {
+			//bug: boinc on windows is stupid and this call does not set errno if file does not exist
+			//Go to hell!!
 			if(errno==ENOENT) throw EFileNotFound();
+			if(!boinc_file_exists(fn)) throw EFileNotFound();
 			throw std::runtime_error("fopen");
 		}
 		struct stat stat_buf;
