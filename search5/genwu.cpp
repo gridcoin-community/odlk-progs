@@ -136,7 +136,7 @@ int main(int argc, char** argv) {
 		wu.appid = app.id;
 		wu.batch=20+batchno;
 		strcpy(wu.name, wuname.str().c_str());
-		wu.rsc_fpops_est = 14e12;  //TODO - 1 hour
+		wu.rsc_fpops_est = 19e12;  //TODO - 1 hour
 		wu.rsc_fpops_bound = 1e16;
 		wu.rsc_memory_bound = 1e8; //todo 100M
 		wu.rsc_disk_bound = 1e8; //todo 100m
