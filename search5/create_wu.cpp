@@ -34,8 +34,8 @@ void gen_padls_wu(DB_SEGMENT& item, gen_padls_cfg& cfg) {
 	inp.skip_below= 0;
 	inp.skip_fast= 0;
 	inp.skip_rule= {0};
-	inp.lim_sn= 1905000000;
-	inp.lim_kf= 112000;
+	inp.lim_sn= 3815000000;
+	inp.lim_kf= 224000;
 	std::stringstream wuname;
 	((wuname<<"tot5_"<<item.rule<<char(cfg.batch+'a'))<<"_").write(item.next.data(),item.next.size());
 	cout<<" WU "<<wuname.str()<<endl;
@@ -53,11 +53,11 @@ void gen_padls_wu(DB_SEGMENT& item, gen_padls_cfg& cfg) {
 	wu.appid = cfg.app.id;
 	wu.batch=20+cfg.batch;
 	strcpy(wu.name, wuname.str().c_str());
-	wu.rsc_fpops_est = 19e12;  //TODO - 1 hour
+	wu.rsc_fpops_est = 4e13; // 2x 1h
 	wu.rsc_fpops_bound = 1e16;
 	wu.rsc_memory_bound = 1e8; //todo 100M
 	wu.rsc_disk_bound = 1e8; //todo 100m
-	wu.delay_bound = 43200; //todo 12h
+	wu.delay_bound = 604800; // 7 days
 	wu.priority = 1; //TODO!
 	wu.target_nresults= wu.min_quorum = 1;
 	wu.max_error_results= wu.max_total_results= 8;
