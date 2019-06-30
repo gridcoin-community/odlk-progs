@@ -85,6 +85,7 @@ int main(int argc, char** argv) {
 			exit(4);
 	}
 	wu_cfg.batch=batchno;
+	wu_cfg.write=f_write;
 	if(boinc_db.start_transaction())
 		exit(4);
 	//do generate actually
