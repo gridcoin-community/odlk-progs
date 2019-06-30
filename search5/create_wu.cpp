@@ -38,7 +38,7 @@ void gen_padls_wu(DB_SEGMENT& item, gen_padls_cfg& cfg) {
 	inp.lim_kf= 112000;
 	std::stringstream wuname;
 	((wuname<<"tot5_"<<item.rule<<char(cfg.batch+'a'))<<"_").write(item.next.data(),item.next.size());
-	cout<<"WU "<<wuname.str()<<endl;
+	cout<<" WU "<<wuname.str()<<endl;
 	if(!cfg.write)
 		return;
 	inp.writeInput(buf);

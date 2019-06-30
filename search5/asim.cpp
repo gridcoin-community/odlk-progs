@@ -269,10 +269,10 @@ void process_result(DB_RESULT& result) {
 	}
 	if(wu.update()) throw EDatabase("Workunit update error");
 	if (hav.host_id && hav.update_validator(hav0)) throw EDatabase("Host-App-Version update error");
+	cout<<" have_segment "<<have_segment<< " credit="<<result.granted_credit<<endl;
 	if(have_segment) {
 		gen_padls_wu(segment, wu_gen_cfg );
 	}
-	cout<<" have_segment "<<have_segment<< " credit="<<result.granted_credit<<endl;
 }
 
 void set_result_invalid(DB_RESULT& result) {
