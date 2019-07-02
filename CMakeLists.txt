@@ -31,6 +31,7 @@ endif()
 # The family_mar program
 
 add_executable(family_mar
+  odlkcommon/namechdlk10.cpp
   odlkcommon/kvio.cpp
   kanonizator_dlk/kanonizator.cpp
   kanonizator_dlk/hash_tabl.cpp
@@ -47,6 +48,7 @@ target_link_libraries(family_mar ${CMAKE_THREAD_LIBS_INIT})
 # gen_lk_4_31_31
 
 add_executable(gen_lk_4_31_31
+  odlkcommon/namechdlk10.cpp
   odlkcommon/kvio.cpp
   gen_lk_4_31_31/gen_lk_4_31_31.cpp
   gen_lk_4_31_31/izomorfizm.cpp
@@ -58,6 +60,7 @@ target_include_directories(gen_lk_4_31_31 PRIVATE ".")
 # The kanonizator_lk_po_dlk program
 
 add_executable(kanonizator_dlk
+  odlkcommon/namechdlk10.cpp
   odlkcommon/kvio.cpp
   kanonizator_dlk/kanonizator.cpp
   kanonizator_dlk/hash_tabl.cpp
@@ -68,6 +71,7 @@ target_include_directories(kanonizator_dlk PRIVATE ".")
 # The kanonizator_lk program
 
 add_executable(kanonizator_lk
+  odlkcommon/namechdlk10.cpp
   odlkcommon/kvio.cpp
   kanonizator_lk/kanon.cpp
   kanonizator_lk/main.cpp)
@@ -99,6 +103,7 @@ endif()
 # Ortogon
 
 add_executable(ortogon
+  odlkcommon/namechdlk10.cpp
   odlkcommon/kvio.cpp
   ortogon/exact_cover.cpp
   ortogon/main_ortogon.cpp)
@@ -107,6 +112,7 @@ target_include_directories(ortogon PRIVATE ".")
 # Result processor 
 
 add_executable(postprocess
+  odlkcommon/namechdlk10.cpp
   odlkcommon/kvio.cpp
   kanonizator_lk/kanon.cpp
   kanonizator_dlk/kanonizator.cpp
@@ -121,6 +127,7 @@ target_link_libraries(postprocess ${CMAKE_THREAD_LIBS_INIT})
 # ortogoncnt
 
 add_executable(ortogoncnt
+  odlkcommon/namechdlk10.cpp
   odlkcommon/kvio.cpp
   kanonizator_lk/kanon.cpp
   ortogon/exact_cover.cpp
