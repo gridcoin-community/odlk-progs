@@ -153,10 +153,7 @@ class Postprocess
       search_trans(lk);
       if(cnt_trans <= 1) return;
       kvadrat tempk[Trans_DLx::ch_srez - 1];
-      const kvadrat* srez[Trans_DLx::ch_srez] = {&lk, &tempk[0], &tempk[1]};
-      for(int i = 0; i < raz; i += por) for(int j = 0; j < por; j++) tempk[0][i + lk[i + j]] = j;
-      for(int j = 0; j < por; j++) for(int i = 0; i < por; i++) tempk[1][lk[i * por + j] * por + j] = i;
-      search_symm_trans(srez);
+      search_symm_trans(lk);
       for(int i = 0; i < Trans_DLx::ch_srez; i++){
         for(auto q = kf_trans[i].begin(); q != kf_trans[i].end(); q++){
           find_d_trans(q->second, trans[i]);
