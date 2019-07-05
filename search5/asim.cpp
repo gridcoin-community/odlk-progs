@@ -188,7 +188,9 @@ void process_result(DB_RESULT& result) {
 	qr<<"n_kf_skip_below="<<rstate.nkf_skip_below<<", n_kf_skip_rule="<<rstate.nkf_skip_rule<<", ";
 	qr<<"max_trans="<<rstate.max_trans<<", n_trans="<<rstate.ntrans<<", resume_cnt="<<rstate.interval_rsm;
 	qr<<", first='"; qr.write(sn_first.data(),sn_first.size());
-	qr<<"', next='"; qr.write(sn_next.data(),sn_next.size());
+	if(!rstate.ended) {
+		qr<<"', next='"; qr.write(sn_next.data(),sn_next.size());
+	}
 	if(rstate.nkf) {
 		qr<<"', last_kf='"; qr.write(sn_last_kf.data(),sn_last_kf.size());
 	}
@@ -221,9 +223,13 @@ void process_result(DB_RESULT& result) {
 	// update tot_segment set next=rstate.next where id=segment.id
 	if(have_segment) {
 		qr=std::stringstream();
-		qr<<"update tot_segment set next='";
-		qr.write(sn_next.data(),sn_next.size());
-		qr<<"', cur_wu=NULL where id="<<segment.id<<";";
+		qr<<"update tot_segment set ";
+		if(!rstate.ended) {
+			qr<<"next='"; qr.write(sn_next.data(),sn_next.size()); qr<<"', ";
+		} else {
+			qr<<"next=NULL, ";
+		}
+		qr<<"cur_wu=NULL where id="<<segment.id<<";";
 		retval=boinc_db.do_query(qr.str().c_str());
 		if(retval) throw EDatabase("tot_segment row update failed");
 		segment.next=sn_next;
@@ -267,10 +273,11 @@ void process_result(DB_RESULT& result) {
 		//wu.assimilate_state = ASSIMILATE_DONE;
 		// what to do? abort it?
 	}
+	//FIXME: handle ended
 	if(wu.update()) throw EDatabase("Workunit update error");
 	if (hav.host_id && hav.update_validator(hav0)) throw EDatabase("Host-App-Version update error");
 	cout<<" have_segment "<<have_segment<< " credit="<<result.granted_credit<<endl;
-	if(have_segment) {
+	if(have_segment && !rstate.ended) {
 		gen_padls_wu(segment, wu_gen_cfg );
 	}
 }
