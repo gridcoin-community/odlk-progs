@@ -1,3 +1,6 @@
 [submodule "psnip"]
 	path = psnip
 	url = https://github.com/nemequ/portable-snippets.git
+[submodule "inih"]
+	path = inih
+	url = https://github.com/jtilly/inih
