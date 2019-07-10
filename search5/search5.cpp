@@ -16,7 +16,10 @@
 #include "odlkcommon/namechdlk10.cpp"
 #include "odlkcommon/kvio.cpp"
 
-using std::vector, std::array, std::cerr, std::endl;
+using std::vector;
+using std::array;
+using std::cerr;
+using std::endl;
 
 #include "wio.cpp"
 #include "gener.cpp"
