@@ -4,8 +4,12 @@ public:
 	//needed: rule, minl, next
 	DB_ID_TYPE id;
 	int rule;
+	//ix
+	//start
 	int minl;
 	NamerCHDLK10::NameStr next;
+	bool enabled;
+	//cur_wu
 public:
     DB_SEGMENT(DB_CONN* p=0) : DB_BASE("tot_segment", p?p:&boinc_db) {}
     void db_parse(MYSQL_ROW &r) {
@@ -13,6 +17,7 @@ public:
 			rule = atoi(r[1]);
 			minl = atoi(r[4]);
 			std::copy(r[5],r[5]+next.size(),next.begin());
+			enabled = atoi(r[6]);
 		}
 };
 
@@ -25,6 +30,8 @@ struct gen_padls_cfg {
 
 void gen_padls_wu(DB_SEGMENT& item, gen_padls_cfg& cfg) {
 	// TODO: if enabled
+	if(!item.enabled)
+		return;
 	Input inp;
 	CDynamicStream buf;
 	inp.rule= item.rule;

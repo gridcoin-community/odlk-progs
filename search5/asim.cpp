@@ -273,11 +273,10 @@ void process_result(DB_RESULT& result) {
 		//wu.assimilate_state = ASSIMILATE_DONE;
 		// what to do? abort it?
 	}
-	//FIXME: handle ended
 	if(wu.update()) throw EDatabase("Workunit update error");
 	if (hav.host_id && hav.update_validator(hav0)) throw EDatabase("Host-App-Version update error");
 	cout<<" have_segment "<<have_segment<< " credit="<<result.granted_credit<<endl;
-	if(have_segment && !rstate.ended) {
+	if(have_segment && !rstate.ended && segment.enabled) {
 		gen_padls_wu(segment, wu_gen_cfg );
 	}
 }
