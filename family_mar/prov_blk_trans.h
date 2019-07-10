@@ -103,7 +103,7 @@ bool f_simm;
 	{}
 
 	void search_trans(const kvadrat& lk);
-	void search_symm_trans(const kvadrat* srez[]);
+	void search_symm_trans(const kvadrat& lk);
 	void find_d_trans(const pair<transver, transver>& simm_tr, const vector<transver>& tr);
 	bool is_mar();
 };

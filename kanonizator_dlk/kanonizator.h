@@ -30,7 +30,6 @@ class Kanonizator_dlk{
 
 	static const unsigned int hash_tabl[raz_hash_tabl];
 
-	friend int init();
 	static unsigned long hash_f(const morfizm& a);
 	static void perebor(kvadrat& kf, int klass);
 	static void obrabotka(const int* perest, const int* ob_perest, const kvadrat formy[], int chform, kvadrat& kf);

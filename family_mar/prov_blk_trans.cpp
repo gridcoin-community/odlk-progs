@@ -73,6 +73,7 @@ void Trans_DLx::poisk_simm(const kvadrat& lk, const vector<transver>& tr, int sr
 	int rows[por], cols[por], lin;
 	bool flag = srez != 0;
 	kvadrat dlk, kf;
+	//cout<<endl;
 	for(int i = 0, otr1[por]; i < cnt_trans - 1; i++){
 		for(int k = 0; k < por; k++) otr1[tr[i][k]] = k;
 		for(int j = i + 1, otr2[por]; j < cnt_trans; j++){
@@ -89,6 +90,7 @@ void Trans_DLx::poisk_simm(const kvadrat& lk, const vector<transver>& tr, int sr
 				}
 			for(int ii = 0; ii < por; ii++) for(int jj = 0; jj < por; jj++) dlk[ii * por + jj] = lk[rows[ii] * por + cols[jj]];
 			lin = Kanonizator_dlk::kanon(dlk, kf);
+			//cout<< "lin: "<<lin+1<<endl;
 			if(flag){
 				flag = false;
 				if(!baza_kf.insert(kf).second) return;
@@ -229,8 +231,12 @@ bool Trans_DLx::init_simm(const kvadrat& lk, const transver& tr){
 	return !((rb & cb & v1b & v2b) ^ 0x3ff);
 }
 
-void Trans_DLx::search_symm_trans(const kvadrat* srez[]){
+void Trans_DLx::search_symm_trans(const kvadrat& lk){
 	baza_kf.clear();
+	kvadrat tempk[Trans_DLx::ch_srez - 1];
+	const kvadrat* srez[Trans_DLx::ch_srez] = {&lk, &tempk[0], &tempk[1]};
+	for(int i = 0; i < raz; i += por) for(int j = 0; j < por; j++) tempk[0][i + lk[i + j]] = j;
+	for(int j = 0; j < por; j++) for(int i = 0; i < por; i++) tempk[1][lk[i * por + j] * por + j] = i;
 	for(int i = 0; i < ch_srez; i++) kf_trans[i].clear();
 	for(int i = 0; i < ch_srez; i++){
 		/*if(cnt_trans < 1000)*/ poisk_simm(*srez[i], trans[i], i);
