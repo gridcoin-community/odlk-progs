@@ -10,6 +10,7 @@ public:
 	NamerCHDLK10::NameStr next;
 	bool enabled;
 	//cur_wu
+	int prio_adjust; //not where it should be
 public:
     DB_SEGMENT(DB_CONN* p=0) : DB_BASE("tot_segment", p?p:&boinc_db) {}
     void db_parse(MYSQL_ROW &r) {
@@ -18,6 +19,7 @@ public:
 			minl = atoi(r[4]);
 			std::copy(r[5],r[5]+next.size(),next.begin());
 			enabled = atoi(r[6]);
+			prio_adjust=0;
 		}
 };
 
@@ -65,7 +67,7 @@ void gen_padls_wu(DB_SEGMENT& item, gen_padls_cfg& cfg) {
 	wu.rsc_memory_bound = 1e8; //todo 100M
 	wu.rsc_disk_bound = 1e8; //todo 100m
 	wu.delay_bound = 604800; // 7 days
-	wu.priority = 1; //TODO!
+	wu.priority = 1 + item.prio_adjust;
 	wu.target_nresults= wu.min_quorum = 1;
 	wu.max_error_results= wu.max_total_results= 8;
 	wu.max_success_results= 1;
