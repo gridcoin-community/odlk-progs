@@ -51,6 +51,8 @@ void initz() {
 	}
 }
 
+bool f_write;
+
 int delete_workunit_files(DB_WORKUNIT& wu)
 {
 	char path[MAXPATHLEN];
@@ -82,7 +84,7 @@ int delete_workunit_files(DB_WORKUNIT& wu)
 				);
 				errored=true;
 			}
-			if (!no_delete) {
+			if (!no_delete && f_write) {
 				dir_hier_path(
 					filename.c_str(), config.download_dir,
 					config.uldl_dir_fanout, path, false
@@ -164,7 +166,7 @@ int delete_result_files (RESULT& result)
 				);
 				errored=true;
 			}
-			if (!no_delete) {
+			if (!no_delete && f_write) {
 				dir_hier_path(
 					filename.c_str(), config.download_dir,
 					config.uldl_dir_fanout, pathname, false
@@ -243,7 +245,6 @@ void delete_old(DB_APP& app, long cnt_limit)
 }
 
 int main(int argc, char** argv) {
-	bool f_write;
 	long gen_limit;
 	int batchno;
 	char *check1, *check2;
