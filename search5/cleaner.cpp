@@ -195,7 +195,7 @@ void delete_old(DB_APP& app, long cnt_limit)
 	time_t cutoff_time;
 	cutoff_time= time(0) - 1209600;
 	std::stringstream qr;
-	qr<<"where appid="<<app.id<<" and file_delete_state=1 and UNIX_TIMESTAMP(mod_time)<"<<cutoff_time<<"limit "<<cnt_limit<<";";
+	qr<<"where appid="<<app.id<<" and file_delete_state=1 and UNIX_TIMESTAMP(mod_time)<"<<cutoff_time<<" limit "<<cnt_limit<<";";
 	DB_WORKUNIT wu;
 	while(1) {
 		int retval= wu.enumerate(qr.str().c_str());
@@ -207,7 +207,7 @@ void delete_old(DB_APP& app, long cnt_limit)
 
 		//del wu files
 		bool wu_deleted= delete_workunit_files(wu);
-		bool all_results_deleted=false;
+		bool all_results_deleted=true;
 		//del result files, if ok, del result
 		DB_RESULT result;
 		std::stringstream qr2;
