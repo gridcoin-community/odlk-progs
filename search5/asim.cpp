@@ -154,6 +154,11 @@ void process_result(DB_RESULT& result) {
 	// Read the result file
 	CDynamicStream buf;
 	retval=read_output_file(result,buf);
+	/* edit: skip processing if file error */
+	if(retval) {
+		cerr<<"error: Can't read the output file. "<<result.name<<endl;
+		return;
+	}
 	if(retval) throw EDatabase("can't read the output file");
 	// TODO: if file missing -> EInvalid("Output file absent")
 	State rstate;
