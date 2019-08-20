@@ -241,7 +241,7 @@ void process_result(DB_RESULT& result) {
 	//TODO
 	float credit = credit_m*( rstate.nsn*credit_sn + rstate.nkf*credit_kf + rstate.ndaugh*credit_daugh );
 	snprintf(result.stderr_out,BLOB_SIZE,"Validator: OK! Log deleted to save space. "
-		"ODLS=%lu CF=%lu SN=%llu ended=%d seg_dbid=%lu res_dbid=%lu\n",
+		"ODLS=%lu CF=%lu SN=%llu ended=%d seg_dbid=%ld res_dbid=%lu\n",
 		(unsigned long)rstate.odlk.size(),
 		(unsigned long)rstate.nkf,
 		(unsigned long long)rstate.nsn,
