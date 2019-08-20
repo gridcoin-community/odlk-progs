@@ -179,8 +179,6 @@ void process_result(DB_RESULT& result) {
 		// copare segment with rstate
 		if(rstate.rule!=segment.rule || rstate.min_level!=segment.minl) throw EInvalid("Result config does not match segment");
 		if(sn_first!=segment.next) throw EInvalid("Result config.start does not match segment");
-	} else {
-		strncat(result.stderr_out,"Validator: segment not found, but validating anyway\n",BLOB_SIZE);
 	}
 	validate_result_output(rstate);
 	// create tot_result
@@ -242,6 +240,15 @@ void process_result(DB_RESULT& result) {
 	}
 	//TODO
 	float credit = credit_m*( rstate.nsn*credit_sn + rstate.nkf*credit_kf + rstate.ndaugh*credit_daugh );
+	snprintf(result.stderr_out,BLOB_SIZE,"Validator: OK! Log deleted to save space. "
+		"ODLS=%lu CF=%lu SN=%llu ended=%d seg_dbid=%lu res_dbid=%lu\n",
+		(unsigned long)rstate.odlk.size(),
+		(unsigned long)rstate.nkf,
+		(unsigned long long)rstate.nsn,
+		(int)rstate.ended,
+		have_segment? (long)segment.id : -1,
+		(long)result_id
+	);
 	DB_HOST host;
 	DB_WORKUNIT wu;
 	qr=std::stringstream();
