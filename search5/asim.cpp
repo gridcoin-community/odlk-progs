@@ -143,9 +143,9 @@ void validate_result_output(State& rstate) {
 	return; //todo
 }
 
-const float credit_m=0.007975* 1e-6;
+const float credit_m=0.010766* 1e-6;
 const float
-	credit_sn=1.8898,
+	credit_sn=1.92,
 	credit_kf=1942.5503,
 	//credit_trans=0, todo
 	credit_daugh=49.8299;
