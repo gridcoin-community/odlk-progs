@@ -168,7 +168,7 @@ int delete_result_files (RESULT& result)
 			}
 			if (!no_delete && f_write) {
 				dir_hier_path(
-					filename.c_str(), config.download_dir,
+					filename.c_str(), config.upload_dir,
 					config.uldl_dir_fanout, pathname, false
 				);
 
