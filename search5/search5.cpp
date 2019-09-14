@@ -98,6 +98,7 @@ struct {
 void init() {
 	BOINC_OPTIONS opts;
 	APP_INIT_DATA binitdata;
+	char buf[64];
 	boinc_options_defaults(opts);
 	opts.direct_process_action = 0; // I handle abort/suspend myself
 	int retval = boinc_init_options(&opts);
@@ -120,13 +121,17 @@ void init() {
 	}
 	// one minute before deadline
 	time_limits.realtime = binitdata.computation_deadline - 60;
+	if(binitdata.global_prefs.work_buf_min_days >= 1 ) {
+		time_limits.realtime += (binitdata.global_prefs.work_buf_min_days-1) * 86400;
+		fprintf(stderr,"%s work_buf_min_days too high %f, capping at 1 day",
+			boinc_msg_prefix(buf, sizeof(buf)), binitdata.global_prefs.work_buf_min_days);
+	}
 	// 30% over estimated time
 	time_limits.cputime = (binitdata.rsc_fpops_est / binitdata.host_info.p_fpops) * 1.30;
 	retval= generator.init(state.rule-1, state.next);
 	if(!retval)
 		message("Failed to initialize generator",2,0);
 	generator.min_l= state.min_level;
-	char buf[64];
 	fprintf(stderr,
 			"%s time limits %d %d\n",
 			boinc_msg_prefix(buf, sizeof(buf)), (long) time_limits.realtime, (long) time_limits.cputime
