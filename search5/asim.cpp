@@ -105,6 +105,7 @@ int read_output_file(RESULT const& result, CDynamicStream& buf) {
 						);
 
 						FILE* f = boinc_fopen(path, "r");
+						if(!f && ENOENT==errno) return ERR_FILE_MISSING;
 						if(!f) return ERR_READ;
 						struct stat stat_buf;
 						if(fstat(fileno(f), &stat_buf)<0) return ERR_READ;
@@ -155,12 +156,12 @@ void process_result(DB_RESULT& result) {
 	CDynamicStream buf;
 	retval=read_output_file(result,buf);
 	/* edit: skip processing if file error */
-	if(retval) {
+	if(retval && 0) {
 		cerr<<"error: Can't read the output file. "<<result.name<<endl;
 		return;
 	}
+	if(ERR_FILE_MISSING==retval) throw EInvalid("Output file absent");
 	if(retval) throw EDatabase("can't read the output file");
-	// TODO: if file missing -> EInvalid("Output file absent")
 	State rstate;
 	try {
 		rstate.readState(buf);
