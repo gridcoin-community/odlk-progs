@@ -54,11 +54,7 @@ void kusok_raboty(vector<kvadrat>::iterator lki, vector<kvadrat>::iterator lkend
 		kvadrat& lk = * lki;
 		trans_dlx.search_trans(lk);
 		if(trans_dlx.cnt_trans <= 1) continue;
-		kvadrat tempk[Trans_DLx::ch_srez - 1];
-		const kvadrat* srez[Trans_DLx::ch_srez] = {&lk, &tempk[0], &tempk[1]};
-		for(int i = 0; i < raz; i += por) for(int j = 0; j < por; j++) tempk[0][i + lk[i + j]] = j;
-		for(int j = 0; j < por; j++) for(int i = 0; i < por; i++) tempk[1][lk[i * por + j] * por + j] = i;
-		trans_dlx.search_symm_trans(srez);
+		trans_dlx.search_symm_trans(lk);
 		for(int i = 0; i < Trans_DLx::ch_srez; i++){
 			l_count += trans_dlx.kf_trans[i].size();
 			for(auto q = trans_dlx.kf_trans[i].begin(); q != trans_dlx.kf_trans[i].end(); q++){

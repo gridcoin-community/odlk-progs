@@ -27,8 +27,13 @@
 #include "odlkcommon/namechdlk10.cpp"
 #include "odlkcommon/kvio.cpp"
 
+struct EDatabase	: std::runtime_error { using runtime_error::runtime_error; };
+struct EInvalid	: std::runtime_error { using runtime_error::runtime_error; };
+static int retval;
+
 #include "wio.cpp"
 #include "gener.cpp"
+#include "create_wu.cpp"
 
 /* validate?
  * yes, find all that need to be validated
@@ -42,6 +47,8 @@
  * 
  * should also generate new workunits? good idea, but no - leave it to genwu
 */
+
+gen_padls_cfg wu_gen_cfg;
 
 void initz() {
 	int retval = config.parse_file();
@@ -60,6 +67,14 @@ void initz() {
 					"boinc_db.open failed: %s\n", boincerror(retval)
 			);
 			exit(1);
+	}
+	if (wu_gen_cfg.app.lookup("where name='tot5'")) {
+		cerr<<"can't find app tot5\n";
+		exit(4);
+	}
+	if (read_file_string(config.project_path("templates/tot5_in"), wu_gen_cfg.in_template)) {
+			cerr<<"can't read input template templates/tot5_in\n";
+			exit(4);
 	}
 }
 
@@ -90,6 +105,7 @@ int read_output_file(RESULT const& result, CDynamicStream& buf) {
 						);
 
 						FILE* f = boinc_fopen(path, "r");
+						if(!f && ENOENT==errno) return ERR_FILE_MISSING;
 						if(!f) return ERR_READ;
 						struct stat stat_buf;
 						if(fstat(fileno(f), &stat_buf)<0) return ERR_READ;
@@ -124,44 +140,28 @@ void readFile(const std::string& fn, CDynamicStream& buf) {
 		fclose(f);
 }
 
-class DB_SEGMENT : public DB_BASE {
-public:
-	//needed: rule, minl, next
-	DB_ID_TYPE id;
-	int rule;
-	int minl;
-	NamerCHDLK10::NameStr next;
-public:
-    DB_SEGMENT(DB_CONN* p=0) : DB_BASE("tot_segment", p?p:&boinc_db) {}
-    void db_parse(MYSQL_ROW &r) {
-			id = atoi(r[0]);
-			rule = atoi(r[1]);
-			minl = atoi(r[4]);
-			std::copy(r[5],r[5]+next.size(),next.begin());
-		}
-};
-
-struct EDatabase	: std::runtime_error { using runtime_error::runtime_error; };
-struct EInvalid	: std::runtime_error { using runtime_error::runtime_error; };
-static int retval;
-
 void validate_result_output(State& rstate) {
 	return; //todo
 }
 
-const float credit_m=0.007975* 1e-6;
+const float credit_m=0.012* 1e-6;
 const float
 	credit_sn=1.8898,
-	credit_kf=1942.5503,
+	credit_kf=4400,
 	//credit_trans=0, todo
-	credit_daugh=49.8299;
+	credit_daugh=84;
 
 void process_result(DB_RESULT& result) {
 	// Read the result file
 	CDynamicStream buf;
 	retval=read_output_file(result,buf);
+	/* edit: skip processing if file error */
+	if(retval && 0) {
+		cerr<<"error: Can't read the output file. "<<result.name<<endl;
+		return;
+	}
+	if(ERR_FILE_MISSING==retval) throw EInvalid("Output file absent");
 	if(retval) throw EDatabase("can't read the output file");
-	// TODO: if file missing -> EInvalid("Output file absent")
 	State rstate;
 	try {
 		rstate.readState(buf);
@@ -180,8 +180,6 @@ void process_result(DB_RESULT& result) {
 		// copare segment with rstate
 		if(rstate.rule!=segment.rule || rstate.min_level!=segment.minl) throw EInvalid("Result config does not match segment");
 		if(sn_first!=segment.next) throw EInvalid("Result config.start does not match segment");
-	} else {
-		strncat(result.stderr_out,"Validator: segment not found, but validating anyway\n",BLOB_SIZE);
 	}
 	validate_result_output(rstate);
 	// create tot_result
@@ -194,7 +192,9 @@ void process_result(DB_RESULT& result) {
 	qr<<"n_kf_skip_below="<<rstate.nkf_skip_below<<", n_kf_skip_rule="<<rstate.nkf_skip_rule<<", ";
 	qr<<"max_trans="<<rstate.max_trans<<", n_trans="<<rstate.ntrans<<", resume_cnt="<<rstate.interval_rsm;
 	qr<<", first='"; qr.write(sn_first.data(),sn_first.size());
-	qr<<"', next='"; qr.write(sn_next.data(),sn_next.size());
+	if(!rstate.ended) {
+		qr<<"', next='"; qr.write(sn_next.data(),sn_next.size());
+	}
 	if(rstate.nkf) {
 		qr<<"', last_kf='"; qr.write(sn_last_kf.data(),sn_last_kf.size());
 	}
@@ -227,14 +227,29 @@ void process_result(DB_RESULT& result) {
 	// update tot_segment set next=rstate.next where id=segment.id
 	if(have_segment) {
 		qr=std::stringstream();
-		qr<<"update tot_segment set next='";
-		qr.write(sn_next.data(),sn_next.size());
-		qr<<"', cur_wu=NULL where id="<<segment.id<<";";
+		qr<<"update tot_segment set ";
+		if(!rstate.ended) {
+			qr<<"next='"; qr.write(sn_next.data(),sn_next.size()); qr<<"', ";
+		} else {
+			qr<<"next=NULL, ";
+		}
+		qr<<"cur_wu=NULL where id="<<segment.id<<";";
 		retval=boinc_db.do_query(qr.str().c_str());
 		if(retval) throw EDatabase("tot_segment row update failed");
+		segment.next=sn_next;
+		//segment.cur_wu=0;
 	}
 	//TODO
 	float credit = credit_m*( rstate.nsn*credit_sn + rstate.nkf*credit_kf + rstate.ndaugh*credit_daugh );
+	snprintf(result.stderr_out,BLOB_SIZE,"Validator: OK! Log deleted to save space. "
+		"ODLS=%lu CF=%lu SN=%llu ended=%d seg_dbid=%ld res_dbid=%lu\n",
+		(unsigned long)rstate.odlk.size(),
+		(unsigned long)rstate.nkf,
+		(unsigned long long)rstate.nsn,
+		(int)rstate.ended,
+		have_segment? (long)segment.id : -1,
+		(long)result_id
+	);
 	DB_HOST host;
 	DB_WORKUNIT wu;
 	qr=std::stringstream();
@@ -274,6 +289,10 @@ void process_result(DB_RESULT& result) {
 	if(wu.update()) throw EDatabase("Workunit update error");
 	if (hav.host_id && hav.update_validator(hav0)) throw EDatabase("Host-App-Version update error");
 	cout<<" have_segment "<<have_segment<< " credit="<<result.granted_credit<<endl;
+	if(have_segment && !rstate.ended && segment.enabled) {
+		segment.prio_adjust = (rstate.nkf!=0) * 1;
+		gen_padls_wu(segment, wu_gen_cfg );
+	}
 }
 
 void set_result_invalid(DB_RESULT& result) {
@@ -300,12 +319,14 @@ int main(int argc, char** argv) {
 	long gen_limit;
 	int batchno;
 	char *check1;
-	DB_APP app;
+	DB_APP& app = wu_gen_cfg.app;
 	if(argc!=3) {
 			cerr<<"Expect 2 command line argument: f_write limit"<<endl;
 			exit(2);
 	}
 	f_write = (argv[1][0]=='y');
+	wu_gen_cfg.write=f_write;
+	wu_gen_cfg.batch=2;
 	gen_limit = strtol(argv[2],&check1,10);
 	if((argv[1][0]!='n' && !f_write) || *check1) {
 			cerr<<"Invalid argument format"<<endl;
@@ -314,10 +335,6 @@ int main(int argc, char** argv) {
 	cerr<<"f_write="<<f_write<<" limit="<<gen_limit<<endl;
 	//connect db if requested
 	initz();
-	if (app.lookup("where name='tot5'")) {
-		cerr<<"can't find app tot5\n";
-		exit(4);
-	}
 	if(boinc_db.start_transaction())
 		exit(4);
 	//do generate actually

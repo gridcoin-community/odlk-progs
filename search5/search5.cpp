@@ -16,7 +16,10 @@
 #include "odlkcommon/namechdlk10.cpp"
 #include "odlkcommon/kvio.cpp"
 
-using std::vector, std::array, std::cerr, std::endl;
+using std::vector;
+using std::array;
+using std::cerr;
+using std::endl;
 
 #include "wio.cpp"
 #include "gener.cpp"
@@ -106,10 +109,15 @@ void message(const std::string& str, int err, bool notice) {
 
 State state;
 Generator generator;
+struct {
+	time_t realtime;
+	double cputime;
+} time_limits;
 
 void init() {
 	BOINC_OPTIONS opts;
 	APP_INIT_DATA binitdata;
+	char buf[64];
 	boinc_options_defaults(opts);
 	opts.direct_process_action = 0; // I handle abort/suspend myself
 	int retval = boinc_init_options(&opts);
@@ -122,6 +130,7 @@ void init() {
 		readFile("checkpoint",buf,false);
 		state.readState(buf);
 		state.interval_rsm++;
+		message("Resume from Checkpoint",-1,0);
 	} catch(EFileNotFound& e) {
 		CDynamicStream buf;
 		readFile("input.dat",buf,true);
@@ -129,10 +138,23 @@ void init() {
 		state.userid= binitdata.userid;
 		message("Start from Input",-1,0);
 	}
+	// one minute before deadline
+	time_limits.realtime = binitdata.computation_deadline - 60;
+	if(binitdata.global_prefs.work_buf_min_days >= 1 ) {
+		time_limits.realtime += (binitdata.global_prefs.work_buf_min_days-1) * 86400;
+		fprintf(stderr,"%s work_buf_min_days too high %f, capping at 1 day",
+			boinc_msg_prefix(buf, sizeof(buf)), binitdata.global_prefs.work_buf_min_days);
+	}
+	// 30% over estimated time
+	time_limits.cputime = (binitdata.rsc_fpops_est / binitdata.host_info.p_fpops) * 1.30;
 	retval= generator.init(state.rule-1, state.next);
 	if(!retval)
 		message("Failed to initialize generator",2,0);
 	generator.min_l= state.min_level;
+	fprintf(stderr,
+			"%s time limits %d %d\n",
+			boinc_msg_prefix(buf, sizeof(buf)), (long) time_limits.realtime, (long) time_limits.cputime
+	);
 }
 
 void checkpoint() {
@@ -161,32 +183,51 @@ void maybe_checkpoint(){
 		)
 	{
 		bool upload1= state.nsn>=state.lim_sn || state.nkf>=state.lim_kf;
-		if(( ( upload1 && !boinc_status.no_heartbeat)
-			|| boinc_status.abort_request
-			) && 1)
-		{
-			result_upload();
-			message("Final checkpoint",0,false);
-		} else {
-			checkpoint();
-			message("Checkpoint",-1,false);
-		}
-		report_cpu_ops();
-		boinc_checkpoint_completed();
+		double cputime; boinc_wu_cpu_time(cputime);
+		bool upload2= ( cputime > time_limits.cputime ) || (time(0) > time_limits.realtime);
 		if(boinc_status.quit_request) {
+			checkpoint();
+			report_cpu_ops();
 			message("Exiting as Requested",-1,false);
 			exit(0);
 		}
-		if(boinc_status.no_heartbeat) {
-			message("No Heartbeat!",-1,false);
-			exit(204 /*EXIT_UNKNOWN*/);
+		else if(boinc_status.no_heartbeat) {
+			checkpoint();
+			message("No Heartbeat!",0,false);
 		}
-		if(boinc_status.abort_request) {
+		else if(boinc_status.abort_request) {
+			result_upload();
 			/*std::string s ("output.dat"); boinc_upload_file(s);*/
 			message("EXIT_ABORTED_BY_CLIENT",0,false);
 		}
-		if(boinc_status.suspended) {
-			while(boinc_status.suspended) sleep(10);
+		else if(upload1) {
+			result_upload();
+			message("Final checkpoint",0,false);
+		}
+		else if(upload1) {
+			report_cpu_ops();
+			result_upload();
+			message("Final checkpoint",0,false);
+		}
+		else if(upload2) {
+			report_cpu_ops();
+			result_upload();
+			message("Time limit reached!",0,false);
+		}
+		else if(boinc_status.suspended) {
+			for(int i=0; i<600 && boinc_status.suspended; ++i) {
+				sleep(i<15? 1 : 10);
+			}
+		}
+		else {
+			checkpoint();
+			report_cpu_ops();
+			boinc_checkpoint_completed();
+			char buf[256];
+			fprintf(stderr,
+					"%s Checkpoint, SN=%lu\n",
+					boinc_msg_prefix(buf, sizeof(buf)), state.nsn
+			);
 		}
 	}
 	//report fraction done?

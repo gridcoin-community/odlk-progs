@@ -151,16 +151,16 @@ void write_square(std::ostream& out, const kvadrat& kv, const CSquareReader::for
   if(format==CSquareReader::NAME58) {
     NamerCHDLK10::NameStr name;
     if(!NamerCHDLK10::getName58(kv,name)){
-      cerr<<"Failed to get sndlk name for square!"<<endl;
+      std::cerr<<"Failed to get sndlk name for square!"<<std::endl;
       out.setstate(std::ios::failbit);
     }
 		out.write(name.data(),name.size());
-    out<<endl;
+    out<<std::endl;
   } else
   if(format==CSquareReader::BINARY) {
     unsigned char bin[18];
     if(!getNameBin(kv,bin)){
-      cerr<<"Failed to get sndlk name for square!"<<endl;
+      std::cerr<<"Failed to get sndlk name for square!"<<std::endl;
       out.setstate(std::ios::failbit);
     }
     out.write((char*)bin,18);

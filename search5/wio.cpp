@@ -77,7 +77,7 @@ void Input::writeInput(CStream& s) {
 	s.w1(rule);
 	writeNameBin(s, start);
 	s.w1(min_level);
-	unsigned flag = (skip_below) || (skip_fast<<1);
+	unsigned flag = (skip_below) | (skip_fast<<1);
 	flag |= ((skip_rule>>64)&ruleset(4)).to_ulong();
 	s.w1(flag);
 	s.w4(((skip_rule>>32)&ruleset(0xFFFFFFFF)).to_ulong());
