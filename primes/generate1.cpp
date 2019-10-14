@@ -117,7 +117,7 @@ void initz() {
 void submit_wu_in(DB_WORKUNIT& wu, TInput& inp)
 {
 	std::stringstream wuname;
-	wuname<<"scpn_"<<inp.start<<"_a";
+	wuname<<"scpn_"<<inp.start<<"_"<<char(wu.batch-41+'a');
 	std::cout<<" WU "<<wuname.str()<<endl;
 	strcpy(wu.name, wuname.str().c_str());
 	CFileStream buf;
@@ -157,13 +157,15 @@ int main(int argc, char** argv) {
 
 		inp.start= inp.start;
 		inp.end  = inp.end;
+		inp.min_k= 16;
+		inp.max_k= 32;
 		inp.upload = 0;
 		inp.exit_early= 0;
 		inp.out_last_primes= 0;
 		inp.out_all_primes= 0;
 		inp.primes_in.clear();
 		wu.appid = scpn_app.id;
-		wu.batch = 41;
+		wu.batch = 42;
 		wu.rsc_fpops_est = 14e12 * 1.5 ; // 1.5 hour
 		wu.rsc_fpops_bound = wu.rsc_fpops_est * 24;
 		wu.rsc_memory_bound = 1e8; //todo 100M
