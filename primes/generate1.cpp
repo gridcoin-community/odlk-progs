@@ -72,13 +72,13 @@ class CFileStream
 	}
 	void writeFile( const char* name )
 	{
-		FILE* f = boinc_fopen("tmp", "w");
+		FILE* f = boinc_fopen("tmp_write_file", "w");
 		if(!f)
 			throw std::runtime_error("fopen");
 		if( fwrite(this->getbase(), 1, this->pos(), f) !=this->pos())
 			throw std::runtime_error("fwrite");
 		fclose(f);
-		if( rename("tmp",name) <0)
+		if( rename("tmp_write_file",name) <0)
 			throw std::runtime_error("rename");
 	}
 };
@@ -149,7 +149,7 @@ int main(int argc, char** argv) {
 	inp.end = start;
 	while(1) {
 		inp.start = inp.end;
-		inp.end = start + 205400000000;
+		inp.end = inp.start + 205400000000;
 		if(inp.start > end)
 			break;
 
