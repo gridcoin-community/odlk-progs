@@ -1,4 +1,4 @@
-all: scpn1 sievetest scpn2 stuff generate1
+all: sievetest scpn2 stuff generate1
 
 scpn1: scpn1.cpp
 	g++ -g -o $@ -O1 scpn1.cpp -lprimesieve
