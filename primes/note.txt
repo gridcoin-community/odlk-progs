@@ -1,0 +1,87 @@
+
+input, output and checkpoint formats
+show program
+database schema
+server init
+server main
+client
+
+OK, so the sieve is fast in this interval therefore no chaining is neede here.
+
+later server doublecheck
+
+scpn_segment:
+     start
+     end
+     current
+     wu_cur
+     res_last
+     res_first
+     state
+
+scpn_result
+     segment
+     start
+     end
+     num_pn
+     num_scpn
+     scpns (null)
+     userid
+     boinc_result
+
+scpn
+     central
+     offsets (serialized)
+     status
+     result_id
+
+Numbers are 6e17 max - well within range of BIGINT.
+For doublecheck results, the prime touples found are stored serialized. If the
+initial result was wrong, good result will replace the db later.
+
+Server daemon:
+
+select segment state=1 and wu_cur is null
+for all generate new wu
+select finished results
+for all
+     read/validate
+     store result
+     generate new wu
+
+generate:
+     read segment
+     update segment
+     create wu
+
+Let's not complicate things.
+Segment the interval into equidistand segments.
+The segment is made into WU.
+Application scans the interval and checkpoints sometimes.
+Every 2 hours, upload checkpoint.
+
+Server besides initializing segments must also handle returned results.
+In scheduler, on recv cleint error, mark as outcome=0, client_state=3/6, validate_state=need, delete_state=0.
+To prevent, upload file with two names, so at least one survives.
+todo: Solver case for timedout result.
+
+
+No! Really keep it simple.
+Wu generation will be done by python script in two batches (1=test, 2=tuned).
+Result processing similar to tot5, but
+- credit based on runtime and flops estimate
+- store the whole result input and output files in db
+- append the prime tuples to file (unsafe, but for now)
+
+Client app: we have to support checkpoints.
+The sieve iterator is great. There is likely some overhead left still,
+zero overhead with directly using PrimeGenerator::fill(vector&,size_t*).
+Fill the circular buffer, check, output.
+
+
+properties:
+- weird symmetric
+
+
+Serialization:
+mmap file, read
