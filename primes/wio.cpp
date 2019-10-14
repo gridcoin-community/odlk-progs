@@ -15,6 +15,7 @@ struct TInput {
 
 struct TOutputTuple {
 	uint64_t start;
+	short k;
 	vector<int> ofs;
 };
 
@@ -81,7 +82,7 @@ void TOutput::writeOutput(CStream& s) {
 	s.w4(tuples.size());
 	for( const auto& t : tuples ) {
 		s.w8(t.start);
-		s.w1(t.ofs.size());
+		s.w1(t.k);
 		for( const auto& o : t.ofs )
 			s.w2(o);
 	}
@@ -105,9 +106,9 @@ void TOutput::readOutput(CStream&& s) {
 	tuples.resize(len);
 	for(unsigned i=0; i<len; ++i) {
 		tuples[i].start=s.r8();
-		unsigned len2= s.r1();
-		tuples[i].ofs.resize(len2);
-		for(unsigned j=0; j<len2; ++j)
+		unsigned k= s.r1();
+		tuples[i].ofs.resize((k+1)/2);
+		for(unsigned j=0; j<tuples[i].ofs.size(); ++j)
 			tuples[i].ofs[j]= s.r2();
 	}
 	status= TOutput::Status(s.r1());

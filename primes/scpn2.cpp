@@ -157,6 +157,7 @@ void save_tuple(unsigned k) {
 	output.tuples.emplace_back();
 	auto& el = output.tuples.back();
 	el.start = primes[(z)%128];
+	el.k = k;
 	el.ofs.resize( (k + 1) / 2 );
 	for(unsigned i=1; i<((k+3)/2); ++i)
 		el.ofs[i-1] = disp[(z+i)%128];
