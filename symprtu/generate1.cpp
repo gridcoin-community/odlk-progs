@@ -83,8 +83,8 @@ class CFileStream
 	}
 };
 
-DB_APP scpn_app;
-const char scpn_template [] =
+DB_APP spt_app;
+const char spt_template [] =
 "<input_template><file_info><number>0</number></file_info><workunit><file_ref>"
 "<file_number>0</file_number><open_name>input.dat</open_name></file_ref>"
 "</workunit></input_template>\n";
@@ -108,8 +108,8 @@ void initz() {
 			);
 			exit(1);
 	}
-	if (scpn_app.lookup("where name='scpn'")) {
-		std::cerr<<"can't find app scpn\n";
+	if (spt_app.lookup("where name='spt'")) {
+		std::cerr<<"can't find app spt\n";
 		exit(4);
 	}
 }
@@ -117,7 +117,7 @@ void initz() {
 void submit_wu_in(DB_WORKUNIT& wu, TInput& inp)
 {
 	std::stringstream wuname;
-	wuname<<"scpn_"<<inp.start<<"_"<<char(wu.batch-41+'a');
+	wuname<<"spt_"<<wu.batch<<"_"<<inp.start;
 	std::cout<<" WU "<<wuname.str()<<endl;
 	strcpy(wu.name, wuname.str().c_str());
 	CFileStream buf;
@@ -133,7 +133,7 @@ void submit_wu_in(DB_WORKUNIT& wu, TInput& inp)
 	vector<INFILE_DESC> infile_specs{1};
 	infile_specs[0].is_remote = false;
 	strcpy(infile_specs[0].name, (wuname.str()+".in").c_str());
-	retval= create_work2(wu, scpn_template,"templates/scpn_out",0,infile_specs,config,0,0,0);
+	retval= create_work2(wu, spt_template,"templates/spt_out",0,infile_specs,config,0,0,0);
 	if(retval) throw EDatabase("create_work2 failed");
 }
 
@@ -164,7 +164,7 @@ int main(int argc, char** argv) {
 		inp.out_last_primes= 0;
 		inp.out_all_primes= 0;
 		inp.primes_in.clear();
-		wu.appid = scpn_app.id;
+		wu.appid = spt_app.id;
 		wu.batch = 42;
 		wu.rsc_fpops_est = 14e12 * 1.5 ; // 1.5 hour
 		wu.rsc_fpops_bound = wu.rsc_fpops_est * 24;

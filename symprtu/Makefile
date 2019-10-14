@@ -1,4 +1,4 @@
-all: sievetest scpn2 stuff generate1
+all: sievetest spt stuff generate1
 
 scpn1: scpn1.cpp
 	g++ -g -o $@ -O1 scpn1.cpp -lprimesieve
@@ -6,8 +6,8 @@ scpn1: scpn1.cpp
 sievetest: sievetest.cpp
 	g++ -g -o $@ -O1 sievetest.cpp primesieve/libprimesieve.so
 
-scpn2: scpn2.cpp
-	g++ -o $@ -O3 -static -I ../boinc/api -I ../boinc/lib -I ../boinc scpn2.cpp primesieve/libprimesieve.a ../boinc/api/libboinc_api.a ../boinc/lib/libboinc.a -lpthread
+spt: spt.cpp
+	g++ -o $@ -O3 -static -I ../boinc/api -I ../boinc/lib -I ../boinc spt.cpp primesieve/libprimesieve.a ../boinc/api/libboinc_api.a ../boinc/lib/libboinc.a -lpthread
 
 stuff: stuff.cpp
 	g++ -g -o $@ -O0 -I ../boinc/api -I ../boinc/lib -I ../boinc stuff.cpp -lprimesieve ../boinc/api/libboinc_api.a ../boinc/lib/libboinc.a -lpthread

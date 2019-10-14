@@ -2,5 +2,5 @@
 	path = psnip
 	url = https://github.com/nemequ/portable-snippets.git
 [submodule "primes/primesieve"]
-	path = primes/primesieve
+	path = symprtu/primesieve
 	url = https://github.com/kimwalisch/primesieve.git
