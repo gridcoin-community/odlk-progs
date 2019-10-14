@@ -1,3 +1,6 @@
 [submodule "psnip"]
 	path = psnip
 	url = https://github.com/nemequ/portable-snippets.git
+[submodule "primes/primesieve"]
+	path = primes/primesieve
+	url = https://github.com/kimwalisch/primesieve.git
