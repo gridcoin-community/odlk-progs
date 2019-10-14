@@ -149,7 +149,8 @@ void checkpoint(int mode) {
 		CBoincFileStream fs;
 		output.writeOutput(fs);
 		fs.writeFile(1,"checkpoint");
-	}	
+	}
+	boinc_checkpoint_completed();
 }
 
 void save_tuple(unsigned k) {
@@ -218,7 +219,8 @@ int main(){
 					save_tuple(k);
 			}
 
-			output.chkpt = primes[(z)%128];
+			output.chkpt = primes[(z)%128]; // this is the last prime fully checked
+
 			if(output.chkpt >= input.end) {
 				checkpoint(2);
 				boinc_finish(0);
