@@ -1,4 +1,4 @@
-all: sievetest spt stuff generate1 asim1 asimO
+all: sievetest spt generate1 asim1 asimO
 
 scpn1: scpn1.cpp
 	g++ -g -o $@ -O1 scpn1.cpp -lprimesieve

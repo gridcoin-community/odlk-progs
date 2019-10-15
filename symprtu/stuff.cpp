@@ -7,6 +7,8 @@
 #include <ctime>
 #include <sys/stat.h>
 
+#include "primesieve.hpp"
+#include "primesieve/include/primesieve/PrimeGenerator.hpp"
 
 #include "boinc_api.h"
 #include "Stream.cpp"
