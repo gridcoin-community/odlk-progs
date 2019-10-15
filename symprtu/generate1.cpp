@@ -149,7 +149,7 @@ int main(int argc, char** argv) {
 	inp.end = start;
 	while(1) {
 		inp.start = inp.end;
-		inp.end = inp.start + 205400000000;
+		inp.end = inp.start + 154100000000;
 		if(inp.start > end)
 			break;
 

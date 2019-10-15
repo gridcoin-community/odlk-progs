@@ -37,6 +37,7 @@ struct TOutput {
 
 	void readOutput(CStream&& s);
 	void writeOutput(CStream& s);
+	void readOutput_OLD(CStream&& s);
 };
 
 
@@ -71,7 +72,7 @@ void TInput::writeInput(CStream& s) {
 
 
 void TOutput::writeOutput(CStream& s) {
-	s.w4(0x64DE70F7);
+	s.w4(0x64DE70F8);
 	s.w8(start);
 	s.w8(chkpt);
 	s.w8(last);
@@ -93,7 +94,7 @@ void TOutput::writeOutput(CStream& s) {
 
 void TOutput::readOutput(CStream&& s) {
 	unsigned ident= s.r4();
-	if(ident!=0x64DE70F7) s.fail();
+	if(ident!=0x64DE70F8) s.fail();
 	start= s.r8();
 	chkpt= s.r8();
 	last= s.r8();
@@ -108,6 +109,31 @@ void TOutput::readOutput(CStream&& s) {
 		tuples[i].start=s.r8();
 		unsigned k= s.r1();
 		tuples[i].ofs.resize((k+1)/2);
+		for(unsigned j=0; j<tuples[i].ofs.size(); ++j)
+			tuples[i].ofs[j]= s.r2();
+	}
+	status= TOutput::Status(s.r1());
+	sieve_init_cs= s.r4();
+}
+
+void TOutput::readOutput_OLD(CStream&& s) {
+	unsigned ident= s.r4();
+	if(ident!=0x64DE70F7) s.fail();
+	start= s.r8();
+	chkpt= s.r8();
+	last= s.r8();
+	nprime= s.r4();
+	unsigned len = s.r4();
+	primes.resize(len);
+	for(unsigned i=0; i<len; ++i)
+		primes[i]= s.r8();
+	len= s.r4();
+	tuples.resize(len);
+	for(unsigned i=0; i<len; ++i) {
+		tuples[i].start=s.r8();
+		unsigned len2= s.r1();
+		tuples[i].ofs.resize(len2);
+		tuples[i].k = len2*2;
 		for(unsigned j=0; j<tuples[i].ofs.size(); ++j)
 			tuples[i].ofs[j]= s.r2();
 	}
