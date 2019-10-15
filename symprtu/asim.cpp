@@ -113,7 +113,7 @@ void initz() {
 	}
 	
 	spt_result_stmt = mysql_stmt_init(boinc_db.mysql);
-	char stmt[] = "insert into spt_result SAT id=?, input=?, output=?";
+	char stmt[] = "insert into spt_result SET id=?, input=?, output=?";
 	if(mysql_stmt_prepare(spt_result_stmt, stmt, sizeof stmt ))
 		throw EDatabase("spt_result insert prepare");
 }
