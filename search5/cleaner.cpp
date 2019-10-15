@@ -52,6 +52,7 @@ void initz() {
 }
 
 bool f_write;
+bool f_allapps;
 
 int delete_workunit_files(DB_WORKUNIT& wu)
 {
@@ -195,7 +196,11 @@ void delete_old(DB_APP& app, long cnt_limit)
 	time_t cutoff_time;
 	cutoff_time= time(0) - 1209600;
 	std::stringstream qr;
-	qr<<"where appid="<<app.id<<" and file_delete_state=1 and UNIX_TIMESTAMP(mod_time)<"<<cutoff_time<<" limit "<<cnt_limit<<";";
+	qr<<"where ";
+	if(!f_allapps) {
+		qr<<"appid="<<app.id<<" and ";
+	}
+	qr<<"file_delete_state=1 and UNIX_TIMESTAMP(mod_time)<"<<cutoff_time<<" limit "<<cnt_limit<<";";
 	DB_WORKUNIT wu;
 	while(1) {
 		int retval= wu.enumerate(qr.str().c_str());
@@ -254,6 +259,8 @@ int main(int argc, char** argv) {
 			exit(2);
 	}
 	f_write = (argv[1][0]=='y');
+	f_all_apps = (argv[1][0]=='m');
+	f_write |= f_all_apps;
 	gen_limit = strtol(argv[2],&check2,10);
 	if((argv[1][0]!='n' && !f_write) || *check2) {
 			cerr<<"Invalid argument format"<<endl;
