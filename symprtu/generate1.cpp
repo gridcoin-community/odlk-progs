@@ -138,7 +138,8 @@ void submit_wu_in(DB_WORKUNIT& wu, TInput& inp)
 }
 
 int main(int argc, char** argv) {
-	
+
+	//node: min app version is set in app table
 	initz();
 	if(boinc_db.start_transaction())
 		exit(4);

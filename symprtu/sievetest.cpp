@@ -6,7 +6,7 @@
 #include <set>
 #include <ctime>
 #include "primesieve.hpp"
-#include "primesieve/include/primesieve/PrimeGenerator.hpp"
+#include "primesieve/PrimeGenerator.hpp"
 
 using namespace std;
 
