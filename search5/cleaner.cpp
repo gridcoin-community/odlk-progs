@@ -259,8 +259,8 @@ int main(int argc, char** argv) {
 			exit(2);
 	}
 	f_write = (argv[1][0]=='y');
-	f_all_apps = (argv[1][0]=='m');
-	f_write |= f_all_apps;
+	f_allapps = (argv[1][0]=='m');
+	f_write |= f_allapps;
 	gen_limit = strtol(argv[2],&check2,10);
 	if((argv[1][0]!='n' && !f_write) || *check2) {
 			cerr<<"Invalid argument format"<<endl;
