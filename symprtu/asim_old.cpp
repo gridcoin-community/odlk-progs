@@ -212,8 +212,7 @@ void process_result(DB_RESULT& result) {
 	/* insert into the prime tuple db */
 	for( const auto& tuple : rstate.tuples) {
 		qr=std::stringstream();
-		qr<<"insert into spt set id="<<result.id;
-		qr<<", batch="<<result.batch;
+		qr<<"insert into spt set batch="<<result.batch;
 		qr<<", start="<<tuple.start;
 		qr<<", k="<<tuple.k;
 		qr<<", ofs='"<<tuple.ofs[0];
