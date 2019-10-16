@@ -180,7 +180,7 @@ void fill() {
 
 bool testit(unsigned k) {
 	bool r=true;
-	for(unsigned i=1; i<=((k-2)/2); ++i) {
+	for(unsigned i=1; i<=((k-1)/2); ++i) {
 		if( disp[(z+i)%128] != disp[(z+k-i)%128] )
 			r=false;
 	}
@@ -193,7 +193,7 @@ void testit2(bool r[]) {
 	}
 	for(unsigned i=2; i<=((32-2)/2); ++i) {
 		for(unsigned k=16; k<=32; ++k) {
-			if(i <= ((k-2)/2)) {
+			if(i <= ((k-1)/2)) {
 				r[k-16] &= disp[(z+i)%128] == disp[(z+k-i)%128];
 			}
 		}

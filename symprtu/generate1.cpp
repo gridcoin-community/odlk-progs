@@ -145,12 +145,12 @@ int main(int argc, char** argv) {
 		exit(4);
 
 	TInput inp;
-	uint64_t start= 500002700000000000;
-	uint64_t   end= 500007900000000000;
+	uint64_t start= 500304494994471000;
+	uint64_t   end= 500309661688072493;
 	inp.end = start;
 	while(1) {
 		inp.start = inp.end;
-		inp.end = inp.start + 154100000000;
+		inp.end = inp.start + 102680161000;
 		if(inp.start > end)
 			break;
 
@@ -166,12 +166,12 @@ int main(int argc, char** argv) {
 		inp.out_all_primes= 0;
 		inp.primes_in.clear();
 		wu.appid = spt_app.id;
-		wu.batch = 42;
-		wu.rsc_fpops_est = 14e12 * 1.5 ; // 1.5 hour
+		wu.batch = 44;
+		wu.rsc_fpops_est = 14e12 * 1 ; // hour times x
 		wu.rsc_fpops_bound = wu.rsc_fpops_est * 24;
 		wu.rsc_memory_bound = 1e8; //todo 100M
 		wu.rsc_disk_bound = 1e8; //todo 100m
-		wu.delay_bound = 86400 * 7; // 7 days
+		wu.delay_bound = 8 * 3600;
 		wu.priority = 23;
 		wu.target_nresults= wu.min_quorum = 1;
 		wu.max_error_results= wu.max_total_results= 8;
