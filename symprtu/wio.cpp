@@ -107,7 +107,7 @@ void TOutput::readOutput(CStream&& s) {
 	tuples.resize(len);
 	for(unsigned i=0; i<len; ++i) {
 		tuples[i].start=s.r8();
-		unsigned k= s.r1();
+		unsigned k= tuples[i].k = s.r1();
 		tuples[i].ofs.resize((k+1)/2);
 		for(unsigned j=0; j<tuples[i].ofs.size(); ++j)
 			tuples[i].ofs[j]= s.r2();
