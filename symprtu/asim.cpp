@@ -215,6 +215,8 @@ void process_result(DB_RESULT& result) {
 		qr<<"insert into spt set batch="<<result.batch;
 		qr<<", start="<<tuple.start;
 		qr<<", k="<<tuple.k;
+		if(tuple.k==0)
+			throw EDatabase("bad tuple k");
 		qr<<", ofs='"<<tuple.ofs[0];
 		for(unsigned i=1; i<tuple.ofs.size(); ++i)
 			qr<<" "<<tuple.ofs[i];
