@@ -10,6 +10,7 @@ function main() {
   $db = BoincDb::get();
   $set = $db->do_query("select distinct(start), k, ofs from spt where batch=$f_batch order by k, start");
   $prevk=0;
+  echo "# Copyright Tomas Brada, ask on forum about reuse or citation.\n";
   while($row = $set->fetch_object('stdClass')) {
     $d= explode(' ',$row->ofs);
     $k=$row->k;
