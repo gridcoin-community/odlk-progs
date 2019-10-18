@@ -168,6 +168,7 @@ int main(int argc, char** argv) {
 		wu.appid = spt_app.id;
 		wu.batch = 44;
 		wu.rsc_fpops_est = 14e12 * 1 ; // hour times x
+		// in real, mul by 1.2
 		wu.rsc_fpops_bound = wu.rsc_fpops_est * 24;
 		wu.rsc_memory_bound = 1e8; //todo 100M
 		wu.rsc_disk_bound = 1e8; //todo 100m
