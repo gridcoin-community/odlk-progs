@@ -145,8 +145,8 @@ int main(int argc, char** argv) {
 		exit(4);
 
 	TInput inp;
-	uint64_t start= 501000000000000000;
-	uint64_t   end= 501300000000000000;
+	uint64_t start= 501300133640000000;
+	uint64_t   end= 501900000000000000;
 	uint64_t  step= 1;
 	inp.end = start;
 	unsigned long count = 0;
