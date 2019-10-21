@@ -48,7 +48,7 @@ class CBoincFileStream
 			if(retval) throw EFileNotFound();
 		}
 		else fn2 = name;
-		FILE* f = boinc_fopen(fn2.c_str(), "r");
+		FILE* f = boinc_fopen(fn2.c_str(), "rb");
 		if(!f) {
 			//bug: boinc on windows is stupid and this call does not set errno if file does not exist
 			//Go to hell!!
@@ -74,7 +74,7 @@ class CBoincFileStream
 				throw std::runtime_error("boinc_resolve_filename_s");
 		}
 		else fn2=name;
-		FILE* f = boinc_fopen("tmp", "w");
+		FILE* f = boinc_fopen("tmp", "wb");
 		if(!f)
 			throw std::runtime_error("fopen");
 		if( fwrite(this->getbase(), 1, this->pos(), f) !=this->pos())
