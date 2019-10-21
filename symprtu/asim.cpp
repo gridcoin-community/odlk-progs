@@ -258,6 +258,9 @@ void process_result(DB_RESULT& result) {
 	if(result.granted_credit==0) {
 		result.granted_credit = credit;
 		grant_credit(host, result.sent_time, result.granted_credit);
+		if (config.credit_by_app) {
+			grant_credit_by_app(result, credit);
+		}
 	}
 	if(host.update()) throw EDatabase("Host update error");
 	//update result (?)
