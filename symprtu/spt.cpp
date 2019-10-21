@@ -80,6 +80,9 @@ class CBoincFileStream
 		if( fwrite(this->getbase(), 1, this->pos(), f) !=this->pos())
 			throw std::runtime_error("fwrite");
 		fclose(f);
+#ifdef WIN32
+		unlink(fn2.c_str());
+#endif
 		if( rename("tmp",fn2.c_str()) <0)
 			throw std::runtime_error("rename");
 	}
