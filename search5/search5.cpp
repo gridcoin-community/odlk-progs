@@ -33,14 +33,29 @@ void writeAtomFile(const char* fn, const CStream& buf, bool resolv=false) {
 			throw std::runtime_error("boinc_resolve_filename_s");
 		writeAtomFile(fn2.c_str(),buf,false);
 	} else {
-		FILE* f = boinc_fopen("tmp", "w");
+#ifdef WIN32
+		FILE* f = boinc_fopen(fn, "wb");
 		if(!f)
 			throw std::runtime_error("fopen");
-		if( fwrite(buf.getbase(), 1, buf.pos(), f) !=buf.pos())
+		if( fwrite(buf.getbase(), 1, buf.pos(), f) !=buf.pos()) {
+			fclose(f);
 			throw std::runtime_error("fwrite");
+		}
 		fclose(f);
-		if( rename("tmp",fn) <0)
+#else
+		FILE* f = boinc_fopen("tmp", "wb");
+		if(!f)
+			throw std::runtime_error("fopen");
+		if( fwrite(buf.getbase(), 1, buf.pos(), f) !=buf.pos()) {
+			fclose(f);
+			throw std::runtime_error("fwrite");
+		}
+		fclose(f);
+		int retval=rename("tmp",fn);
+		int tmp=errno;
+		if( retval <0)
 			throw std::runtime_error("rename");
+#endif
 	}
 }
 
@@ -51,7 +66,7 @@ void readFile(const char* fn, CDynamicStream& buf, bool resolv=false) {
 		if(retval) throw EFileNotFound();
 		readFile(fn2.c_str(),buf,false);
 	} else {
-		FILE* f = boinc_fopen(fn, "r");
+		FILE* f = boinc_fopen(fn, "rb");
 		if(!f) {
 			//bug: boinc on windows is stupid and this call does not set errno if file does not exist
 			//Go to hell!!
@@ -60,12 +75,16 @@ void readFile(const char* fn, CDynamicStream& buf, bool resolv=false) {
 			throw std::runtime_error("fopen");
 		}
 		struct stat stat_buf;
-		if(fstat(fileno(f), &stat_buf)<0)
+		if(fstat(fileno(f), &stat_buf)<0) {
+			fclose(f);
 			throw std::runtime_error("fstat");
+		}
 		buf.setpos(0);
 		buf.reserve(stat_buf.st_size);
-		if( fread(buf.getbase(), 1, stat_buf.st_size, f) !=stat_buf.st_size)
+		if( fread(buf.getbase(), 1, stat_buf.st_size, f) !=stat_buf.st_size) {
+			fclose(f);
 			throw std::runtime_error("fread");
+		}
 		buf.setpos(0);
 		fclose(f);
 	}
