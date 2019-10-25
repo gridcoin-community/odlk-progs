@@ -113,7 +113,7 @@ void initz() {
 	}
 	
 	spt_result_stmt = mysql_stmt_init(boinc_db.mysql);
-	char stmt[] = "insert into spt_result SET id=?, input=?, output=?";
+	char stmt[] = "insert into spt_result SET id=?, input=?, output=?, uid=?";
 	if(mysql_stmt_prepare(spt_result_stmt, stmt, sizeof stmt ))
 		throw EDatabase("spt_result insert prepare");
 }
@@ -199,10 +199,11 @@ void process_result(DB_RESULT& result) {
 	/* Insert into result db */
 	unsigned long bind_2_length = inbuf.length();
 	unsigned long bind_3_length = buf.length();
-	MYSQL_BIND bind[3] = {
+	MYSQL_BIND bind[] = {
 		{.buffer=&result.id, .buffer_type=MYSQL_TYPE_LONG, 0},
 		{.length=&bind_2_length, .buffer=inbuf.getbase(), .buffer_type=MYSQL_TYPE_BLOB, 0},
-		{.length=&bind_3_length, .buffer=buf.getbase(), .buffer_type=MYSQL_TYPE_BLOB, 0}
+		{.length=&bind_3_length, .buffer=buf.getbase(), .buffer_type=MYSQL_TYPE_BLOB, 0},
+		{.buffer=&result.userid, .buffer_type=MYSQL_TYPE_LONG, 0}
 	};
 	if(mysql_stmt_bind_param(spt_result_stmt, bind))
 		throw EDatabase("spt_result insert bind");
