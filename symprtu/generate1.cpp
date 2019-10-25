@@ -145,8 +145,8 @@ int main(int argc, char** argv) {
 		exit(4);
 
 	TInput inp;
-	uint64_t start= 501300133640000000;
-	uint64_t   end= 501900000000000000;
+	uint64_t start= 501900195560000000;
+	uint64_t   end= 502500000000000000;
 	uint64_t  step= 1;
 	inp.end = start;
 	unsigned long count = 0;
@@ -168,7 +168,7 @@ int main(int argc, char** argv) {
 		inp.out_all_primes= 0;
 		inp.primes_in.clear();
 		wu.appid = spt_app.id;
-		wu.batch = 45;
+		wu.batch = 46;
 		//14e12 is one hour on mangan-pc
 		wu.rsc_fpops_est = (inp.end - inp.start) * 163;
 		wu.rsc_fpops_bound = wu.rsc_fpops_est * 24;
