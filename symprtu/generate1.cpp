@@ -145,14 +145,14 @@ int main(int argc, char** argv) {
 		exit(4);
 
 	TInput inp;
-	uint64_t start= 501900195560000000;
-	uint64_t   end= 502990000000000000;
+	uint64_t start= 500304494994471000;
+	uint64_t   end= 500309661688072493;
 	uint64_t  step= 1;
 	inp.end = start;
 	unsigned long count = 0;
 	while(1) {
 		inp.start = inp.end;
-		inp.end = inp.start + 102680000000;
+		inp.end = inp.start + 102680161000;
 		if(inp.start > end)
 			break;
 
@@ -168,14 +168,14 @@ int main(int argc, char** argv) {
 		inp.out_all_primes= 0;
 		inp.primes_in.clear();
 		wu.appid = spt_app.id;
-		wu.batch = 46;
+		wu.batch = 47;
 		//14e12 is one hour on mangan-pc
 		wu.rsc_fpops_est = (inp.end - inp.start) * 163;
 		wu.rsc_fpops_bound = wu.rsc_fpops_est * 24;
 		wu.rsc_memory_bound = 1e8; //todo 100M
 		wu.rsc_disk_bound = 1e8; //todo 100m
-		wu.delay_bound = 5 * 24 * 3600;
-		wu.priority = 23;
+		wu.delay_bound = 2 * 24 * 3600;
+		wu.priority = 24;
 		wu.target_nresults= wu.min_quorum = 1;
 		wu.max_error_results= wu.max_total_results= 8;
 		wu.max_success_results= 1;
