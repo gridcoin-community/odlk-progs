@@ -187,7 +187,8 @@ int main(int argc, char** argv) {
 		count++;
 	}
 	cerr<<"Count: "<<count<<endl;
-	cerr<<"Next: "<<inp.start<<endl;
+	cerr<<"First: "<<start<<endl;
+	cerr<<"Next : "<<inp.start<<endl;
 
 	if(boinc_db.commit_transaction()) {
 		cerr<<"failed to commit transaction"<<endl;
