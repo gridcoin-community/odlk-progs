@@ -145,15 +145,18 @@ int main(int argc, char** argv) {
 		exit(4);
 
 	TInput inp;
-	uint64_t start= 500304494994471000;
-	uint64_t   end= 500309661688072493;
-	uint64_t  step= 1;
+	uint64_t start= 502990041080000000;
+	//uint64_t   end= 504990000000000000;
+	uint64_t  step=       102680000000;
+	unsigned maxcnt = 15000;
 	inp.end = start;
 	unsigned long count = 0;
 	while(1) {
 		inp.start = inp.end;
-		inp.end = inp.start + 102680161000;
-		if(inp.start > end)
+		inp.end = inp.start + step;
+		/*if(inp.start > end)
+			break;*/
+		if(count>=maxcnt)
 			break;
 
 		DB_WORKUNIT wu; wu.clear();
@@ -168,14 +171,14 @@ int main(int argc, char** argv) {
 		inp.out_all_primes= 0;
 		inp.primes_in.clear();
 		wu.appid = spt_app.id;
-		wu.batch = 47;
+		wu.batch = 48;
 		//14e12 is one hour on mangan-pc
 		wu.rsc_fpops_est = (inp.end - inp.start) * 163;
 		wu.rsc_fpops_bound = wu.rsc_fpops_est * 24;
 		wu.rsc_memory_bound = 1e8; //todo 100M
 		wu.rsc_disk_bound = 1e8; //todo 100m
-		wu.delay_bound = 2 * 24 * 3600;
-		wu.priority = 24;
+		wu.delay_bound = 5 * 24 * 3600;
+		wu.priority = 21;
 		wu.target_nresults= wu.min_quorum = 1;
 		wu.max_error_results= wu.max_total_results= 8;
 		wu.max_success_results= 1;
@@ -184,7 +187,7 @@ int main(int argc, char** argv) {
 		count++;
 	}
 	cerr<<"Count: "<<count<<endl;
-	cerr<<"End: "<<inp.end<<endl;
+	cerr<<"Next: "<<inp.start<<endl;
 
 	if(boinc_db.commit_transaction()) {
 		cerr<<"failed to commit transaction"<<endl;
