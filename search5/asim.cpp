@@ -290,7 +290,7 @@ void process_result(DB_RESULT& result) {
 	if (hav.host_id && hav.update_validator(hav0)) throw EDatabase("Host-App-Version update error");
 	cout<<" have_segment "<<have_segment<< " credit="<<result.granted_credit<<endl;
 	if(have_segment && !rstate.ended && segment.enabled) {
-		segment.prio_adjust = (rstate.nkf!=0) * 1;
+		segment.prio_adjust = (rstate.nkf<=rstate.nsn) * 1;
 		gen_padls_wu(segment, wu_gen_cfg );
 	}
 }
