@@ -145,8 +145,8 @@ int main(int argc, char** argv) {
 		exit(4);
 
 	TInput inp;
-	uint64_t start= 504530241080000000;
-	//uint64_t   end= 504990000000000000;
+	uint64_t start= 507610641080000000;
+	uint64_t   end= 510000000000000000;
 	uint64_t  step=       102680000000;
 	unsigned maxcnt = 30000;
 	inp.end = start;
@@ -154,8 +154,8 @@ int main(int argc, char** argv) {
 	while(1) {
 		inp.start = inp.end;
 		inp.end = inp.start + step;
-		/*if(inp.start > end)
-			break;*/
+		if(inp.start > end)
+			break;
 		if(count>=maxcnt)
 			break;
 
