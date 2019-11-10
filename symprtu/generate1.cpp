@@ -145,10 +145,10 @@ int main(int argc, char** argv) {
 		exit(4);
 
 	TInput inp;
-	uint64_t start= 510000004680000000;
+	uint64_t start= 510091544778180900;
 	uint64_t   end= 520000000000000000;
 	uint64_t  step=       102680000000;
-	unsigned maxcnt = 300000;
+	unsigned maxcnt = 64000;
 	inp.end = start;
 	unsigned long count = 0;
 	while(1) {
@@ -183,7 +183,7 @@ int main(int argc, char** argv) {
 		wu.max_error_results= wu.max_total_results= 8;
 		wu.max_success_results= 1;
 
-		//submit_wu_in(wu,inp);
+		submit_wu_in(wu,inp);
 		count++;
 	}
 	cerr<<"Count: "<<count<<endl;
