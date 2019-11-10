@@ -145,10 +145,10 @@ int main(int argc, char** argv) {
 		exit(4);
 
 	TInput inp;
-	uint64_t start= 507610641080000000;
-	uint64_t   end= 510000000000000000;
+	uint64_t start= 510000004680000000;
+	uint64_t   end= 520000000000000000;
 	uint64_t  step=       102680000000;
-	unsigned maxcnt = 30000;
+	unsigned maxcnt = 300000;
 	inp.end = start;
 	unsigned long count = 0;
 	while(1) {
@@ -171,7 +171,7 @@ int main(int argc, char** argv) {
 		inp.out_all_primes= 0;
 		inp.primes_in.clear();
 		wu.appid = spt_app.id;
-		wu.batch = 48;
+		wu.batch = 49;
 		//14e12 is one hour on mangan-pc
 		wu.rsc_fpops_est = (inp.end - inp.start) * 163;
 		wu.rsc_fpops_bound = wu.rsc_fpops_est * 24;
@@ -183,7 +183,7 @@ int main(int argc, char** argv) {
 		wu.max_error_results= wu.max_total_results= 8;
 		wu.max_success_results= 1;
 
-		submit_wu_in(wu,inp);
+		//submit_wu_in(wu,inp);
 		count++;
 	}
 	cerr<<"Count: "<<count<<endl;
