@@ -190,6 +190,9 @@ int delete_result_files (RESULT& result)
 	return !errored;
 }
 
+unsigned count_deleted_w;
+unsigned count_deleted_r;
+
 
 void delete_old(DB_APP& app, long cnt_limit)
 {
@@ -233,7 +236,8 @@ void delete_old(DB_APP& app, long cnt_limit)
 					);
 					cerr<<"R"<<result.id<<" db delete error"<<endl;
 					all_results_deleted= false;
-				}
+				} else
+				count_deleted_r++;
 			} else
 				all_results_deleted= false;
 		}
@@ -244,7 +248,8 @@ void delete_old(DB_APP& app, long cnt_limit)
 						"[WU#%lu] db delete error: %s\n",
 						wu.id, boincerror(retval)
 				);
-			}
+			} else
+			count_deleted_w++;
 		}
 	}
 }
@@ -254,6 +259,7 @@ int main(int argc, char** argv) {
 	int batchno;
 	char *check1, *check2;
 	DB_APP app;
+	count_deleted_w= count_deleted_r= 0;
 	if(argc!=3) {
 			cerr<<"Expect 2 command line argument: f_write limit"<<endl;
 			exit(2);
@@ -266,7 +272,7 @@ int main(int argc, char** argv) {
 			cerr<<"Invalid argument format"<<endl;
 			exit(2);
 	}
-	cerr<<"f_write="<<f_write<<" limit="<<gen_limit<<endl;
+	cerr<<"f_write="<<f_write<<" f_allapps="<<f_allapps<<" limit="<<gen_limit<<endl;
 	//connect db if requested
 	initz();
 	if (app.lookup("where name='tot5'")) {
@@ -284,6 +290,7 @@ int main(int argc, char** argv) {
 			exit(1);
 		}
 	}
+	cerr<<"Deleted "<<count_deleted_r<<" results and "<<count_deleted_w<<" wus, of "<<gen_limit<<" max"<<endl;
 	boinc_db.close();
 	return 0;
 }
