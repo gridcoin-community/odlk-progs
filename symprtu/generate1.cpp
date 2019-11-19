@@ -175,7 +175,7 @@ int main(int argc, char** argv) {
 		//14e12 is one hour on mangan-pc
 		wu.rsc_fpops_est = (inp.end - inp.start) * 163;
 		wu.rsc_fpops_bound = wu.rsc_fpops_est * 24;
-		wu.rsc_memory_bound = 1e8; //todo 100M
+		wu.rsc_memory_bound = 399e6;
 		wu.rsc_disk_bound = 1e8; //todo 100m
 		wu.delay_bound = 5 * 24 * 3600;
 		wu.priority = 21;
