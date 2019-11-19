@@ -60,7 +60,11 @@ function show_by_k() {
   if($minid!==null)
 		echo "# where id > $minid\n";
 	$lastid=-1; $rcount=0;
+  $prev=0;
   while($row = $set->fetch_object('stdClass')) {
+    if($row->start==$prev)
+      continue;
+    $prev=$row->start;
 		$astr=convert_tuple($row->ofs,$row->k);
     echo "{$row->start}: $astr\n";
     if($row->id>$lastid) $lastid=$row->id; $rcount++;
