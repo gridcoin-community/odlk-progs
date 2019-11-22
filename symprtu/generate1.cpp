@@ -145,10 +145,10 @@ int main(int argc, char** argv) {
 		exit(4);
 
 	TInput inp;
-	uint64_t start= 516663064778180900;
+	uint64_t start= 518305944778180900;
 	uint64_t   end= 520000000000000000;
 	uint64_t  step=       102680000000;
-	unsigned maxcnt = 32000;
+	unsigned maxcnt = 64000;
 	inp.end = start;
 	unsigned long count = 0;
 	while(1) {
