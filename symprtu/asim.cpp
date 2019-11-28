@@ -194,6 +194,17 @@ void process_result(DB_RESULT& result) {
 
 	if(rstate.status!=TOutput::x_end)
 		throw EInvalid("incomplete run");
+	// check if the tuple offsets are all even and nonzero
+	for( const auto& tuple : rstate.tuples) {
+		if(tuple.k==0)
+			throw EInvalid("bad tuple k");
+		for(unsigned i=1; i<tuple.ofs.size(); ++i) {
+			if( (tuple.ofs[i]==0) // must not be zero
+				||(tuple.ofs[i]&1)  // must be even
+			) throw EInvalid("bad tuple offset");
+		}
+	}
+
 	//TODO: more consistency checks
 
 	/* Insert into result db */
@@ -217,7 +228,7 @@ void process_result(DB_RESULT& result) {
 		qr<<", start="<<tuple.start;
 		qr<<", k="<<tuple.k;
 		if(tuple.k==0)
-			throw EDatabase("bad tuple k");
+			throw EInvalid("bad tuple k");
 		qr<<", ofs='"<<tuple.ofs[0];
 		for(unsigned i=1; i<tuple.ofs.size(); ++i)
 			qr<<" "<<tuple.ofs[i];
