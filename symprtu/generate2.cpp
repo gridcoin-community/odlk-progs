@@ -114,14 +114,14 @@ void initz() {
 	}
 }
 
-void submit_wu_in(uint64_t start, uint64_t end, int batch)
+void submit_wu_in2(uint64_t center)
 {
 	std::stringstream wuname;
 	DB_WORKUNIT wu; wu.clear();
 	TInput inp;
 
-		inp.start= start;
-		inp.end= end;
+		inp.start= center-5134000000;
+		inp.end= center+5134000000;
 		inp.min_k= 16;
 		inp.max_k= 32;
 		inp.upload = 0;
@@ -135,8 +135,8 @@ void submit_wu_in(uint64_t start, uint64_t end, int batch)
 		wu.rsc_fpops_bound = wu.rsc_fpops_est * 24;
 		wu.rsc_memory_bound = 399e6;
 		wu.rsc_disk_bound = 1e8; //todo 100m
-		wu.delay_bound = 5 * 24 * 3600;
-		wu.priority = 21;
+		wu.delay_bound = 2 * 24 * 3600;
+		wu.priority = 53;
 		wu.batch= batch;
 		wu.target_nresults= wu.min_quorum = 1;
 		wu.max_error_results= wu.max_total_results= 8;
@@ -169,26 +169,14 @@ int main(int argc, char** argv) {
 	if(boinc_db.start_transaction())
 		exit(4);
 
-	uint64_t start= 524928702098180900;
-	uint64_t   end= 530000000000000000;
-	uint64_t  step=       102680000000;
-	unsigned maxcnt = 50000;
-	uint64_t next = start;
-	unsigned long count = 0;
-	while(1) {
-		uint64_t curr = next;
-		next = curr + step;
-		if(curr > end)
-			break;
-		if(count>=maxcnt)
-			break;
-
-		submit_wu_in(curr, next, 52);
-		count++;
-	}
-	cerr<<"Count: "<<count<<endl;
-	cerr<<"First: "<<start<<endl;
-	cerr<<"Next : "<<next<<endl;
+	submit_wu_in2(501000000000000000);
+	submit_wu_in2(501300133640000000);
+	submit_wu_in2(501900195560000000);
+	submit_wu_in2(502990000000000000);
+	submit_wu_in2(502990041080000000);
+	submit_wu_in2(504530241080000000);
+	submit_wu_in2(507610641080000000);
+	submit_wu_in2(510000000000000000);
 
 	if(boinc_db.commit_transaction()) {
 		cerr<<"failed to commit transaction"<<endl;
