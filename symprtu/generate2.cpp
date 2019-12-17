@@ -136,8 +136,8 @@ void submit_wu_in2(uint64_t center)
 		wu.rsc_memory_bound = 399e6;
 		wu.rsc_disk_bound = 1e8; //todo 100m
 		wu.delay_bound = 2 * 24 * 3600;
-		wu.priority = 53;
-		wu.batch= batch;
+		wu.priority = 23;
+		wu.batch= 53;
 		wu.target_nresults= wu.min_quorum = 1;
 		wu.max_error_results= wu.max_total_results= 8;
 		wu.max_success_results= 1;
