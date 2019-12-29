@@ -6,11 +6,11 @@ scpn1: scpn1.cpp
 sievetest: sievetest.cpp
 	g++ -g -o $@ -O1 -I primesieve/include sievetest.cpp primesieve/libprimesieve.so
 
-spt: spt.cpp
+spt: spt.cpp wio.cpp
 	g++ -o $@ -O3 -static -I ../boinc/api -I ../boinc/lib -I ../boinc -I primesieve/include spt.cpp primesieve/libprimesieve.a ../boinc/api/libboinc_api.a ../boinc/lib/libboinc.a -lpthread
 
-stuff: stuff.cpp
-	g++ -g -o $@ -O0 -I ../boinc/api -I ../boinc/lib -I ../boinc stuff.cpp -lprimesieve ../boinc/api/libboinc_api.a ../boinc/lib/libboinc.a -lpthread
+stuff: stuff.cpp wio.cpp
+	g++ -g -o $@ -O0 -I primesieve/include -I ../boinc/api -I ../boinc/lib -I ../boinc stuff.cpp primesieve/libprimesieve.a ../boinc/api/libboinc_api.a ../boinc/lib/libboinc.a -lpthread
 
 generate1: generate1.cpp Stream.cpp wio.cpp Makefile
 	g++ -o $@ -g -O1 -I .. -I .. -I ../boinc/api -I ../boinc/lib -I ../boinc/tools -I ../boinc/sched -I ../boinc/db -I /usr/include/mysql -I ../boinc generate1.cpp ../boinc/sched/libsched.a ../boinc/api/libboinc_api.a ../boinc/lib/libboinc.a ../boinc/lib/libboinc_crypt.a -lmysqlclient -lpthread -lssl -lcrypto

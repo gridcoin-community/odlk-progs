@@ -3,6 +3,7 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
+#include <map>
 #include <bitset>
 #include <ctime>
 #include <unistd.h>

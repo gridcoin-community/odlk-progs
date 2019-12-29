@@ -3,6 +3,7 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
+#include <map>
 #include <bitset>
 #include <ctime>
 #include <unistd.h>
@@ -122,7 +123,8 @@ void submit_wu_in(uint64_t start, uint64_t end, int batch)
 
 		inp.start= start;
 		inp.end= end;
-		inp.min_k= 16;
+		inp.mine_k= 16;
+		inp.mino_k= inp.mine_k+1;
 		inp.max_k= 32;
 		inp.upload = 0;
 		inp.exit_early= 0;

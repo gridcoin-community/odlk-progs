@@ -4,6 +4,7 @@
 #include <sstream>
 #include <vector>
 #include <set>
+#include <map>
 #include <ctime>
 #include <sys/stat.h>
 
@@ -96,6 +97,10 @@ unsigned z= 0;
 vector<uint64_t> newprimes;
 TInput input;
 TOutput output;
+uint64_t twinp;
+vector<unsigned short> twind;
+short twinz;
+bool twin_enable;
 
 void fill();
 void initialize() {
@@ -122,7 +127,14 @@ void initialize() {
 		output.tuples.clear();
 		output.sieve_init_cs=0;
 	}
-	if(input.min_k!=16 || input.max_k!=32
+	twind.clear();
+	twinz=-1;
+	twin_enable = input.twin_k<255 || input.twin_max_k;
+	input.twin_k-=1; // off by one on comparison
+	if(input.mine_k<2 || input.mino_k<3 || !input.mino_k&1 || input.mine_k&1
+		|| input.twin_max_k
+		|| input.twin_cnt_k!=255
+		|| input.max_k>64
 		|| input.exit_early || input.out_all_primes
 		|| input.primes_in.size() ){
 		throw EApp{"Unsupported input options"};
@@ -164,6 +176,17 @@ void save_tuple(unsigned k) {
 	el.ofs.resize( (k + 1) / 2 );
 	for(unsigned i=1; i<((k+3)/2); ++i)
 		el.ofs[i-1] = disp[(z+i)%128];
+}
+
+void save_twin_seq() {
+	if(twind.size() < input.twin_k)
+		return;
+	output.twins.emplace_back();
+	auto& el = output.twins.back();
+	el.start = twinp;
+	el.k = 0;
+	el.ofs.resize( twind.size() );
+	std::copy(twind.begin(), twind.end(), el.ofs.begin());
 }
 
 void fill() {
@@ -214,18 +237,42 @@ int main(){
 		initialize();
 
 		do {
-			while ( (y-z)%128 < 32 ) {
+			while ( (y-z)%128 < 64 ) {
 				fill();
 				iter++;
 			}
-			for(unsigned k=16; k<=64; ++k) {
+
+			for(unsigned k=input.mino_k; k<=input.max_k; k+=2) {
+				if( testit(k) )
+					save_tuple(k);
+			}
+			for(unsigned k=input.mine_k; k<=input.max_k; k+=2) {
 				if( testit(k) )
 					save_tuple(k);
 			}
 
+			if(twin_enable) {
+				if(disp[(z+1)%128]==2) {
+					if(twinz==-1) {
+						//start of twin prime sequence
+						twinp= primes[(z)%128];
+						twinz = z%2;
+					} else {
+						//continuation of sequence
+						twind.push_back(  disp[(z)%128]);
+					}
+				}
+				else if( z%2 == twinz ) {
+					//end of twin prime sequence
+					save_twin_seq();
+					twind.clear();
+					twinz=-1;
+				}
+			}
+
 			output.chkpt = primes[(z)%128]; // this is the last prime fully checked
 
-			if(output.chkpt >= input.end) {
+			if(output.chkpt >= input.end && twinz==-1) {
 				checkpoint(2);
 				boinc_finish(0);
 				break;

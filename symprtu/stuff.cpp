@@ -4,11 +4,12 @@
 #include <sstream>
 #include <vector>
 #include <set>
+#include <map>
 #include <ctime>
 #include <sys/stat.h>
 
 #include "primesieve.hpp"
-#include "primesieve/include/primesieve/PrimeGenerator.hpp"
+#include "primesieve/PrimeGenerator.hpp"
 
 #include "boinc_api.h"
 #include "Stream.cpp"
@@ -105,6 +106,40 @@ void read_output(const char* fn) {
 	catch( const std::exception& e ) {
 		cerr<<e.what()<<endl;
 	}
+	auto& cout = std::cout;
+	cout<<output.start<<".."<<output.chkpt<<endl;
+	//uint64_t last;  // last prime
+	cout<<"nprime: "<<output.nprime<<endl;
+	cout<<"primes:";
+	for(const auto& p : output.primes)
+		cout<<" "<<p;
+	cout<<endl<<"tuples:"<<endl;
+	for(const auto& tuple : output.tuples) {
+		cout<<"T "<<tuple.start<<"("<<tuple.k<<"):";
+		for(const auto& d : tuple.ofs)
+			cout<<" "<<d;
+		cout<<endl;
+	}
+	cout<<"twins:"<<endl;
+	for(const auto& tuple : output.twins) {
+		cout<<"W "<<tuple.start<<"("<<(tuple.ofs.size()+1)<<"):";
+		for(const auto& d : tuple.ofs)
+			cout<<" "<<d;
+		cout<<endl;
+	}
+	cout<<"twin_tuples:"<<endl;
+	for(const auto& tuple : output.twin_tuples) {
+		cout<<"U "<<tuple.start<<"("<<tuple.k<<"):";
+		for(const auto& d : tuple.ofs)
+			cout<<" "<<d;
+		cout<<endl;
+	}
+	cout<<"twin_cnt:"<<endl;
+	for(const std::pair<unsigned,unsigned long>& p : output.twin_cnt) {
+		cout<<"C "<<p.first<<" "<<p.second<<endl;
+	}
+	cout<<"status: "<<int(output.status)<<endl;
+	cout<<"sieve_init_ms"<<(output.sieve_init_cs*10)<<endl;
 }
 
 void write_input(const char* fn) {
@@ -128,9 +163,35 @@ void write_output(const char* fn) {
 	}
 }
 
-int main(){
-	cerr<<"use debugger"<<endl;
-	return 1;
+void mksample() {
+	auto& inp = input;
+	inp.start= 500100101650038360;
+	inp.end= inp.start + 1026800000;
+	inp.mine_k= 16;
+	inp.mino_k= 13;
+	inp.max_k= 32;
+	inp.upload = 0;
+	inp.exit_early= 0;
+	inp.out_last_primes= 1;
+	inp.out_all_primes= 0;
+	inp.primes_in.clear();
+	inp.twin_k=4;
+	inp.twin_cnt_k=255;
+	inp.twin_min_k=0;
+	inp.twin_max_k=0;
+	write_input("sample.dat");
+}
+
+int main(int argc, char** argv){
+	if(argc==2) {
+		read_output(argv[1]);
+		return 0;
+	} else while(1) {
+		cerr<<"use debugger"<<endl;
+		std::string s;
+		std::cin>>s;
+		return 1;
+	}
 }
 
 
