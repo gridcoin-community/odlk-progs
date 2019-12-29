@@ -137,8 +137,8 @@ static void TOutput__readTuples(CStream& s, vector<TOutputTuple>& tuples, bool f
 	for(unsigned i=0; i<len; ++i) {
 		tuples[i].start=s.r8();
 		if(flag) {
-			tuples[i].k=0;
 			tuples[i].ofs.resize(s.r2());
+			tuples[i].k=tuples[i].ofs.size()+1;
 		} else {
 			unsigned k= tuples[i].k = s.r1();
 			tuples[i].ofs.resize((k+1)/2);

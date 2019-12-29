@@ -172,6 +172,25 @@ int read_output_file(RESULT const& result, CDynamicStream& buf) {
 const float credit_m= 3.748e-10;
 //credit/200 = gigaflop
 
+static void insert_spt_tuples(const DB_RESULT& result, const vector<TOutputTuple>& tuples, const char* kind)
+{
+	std::stringstream qr;
+	for( const auto& tuple : tuples) {
+		qr=std::stringstream();
+		qr<<"insert into spt set batch="<<result.batch;
+		qr<<", start="<<tuple.start;
+		qr<<", k="<<tuple.k;
+		qr<<", kind='"<<kind<<"'";
+		qr<<", userid="<<result.userid;
+		qr<<", ofs='"<<tuple.ofs[0];
+		for(unsigned i=1; i<tuple.ofs.size(); ++i)
+			qr<<" "<<tuple.ofs[i];
+		qr<<"' on duplicate key update id=id";
+		retval=boinc_db.do_query(qr.str().c_str());
+		if(retval) throw EDatabase("spt row insert failed");
+	}
+}
+
 void process_result(DB_RESULT& result) {
 	std::stringstream qr;
 	DB_WORKUNIT wu;
@@ -246,49 +265,9 @@ void process_result(DB_RESULT& result) {
 		throw EDatabase("spt_result insert");
 
 	/* insert into the prime tuple db */
-	for( const auto& tuple : rstate.tuples) {
-		qr=std::stringstream();
-		qr<<"insert into spt set batch="<<result.batch;
-		qr<<", start="<<tuple.start;
-		qr<<", k="<<tuple.k;
-		qr<<", kind='spt'";
-		qr<<", ofs='"<<tuple.ofs[0];
-		for(unsigned i=1; i<tuple.ofs.size(); ++i)
-			qr<<" "<<tuple.ofs[i];
-		qr<<"' on duplicate key update id=id";
-		retval=boinc_db.do_query(qr.str().c_str());
-		if(retval) throw EDatabase("spt row insert failed");
-	}
-
-	/* insert into the twin prime tuple db */
-	for( const auto& tuple : rstate.twins) {
-		qr=std::stringstream();
-		qr<<"insert into spt set batch="<<result.batch;
-		qr<<", start="<<tuple.start;
-		qr<<", k="<<(tuple.ofs.size()+1);
-		qr<<", kind='tpt'";
-		qr<<", ofs='"<<tuple.ofs[0];
-		for(unsigned i=1; i<tuple.ofs.size(); ++i)
-			qr<<" "<<tuple.ofs[i];
-		qr<<"' on duplicate key update id=id";
-		retval=boinc_db.do_query(qr.str().c_str());
-		if(retval) throw EDatabase("spt row insert failed");
-	}
-
-	/* insert into the symmetric twin prime tuple db */
-	for( const auto& tuple : rstate.twin_tuples) {
-		qr=std::stringstream();
-		qr<<"insert into spt set batch="<<result.batch;
-		qr<<", start="<<tuple.start;
-		qr<<", k="<<(tuple.ofs.size()+1);
-		qr<<", kind='stpt'";
-		qr<<", ofs='"<<tuple.ofs[0];
-		for(unsigned i=1; i<tuple.ofs.size(); ++i)
-			qr<<" "<<tuple.ofs[i];
-		qr<<"' on duplicate key update id=id";
-		retval=boinc_db.do_query(qr.str().c_str());
-		if(retval) throw EDatabase("spt row insert failed");
-	}
+	insert_spt_tuples(result, rstate.tuples, "spt");
+	insert_spt_tuples(result, rstate.twins, "tpt");
+	insert_spt_tuples(result, rstate.twin_tuples, "stpt");
 
 	//TODO
 	float credit = credit_m* (rstate.last-rstate.start);
