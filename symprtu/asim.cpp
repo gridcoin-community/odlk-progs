@@ -205,9 +205,27 @@ void process_result(DB_RESULT& result) {
 		if(tuple.k==0)
 			throw EInvalid("bad tuple k");
 		for(unsigned i=1; i<tuple.ofs.size(); ++i) {
-			if( (tuple.ofs[i]==0) // must not be zero
+			if( (tuple.ofs[i]<=1) // must not be zero
 				||(tuple.ofs[i]&1)  // must be even
 			) throw EInvalid("bad tuple offset");
+		}
+	}
+	for( const auto& tuple : rstate.twins) {
+		if(tuple.ofs.size()==0)
+			throw EInvalid("bad twins size");
+		for(unsigned i=1; i<tuple.ofs.size(); ++i) {
+			if( (tuple.ofs[i]<=1) // must be >2
+				||(tuple.ofs[i]&1)  // must be even
+			) throw EInvalid("bad TPT offset");
+		}
+	}
+	for( const auto& tuple : rstate.twin_tuples) {
+		if(tuple.k==0)
+			throw EInvalid("bad tuple k");
+		for(unsigned i=1; i<tuple.ofs.size(); ++i) {
+			if( (tuple.ofs[i]<=1) // must be >2
+				||(tuple.ofs[i]&1)  // must be even
+			) throw EInvalid("bad STPT offset");
 		}
 	}
 
@@ -234,14 +252,9 @@ void process_result(DB_RESULT& result) {
 		qr<<", start="<<tuple.start;
 		qr<<", k="<<tuple.k;
 		qr<<", kind='spt'";
-		if(tuple.k==0)
-			throw EInvalid("bad tuple k");
 		qr<<", ofs='"<<tuple.ofs[0];
-		for(unsigned i=1; i<tuple.ofs.size(); ++i) {
-			if(tuple.ofs[i]<=1)
-				throw EInvalid("bad spt ofs");
+		for(unsigned i=1; i<tuple.ofs.size(); ++i)
 			qr<<" "<<tuple.ofs[i];
-		}
 		qr<<"' on duplicate key update id=id";
 		retval=boinc_db.do_query(qr.str().c_str());
 		if(retval) throw EDatabase("spt row insert failed");
@@ -254,14 +267,9 @@ void process_result(DB_RESULT& result) {
 		qr<<", start="<<tuple.start;
 		qr<<", k="<<(tuple.ofs.size()+1);
 		qr<<", kind='tpt'";
-		if(tuple.ofs.size()==0)
-			throw EInvalid("bad tuple size");
 		qr<<", ofs='"<<tuple.ofs[0];
-		for(unsigned i=1; i<tuple.ofs.size(); ++i) {
-			if(tuple.ofs[i]<=2)
-				throw EInvalid("bad tpt ofs");
+		for(unsigned i=1; i<tuple.ofs.size(); ++i)
 			qr<<" "<<tuple.ofs[i];
-		}
 		qr<<"' on duplicate key update id=id";
 		retval=boinc_db.do_query(qr.str().c_str());
 		if(retval) throw EDatabase("spt row insert failed");
@@ -274,14 +282,9 @@ void process_result(DB_RESULT& result) {
 		qr<<", start="<<tuple.start;
 		qr<<", k="<<(tuple.ofs.size()+1);
 		qr<<", kind='stpt'";
-		if(tuple.k==0)
-			throw EInvalid("bad tuple k");
 		qr<<", ofs='"<<tuple.ofs[0];
-		for(unsigned i=1; i<tuple.ofs.size(); ++i) {
-			if(tuple.ofs[i]<=2)
-				throw EInvalid("bad stpt ofs");
+		for(unsigned i=1; i<tuple.ofs.size(); ++i)
 			qr<<" "<<tuple.ofs[i];
-		}
 		qr<<"' on duplicate key update id=id";
 		retval=boinc_db.do_query(qr.str().c_str());
 		if(retval) throw EDatabase("spt row insert failed");
@@ -355,6 +358,7 @@ void set_result_invalid(DB_RESULT& result) {
 	}
 	//TODO: reset workunit transition time
 	result.validate_state=VALIDATE_STATE_INVALID;
+	result.outcome=6;
 	//result.file_delete_state=FILE_DELETE_READY; - keep for analysis
 	if(result.update()) throw EDatabase("Result update error");
 	if(wu.update()) throw EDatabase("Workunit update error");
