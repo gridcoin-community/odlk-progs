@@ -69,7 +69,11 @@ void TInput::readInput(CStream&& s) {
 		twin_cnt_k = s.r1();
 		twin_min_k = s.r1();
 		twin_max_k = s.r1();
-	} else mino_k=mine_k+1;
+	} else {
+		mino_k=mine_k+1;
+		twin_k= twin_cnt_k = 255;
+		twin_min_k = twin_max_k = 0;
+	}
 }
 
 void TInput::writeInput(CStream& s) {
@@ -161,6 +165,9 @@ void TOutput::readOutput(CStream&& s) {
 	if(ident==0x64DE70F9) {
 		TOutput__readTuples(s, twins,1);
 		TOutput__readTuples(s, twin_tuples);
+	} else {
+		twins.clear();
+		twin_tuples.clear();
 	}
 	//twin_cnt, CRC
 }

@@ -189,7 +189,7 @@ int main(int argc, char** argv) {
 		if(count>=maxcnt)
 			break;
 
-		submit_wu_in(curr, next, 52);
+		submit_wu_in(curr, next, 53);
 		count++;
 	}
 	cerr<<"Count: "<<count<<endl;
