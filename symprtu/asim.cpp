@@ -254,8 +254,8 @@ void process_result(DB_RESULT& result) {
 		qr<<", start="<<tuple.start;
 		qr<<", k="<<(tuple.ofs.size()+1);
 		qr<<", kind='tpt'";
-		if(tuple.k==0)
-			throw EInvalid("bad tuple k");
+		if(tuple.ofs.size()==0)
+			throw EInvalid("bad tuple size");
 		qr<<", ofs='"<<tuple.ofs[0];
 		for(unsigned i=1; i<tuple.ofs.size(); ++i) {
 			if(tuple.ofs[i]<=2)
