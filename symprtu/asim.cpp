@@ -88,6 +88,7 @@ class CFileStream
 };
 
 DB_APP spt_app;
+DB_APP stpt_app;
 MYSQL_STMT* spt_result_stmt;
 
 void initz() {
@@ -110,6 +111,10 @@ void initz() {
 	}
 	if (spt_app.lookup("where name='spt'")) {
 		std::cerr<<"can't find app spt\n";
+		exit(4);
+	}
+	if (stpt_app.lookup("where name='stpt'")) {
+		std::cerr<<"can't find app stpt\n";
 		exit(4);
 	}
 	
@@ -228,11 +233,55 @@ void process_result(DB_RESULT& result) {
 		qr<<"insert into spt set batch="<<result.batch;
 		qr<<", start="<<tuple.start;
 		qr<<", k="<<tuple.k;
+		qr<<", kind='spt'";
 		if(tuple.k==0)
 			throw EInvalid("bad tuple k");
 		qr<<", ofs='"<<tuple.ofs[0];
-		for(unsigned i=1; i<tuple.ofs.size(); ++i)
+		for(unsigned i=1; i<tuple.ofs.size(); ++i) {
+			if(tuple.ofs[i]<=1)
+				throw EInvalid("bad spt ofs");
 			qr<<" "<<tuple.ofs[i];
+		}
+		qr<<"' on duplicate key update id=id";
+		retval=boinc_db.do_query(qr.str().c_str());
+		if(retval) throw EDatabase("spt row insert failed");
+	}
+
+	/* insert into the twin prime tuple db */
+	for( const auto& tuple : rstate.twins) {
+		qr=std::stringstream();
+		qr<<"insert into spt set batch="<<result.batch;
+		qr<<", start="<<tuple.start;
+		qr<<", k="<<(tuple.ofs.size()+1);
+		qr<<", kind='tpt'";
+		if(tuple.k==0)
+			throw EInvalid("bad tuple k");
+		qr<<", ofs='"<<tuple.ofs[0];
+		for(unsigned i=1; i<tuple.ofs.size(); ++i) {
+			if(tuple.ofs[i]<=2)
+				throw EInvalid("bad tpt ofs");
+			qr<<" "<<tuple.ofs[i];
+		}
+		qr<<"' on duplicate key update id=id";
+		retval=boinc_db.do_query(qr.str().c_str());
+		if(retval) throw EDatabase("spt row insert failed");
+	}
+
+	/* insert into the symmetric twin prime tuple db */
+	for( const auto& tuple : rstate.twin_tuples) {
+		qr=std::stringstream();
+		qr<<"insert into spt set batch="<<result.batch;
+		qr<<", start="<<tuple.start;
+		qr<<", k="<<(tuple.ofs.size()+1);
+		qr<<", kind='stpt'";
+		if(tuple.k==0)
+			throw EInvalid("bad tuple k");
+		qr<<", ofs='"<<tuple.ofs[0];
+		for(unsigned i=1; i<tuple.ofs.size(); ++i) {
+			if(tuple.ofs[i]<=2)
+				throw EInvalid("bad stpt ofs");
+			qr<<" "<<tuple.ofs[i];
+		}
 		qr<<"' on duplicate key update id=id";
 		retval=boinc_db.do_query(qr.str().c_str());
 		if(retval) throw EDatabase("spt row insert failed");
@@ -334,7 +383,9 @@ int main(int argc, char** argv) {
 		exit(4);
 	//enumerate results
 	std::stringstream enum_qr;
-	enum_qr<<"where appid="<<spt_app.id<<" and server_state="<<RESULT_SERVER_STATE_OVER
+	//enum_qr<<"where appid="<<spt_app.id
+	enum_qr<<"where appid in ("<<spt_app.id<<","<<stpt_app.id<<")"
+	<<" and server_state="<<RESULT_SERVER_STATE_OVER
 	<<" and outcome="<<RESULT_OUTCOME_SUCCESS<<" and validate_state="<<VALIDATE_STATE_INIT<<" limit "<<gen_limit<<";";
 	DB_RESULT result;
 	while(1) {

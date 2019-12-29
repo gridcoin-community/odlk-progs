@@ -168,14 +168,14 @@ void mksample() {
 	inp.start= 500100101650038360;
 	inp.end= inp.start + 1026800000;
 	inp.mine_k= 16;
-	inp.mino_k= 13;
+	inp.mino_k= 5;
 	inp.max_k= 32;
 	inp.upload = 0;
 	inp.exit_early= 0;
 	inp.out_last_primes= 1;
 	inp.out_all_primes= 0;
 	inp.primes_in.clear();
-	inp.twin_k=4;
+	inp.twin_k=5;
 	inp.twin_cnt_k=255;
 	inp.twin_min_k=0;
 	inp.twin_max_k=0;
