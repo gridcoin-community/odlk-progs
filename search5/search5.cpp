@@ -142,7 +142,7 @@ void init() {
 	time_limits.realtime = binitdata.computation_deadline - 60;
 	if(binitdata.global_prefs.work_buf_min_days >= 1 ) {
 		time_limits.realtime += (binitdata.global_prefs.work_buf_min_days-1) * 86400;
-		fprintf(stderr,"%s work_buf_min_days too high %f, capping at 1 day",
+		fprintf(stderr,"%s work_buf_min_days too high %f, capping at 1 day\n",
 			boinc_msg_prefix(buf, sizeof(buf)), binitdata.global_prefs.work_buf_min_days);
 	}
 	// 30% over estimated time
@@ -152,7 +152,7 @@ void init() {
 		message("Failed to initialize generator",2,0);
 	generator.min_l= state.min_level;
 	fprintf(stderr,
-			"%s time limits %d %d\n",
+			"%s time limits %lu %ld\n",
 			boinc_msg_prefix(buf, sizeof(buf)), (long) time_limits.realtime, (long) time_limits.cputime
 	);
 }
@@ -225,7 +225,7 @@ void maybe_checkpoint(){
 			boinc_checkpoint_completed();
 			char buf[256];
 			fprintf(stderr,
-					"%s Checkpoint, SN=%lu\n",
+					"%s Checkpoint, SN=%llu\n",
 					boinc_msg_prefix(buf, sizeof(buf)), state.nsn
 			);
 		}

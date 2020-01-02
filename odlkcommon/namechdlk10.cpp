@@ -212,9 +212,9 @@ namespace NamerCHDLK10 {
     for(unsigned i=0; i<25; ++i) {
       if(name58[i]&0x80)
         return false;
-      if(debase58[name58[i]]==255)
+      if(debase58[(unsigned char)name58[i]]==255)
         return false;
-      imya[i]=debase58[name58[i]];
+      imya[i]=debase58[(unsigned char)name58[i]];
     }
     long long templl;
     templl = imya[0];
