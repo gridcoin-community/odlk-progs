@@ -101,6 +101,8 @@ uint64_t twinp;
 vector<unsigned short> twind;
 short twinz;
 bool twin_enable;
+int twins_min;
+int twin_md;
 
 void fill();
 void initialize() {
@@ -129,20 +131,25 @@ void initialize() {
 	}
 	twind.clear();
 	twinz=-1;
-	twin_enable = input.twin_k<255 || input.twin_max_k;
-	input.twin_k-=1; // off by one on comparison
+	twin_enable = input.twin_k<255 || input.twin_min_k<255;
+	twins_min = std::min(input.twin_k, input.twin_gap_k) - 1;
 	if(input.mine_k<2 || input.mino_k<3 || !input.mino_k&1 || input.mine_k&1
-		|| input.twin_max_k
-		|| input.twin_cnt_k!=255
+		|| input.twin_min_k<4
+		|| input.twin_k<1
 		|| input.max_k>64
+		|| (input.twin_gap_k!=6 && input.twin_gap_k!=255)
+		|| (input.twin_gap_k!=255 && !twin_enable)
 		|| input.exit_early || input.out_all_primes
 		|| input.primes_in.size() ){
 		throw EApp{"Unsupported input options"};
 	}
+	newprimes.resize(64);
+	z= 32;
+	y= 31;
 	clock_t t0 = clock();
 	gen = std::make_unique<primesieve::PrimeGenerator>(
 		output.chkpt+1, UINT64_MAX
-	);
+	);	
 	fill();
 	output.sieve_init_cs += double(clock()-t0)*100/CLOCKS_PER_SEC;
 	// todo: verify the +1 is correct
@@ -168,25 +175,62 @@ void checkpoint(int mode) {
 	boinc_checkpoint_completed();
 }
 
-void save_tuple(unsigned k) {
-	output.tuples.emplace_back();
-	auto& el = output.tuples.back();
-	el.start = primes[(z)%128];
-	el.k = k;
-	el.ofs.resize( (k + 1) / 2 );
-	for(unsigned i=1; i<((k+3)/2); ++i)
-		el.ofs[i-1] = disp[(z+i)%128];
+void process_twin_seq() {
+	if(twind.size()+1 >= input.twin_k) {
+		output.twins.emplace_back();
+		auto& el = output.twins.back();
+		el.start = twinp;
+		el.k = 0;
+		el.ofs.resize( twind.size() );
+		std::copy(twind.begin(), twind.end(), el.ofs.begin());
+	}
+	if( twin_md>output.largest_twin6_gap.k && (twind.size()+1)>5 ) {
+		output.largest_twin6_gap.start = twinp;
+		output.largest_twin6_gap.k = twin_md;
+		output.largest_twin6_gap.ofs.resize(twind.size());
+		std::copy(twind.begin(), twind.end(), output.largest_twin6_gap.ofs.begin());
+	}
 }
 
-void save_twin_seq() {
-	if(twind.size() < input.twin_k)
-		return;
-	output.twins.emplace_back();
-	auto& el = output.twins.back();
-	el.start = twinp;
-	el.k = 0;
-	el.ofs.resize( twind.size() );
-	std::copy(twind.begin(), twind.end(), el.ofs.begin());
+static void check_twins() {
+	if(disp[(z)%128]==2) {
+		if(twinz==-1) {
+			//start of twin prime sequence
+			twinp= primes[(z-1)%128];
+			twinz = z%2;
+			twind.clear();
+			twin_md= 0;
+		} else {
+			//continuation of sequence
+			auto d = disp[(z-1)%128];
+			twind.push_back( d );
+			if(d>twin_md)
+				twin_md= d;
+			if( d>output.largest_twin_gap.d ) {
+				output.largest_twin_gap.d= d;
+				output.largest_twin_gap.p= primes[(z-3)%128];
+			}
+		}
+	}
+	else if( z%2 == twinz ) {
+		//end of twin prime sequence
+		if( twind.size() >= twins_min )
+			process_twin_seq();
+		twinz=-1;
+	}
+}
+
+void save_tuple(unsigned k, bool twin) {
+	auto& lst = twin? output.twin_tuples : output.tuples;
+	lst.emplace_back();
+	auto& el = lst.back();
+	unsigned st= z-(k/2);
+	el.start = primes[(st)%128];
+	el.k = k;
+	el.ofs.resize( k / 2 );
+	st++;
+	for(unsigned i=0; i < (k/2); ++i)
+		el.ofs[i] = disp[(st+i)%128];
 }
 
 void fill() {
@@ -196,7 +240,8 @@ void fill() {
 	if(gen->finished())
 		throw EApp{"Prime Generator failed"};
 	output.nprime += newcnt;
-	output.last=newprimes[newcnt-1];
+	if(newcnt)
+		output.last=newprimes[newcnt-1];
 	for(unsigned i=0; i<newcnt; ++i) {
 		primes[(y+i)%128]=newprimes[i];
 		disp[(y+i)%128]= primes[(y+i)%128] - primes[(y+i-1)%128];
@@ -204,73 +249,78 @@ void fill() {
 	y+=newcnt;
 }
 
-bool testit(unsigned k) {
-	bool r=true;
-	for(unsigned i=1; i<=((k-1)/2); ++i) {
-		if( disp[(z+i)%128] != disp[(z+k-i)%128] )
-			r=false;
+static long get_twin_seq_len(unsigned h)
+{
+	long h2=-1;
+	for(long i=h; i>=0; i-=2) {
+		if(2!=disp[(z+i)%128])
+			h2=i-2;
 	}
-	return r;
+	return (h2+1)*2;
 }
 
-void testit2(bool r[]) {
-	for(unsigned k=16; k<=32; ++k) {
-		r[k-16] = disp[(z+1)%128] == disp[(z+k-1)%128];
+static unsigned get_even_seq_len()
+{
+	// even k-tuple has first d of zero and then odd length palindrome
+	unsigned h2=0;
+	for(unsigned h = 1; h < 32; ++h ) {
+		if(disp[(z-h)%128]==disp[(z+h)%128])
+			h2= h;
+		else break;
 	}
-	for(unsigned i=2; i<=((32-2)/2); ++i) {
-		for(unsigned k=16; k<=32; ++k) {
-			if(i <= ((k-1)/2)) {
-				r[k-16] &= disp[(z+i)%128] == disp[(z+k-i)%128];
-			}
-		}
+	return h2;
+}
+
+static void check_even_tuples() {
+	unsigned h= get_even_seq_len();
+	unsigned k= (h+1)*2;
+	long kw;
+	if( k>=input.mine_k )
+		save_tuple(k,0);
+	if( k>=input.twin_min_k && (kw=get_twin_seq_len(h)) >=input.twin_min_k)
+		save_tuple(kw,1);
+}
+
+static void check_odd_tuples() {
+	// odd k-tuple has first d of zero and then even length palindrome
+	unsigned h2=0;
+	for(unsigned h = 1; h < 32; ++h ) {
+		if(disp[(z+1-h)%128]==disp[(z+h)%128])
+			h2= h;
+		else break;
 	}
+	//unsigned k=(h2+1)*2;
+	unsigned k=h2*2+1;
+	if( k>=input.mino_k )
+		save_tuple(k,0);
+	//odd tuples cant be twin
 }
 
 int main(){
-	newprimes.resize(64);
 	clock_t tlast = clock();
 	uint64_t iter = 0;
-	uint64_t zi = 0;
-
 
 	try {
 		initialize();
 
 		do {
-			while ( (y-z)%128 < 64 ) {
+			// Ensure there are 31 primes in the front and one current one
+			while ( (y-z)%128 < 32 ) {
 				fill();
 				iter++;
 			}
 
-			for(unsigned k=input.mino_k; k<=input.max_k; k+=2) {
-				if( testit(k) )
-					save_tuple(k);
+			if(input.max_k) {
+				check_even_tuples();
+				check_odd_tuples();
 			}
-			for(unsigned k=input.mine_k; k<=input.max_k; k+=2) {
-				if( testit(k) )
-					save_tuple(k);
-			}
+			if(twin_enable)
+				check_twins();
 
-			if(twin_enable) {
-				if(disp[(z+1)%128]==2) {
-					if(twinz==-1) {
-						//start of twin prime sequence
-						twinp= primes[(z)%128];
-						twinz = z%2;
-					} else {
-						//continuation of sequence
-						twind.push_back(  disp[(z)%128]);
-					}
-				}
-				else if( z%2 == twinz ) {
-					//end of twin prime sequence
-					save_twin_seq();
-					twind.clear();
-					twinz=-1;
-				}
-			}
+			output.chkpt = primes[(z-1)%128]; // this is the last prime fully checked
 
-			output.chkpt = primes[(z)%128]; // this is the last prime fully checked
+			/* The -1 is there because 3 is the smallest tuple we check for and that
+			tuple starts at z-1. Larger tuples start earlier. */
 
 			if(output.chkpt >= input.end && twinz==-1) {
 				checkpoint(2);
