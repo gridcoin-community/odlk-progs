@@ -367,7 +367,7 @@ int main(int argc, char** argv) {
 	//enumerate results
 	std::stringstream enum_qr;
 	//enum_qr<<"where appid="<<spt_app.id
-	enum_qr<<"where appid in ("<<spt_app.id<<","<<stpt_app.id<<")"
+	enum_qr<<"where appid in ("<<spt_app.id/*<<","<<stpt_app.id*/<<")"
 	<<" and server_state="<<RESULT_SERVER_STATE_OVER
 	<<" and outcome="<<RESULT_OUTCOME_SUCCESS<<" and validate_state="<<VALIDATE_STATE_INIT<<" limit "<<gen_limit<<";";
 	DB_RESULT result;
