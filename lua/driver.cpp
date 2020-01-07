@@ -93,7 +93,7 @@ int boinc_lua_finish(lua_State* L) {
 }
 
 int boinc_lua_resolve(lua_State* L) {
-	const char* name = luaL_checkstring(L, 1);
+	const char* name = luaL_checkstring(L, -1);
 	#ifdef WITH_BOINC
 	string path2;
 	boinc_resolve_filename_s(name, path2);
@@ -163,8 +163,19 @@ int boinc_lua_status(lua_State* L) {
 
 	lua_pushstring(L, "have_network"); lua_pushboolean(L, boinc_network_poll()); lua_rawset(L,-3);
 	lua_pushstring(L, "is_standalone"); lua_pushboolean(L, boinc_is_standalone()); lua_rawset(L,-3);
+
 	#else
-	lua_pushnil(L);
+	lua_newtable(L);
+	lua_pushstring(L, "no_heartbeat"); lua_pushboolean(L, 0); lua_rawset(L,-3);
+	lua_pushstring(L, "suspended"); lua_pushboolean(L, 0); lua_rawset(L,-3);
+	lua_pushstring(L, "quit_request"); lua_pushboolean(L, 0); lua_rawset(L,-3); //TODO
+	lua_pushstring(L, "reread_init_data_file"); lua_pushboolean(L, 0); lua_rawset(L,-3);
+	lua_pushstring(L, "abort_request"); lua_pushboolean(L, 0); lua_rawset(L,-3);
+	lua_pushstring(L, "network_suspended"); lua_pushboolean(L, 0); lua_rawset(L,-3);
+	lua_pushstring(L, "working_set_size"); lua_pushnumber(L, -1); lua_rawset(L,-3);
+	lua_pushstring(L, "max_working_set_size"); lua_pushnumber(L, -1); lua_rawset(L,-3);
+	lua_pushstring(L, "have_network"); lua_pushboolean(L, 1); lua_rawset(L,-3);
+	lua_pushstring(L, "is_standalone"); lua_pushboolean(L, 1); lua_rawset(L,-3);
 	#endif
 	return 1;
 }
@@ -256,7 +267,7 @@ static int boinc_lua_print (lua_State *L) {
 	return 0;
 }
 
-int boinc_lua_setenv(lua_State* L) {
+int helper_setenv(lua_State* L) {
 	const char* name = luaL_checkstring (L, 1);
 	const char* value = luaL_optstring (L, 2, NULL);
 	if(value) {
@@ -267,7 +278,7 @@ int boinc_lua_setenv(lua_State* L) {
 	return 0;
 }
 
-int boinc_lua_exec(lua_State* L) {
+int helper_exec(lua_State* L) {
 	/* first arg is mandatory and that is the path to exe */
 	const char* path = luaL_checkstring (L, 1);
 	luaL_checktype(L, 2, LUA_TTABLE);
@@ -290,6 +301,22 @@ int boinc_lua_exec(lua_State* L) {
 	return 1;
 }
 
+int boinc_lua_dofile(lua_State* L) {
+	/* alias to require(boinc.resolve(arg)) */
+	lua_getglobal(L,"dofile");
+	lua_pushvalue(L, -2);
+	boinc_lua_resolve(L);
+	lua_call(L, 1, 1);
+	return 1;
+}
+
+int helper_appinit(lua_State* L) {
+	/* alias to require(boinc.resolve("app.lua")) */
+	lua_pushstring(L, "app.lua");
+	boinc_lua_dofile(L);
+	return 1;
+}
+
 int boinc_lua_libf(lua_State* L) {
 	static const struct luaL_Reg mylib [] = {
 		{"finish",&boinc_lua_finish}, /* exit code, message, notice */
@@ -297,19 +324,21 @@ int boinc_lua_libf(lua_State* L) {
 		{"progress",&boinc_lua_fraction_done}, /* frac */
 		{"critical",&boinc_lua_critical}, /* 0=enter, 1=leave, 2=checkpointed&leave */
 		{"checkpoint_test",&boinc_lua_checkpoint_test},
-		{"checkpoint_done",&boinc_lua_checkpoint_test},
+		{"checkpoint_done",&boinc_lua_checkpoint_done},
 		{"status",&boinc_lua_status}, /* void -> status table */
 		{"need_network",&boinc_lua_need_network},
 		{"network_usage",&boinc_lua_network_usage},
 		{"get_cpu_time",&boinc_lua_get_cpu_time},
 		{"temp_exit",&boinc_lua_temp_exit},
 		{"print",&boinc_lua_print},
-		{"exec",&boinc_lua_exec},
-		{"setenv",&boinc_lua_setenv},
+		{"exec",&helper_exec},
+		{"setenv",&helper_setenv},
 		//send trickle
 		//recv trickle
 		//upload file
 		//upload file status
+		{"dofile",&boinc_lua_dofile},
+		{"appinit",&helper_appinit},
 		{NULL, NULL}
 	};
 	//register api

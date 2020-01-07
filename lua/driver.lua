@@ -1,17 +1,5 @@
 print("hello from lua!")
-
-function dump(o)
-   if type(o) == 'table' then
-      local s = '{ '
-      for k,v in pairs(o) do
-         if type(k) ~= 'number' then k = '"'..k..'"' end
-         s = s .. '['..k..'] = ' .. dump(v) .. ','
-      end
-      return s .. '} '
-   else
-      return tostring(o)
-   end
-end
+boinc.dofile("library.lua")
 
 function try_command(cmd)
   print("try_command",cmd)
@@ -21,12 +9,6 @@ function try_command(cmd)
   else
     print("failure", r2, r3)
   end
-end
-
-function write_to_file(name, content)
-  local fh = io.open(name, "w")
-  fh:write(content)
-  fh:close()
 end
 
 print("arg: "..dump(arg))
@@ -54,6 +36,9 @@ write_to_file("dummy_boinc.c","#include <boinc/boinc_api.h>\nint main(void) { bo
 write_to_file("project_specific_defines.h","")
 try_command("g++ -o dummy_boinc.exe -I . dummy_boinc.c -lboinc_api -lboinc -lpthread -lm")
 try_command("ldd ./dummy_boinc_config.exe")
+
+boinc.dofile("sample2_wu.lua")
+boinc.appinit()
 
 boinc.finish(0,"driver script finished")
 os.exit(0)
