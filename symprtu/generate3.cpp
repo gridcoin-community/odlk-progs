@@ -124,16 +124,15 @@ void submit_wu_in(uint64_t start, uint64_t end, int batch)
 		inp.start= start;
 		inp.end= end;
 		inp.mine_k= 16;
-		inp.mino_k= 15;
+		inp.mino_k= 11;
 		inp.max_k= 32;
 		inp.upload = 0;
 		inp.exit_early= 0;
 		inp.out_last_primes= 0;
 		inp.out_all_primes= 0;
-		inp.twin_k=6;
-		inp.twin_cnt_k=255;
-		inp.twin_min_k=0;
-		inp.twin_max_k=0;
+		inp.twin_k=5;
+		inp.twin_min_k=10;
+		inp.twin_gap_k=6;
 		inp.primes_in.clear();
 		wu.appid = spt_app.id;
 		//14e12 is one hour on mangan-pc
@@ -189,7 +188,7 @@ int main(int argc, char** argv) {
 		if(count>=maxcnt)
 			break;
 
-		submit_wu_in(curr, next, 53);
+		submit_wu_in(curr, next, 54);
 		count++;
 	}
 	cerr<<"Count: "<<count<<endl;
