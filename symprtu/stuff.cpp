@@ -18,6 +18,7 @@ using std::vector;
 using std::array;
 using std::cerr;
 using std::endl;
+using std::string;
 
 #include "wio.cpp"
 
@@ -134,10 +135,11 @@ void read_output(const char* fn) {
 			cout<<" "<<d;
 		cout<<endl;
 	}
-	cout<<"twin_cnt:"<<endl;
-	for(const std::pair<unsigned,unsigned long>& p : output.twin_cnt) {
-		cout<<"C "<<p.first<<" "<<p.second<<endl;
-	}
+	cout<<"largest_twin6_gap: "<<output.largest_twin6_gap.start;
+	for(const auto& d : output.largest_twin6_gap.ofs)
+		cout<<" "<<d;
+	cout<<endl;
+	cout<<"largest_twin_gap: "<<output.largest_twin_gap.p<<" "<<output.largest_twin_gap.d<<endl;
 	cout<<"status: "<<int(output.status)<<endl;
 	cout<<"sieve_init_ms"<<(output.sieve_init_cs*10)<<endl;
 }
@@ -165,26 +167,29 @@ void write_output(const char* fn) {
 
 void mksample() {
 	auto& inp = input;
-	inp.start= 500100101650038360;
-	inp.end= inp.start + 1026800000;
+	inp.start=   525725685310000000;
+	inp.end= inp.start +10268000000;
 	inp.mine_k= 16;
-	inp.mino_k= 5;
+	inp.mino_k= 13;
 	inp.max_k= 32;
 	inp.upload = 0;
 	inp.exit_early= 0;
-	inp.out_last_primes= 1;
+	inp.out_last_primes= 0;
 	inp.out_all_primes= 0;
 	inp.primes_in.clear();
 	inp.twin_k=5;
-	inp.twin_cnt_k=255;
-	inp.twin_min_k=0;
-	inp.twin_max_k=0;
+	inp.twin_min_k=10;
+	inp.twin_gap_k=6;
 	write_input("sample.dat");
 }
 
 int main(int argc, char** argv){
 	if(argc==2) {
-		read_output(argv[1]);
+		if(string(argv[1])=="-s") {
+			mksample();
+		} else {
+			read_output(argv[1]);
+		}
 		return 0;
 	} else while(1) {
 		cerr<<"use debugger"<<endl;
