@@ -26,8 +26,8 @@ struct TOutputTuple {
 struct TOutput {
 	uint64_t start;
 	uint64_t chkpt; // last-k-th prime
-	uint64_t last;  // last prime
-	unsigned long nprime; //count of primes generated
+	uint64_t last =0;  // last prime
+	unsigned long nprime =0; //count of primes generated
 	vector<uint64_t> primes;
 	vector<TOutputTuple> tuples;
 	vector<TOutputTuple> twins;
@@ -38,10 +38,10 @@ struct TOutput {
 		x_time,
 		x_cpu,
 		x_abort
-	} status;
-	unsigned sieve_init_cs; //time to init
-	TOutputTuple largest_twin6_gap;
-	struct {uint64_t p; unsigned	 d; } largest_twin_gap;
+	} status =x_chkpt;
+	unsigned sieve_init_cs =0; //time to init
+	TOutputTuple largest_twin6_gap ={0};
+	struct {uint64_t p; unsigned d; } largest_twin_gap ={0};
 
 	void readOutput(CStream&& s);
 	void writeOutput(CStream& s);

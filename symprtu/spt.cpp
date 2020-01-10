@@ -121,13 +121,9 @@ void initialize() {
 	try {
 		output.readOutput(CBoincFileStream(0,"checkpoint"));
 	} catch(EFileNotFound& e) {
+		output = TOutput();
 		output.start = input.start;
 		output.chkpt = input.start-1;
-		output.last = 0;
-		output.nprime = 0;
-		output.primes.clear();
-		output.tuples.clear();
-		output.sieve_init_cs=0;
 	}
 	twind.clear();
 	twinz=-1;
