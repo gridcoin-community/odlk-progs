@@ -172,10 +172,9 @@ int read_output_file(RESULT const& result, CDynamicStream& buf) {
 const float credit_m= 3.748e-10;
 //credit/200 = gigaflop
 
-static void insert_spt_tuples(const DB_RESULT& result, const vector<TOutputTuple>& tuples, const char* kind)
+static void insert_spt_tuple(const DB_RESULT& result, const TOutputTuple& tuple, const char* kind)
 {
 	std::stringstream qr;
-	for( const auto& tuple : tuples) {
 		qr=std::stringstream();
 		qr<<"insert into spt set batch="<<result.batch;
 		qr<<", start="<<tuple.start;
@@ -188,6 +187,23 @@ static void insert_spt_tuples(const DB_RESULT& result, const vector<TOutputTuple
 		qr<<"' on duplicate key update id=id";
 		retval=boinc_db.do_query(qr.str().c_str());
 		if(retval) throw EDatabase("spt row insert failed");
+}
+static void insert_spt_tuples(const DB_RESULT& result, const vector<TOutputTuple>& tuples, const char* kind)
+{
+	std::stringstream qr;
+	for( const auto& tuple : tuples ) {
+		insert_spt_tuple(result, tuple, kind);
+		for( short k=tuple.k-2; k>=16; k-=2 ) {
+			TOutputTuple tu2= {tuple.start, k, {tuple.ofs.begin()+1,tuple.ofs.end()}};
+			insert_spt_tuple(result, tu2, kind);
+		}
+	}
+}
+static void insert_twin_tuples(const DB_RESULT& result, const vector<TOutputTuple>& tuples)
+{
+	std::stringstream qr;
+	for( const auto& tuple : tuples) {
+		insert_spt_tuple(result, tuple, "tpt");
 	}
 }
 
@@ -266,7 +282,7 @@ void process_result(DB_RESULT& result) {
 
 	/* insert into the prime tuple db */
 	insert_spt_tuples(result, rstate.tuples, "spt");
-	insert_spt_tuples(result, rstate.twins, "tpt");
+	insert_twin_tuples(result, rstate.twins);
 	insert_spt_tuples(result, rstate.twin_tuples, "stpt");
 
 	/* insert into largest gap table */
