@@ -308,6 +308,8 @@ void set_result_invalid(DB_RESULT& result) {
 			hav.max_jobs_per_day--;
 	}
 	result.validate_state=VALIDATE_STATE_INVALID;
+	result.outcome=6;
+	wu.transition_time = time(0);
 	//result.file_delete_state=FILE_DELETE_READY; - keep for analysis
 	if(result.update()) throw EDatabase("Result update error");
 	if(wu.update()) throw EDatabase("Workunit update error");
