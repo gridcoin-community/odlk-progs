@@ -23,7 +23,7 @@ function show_by_batch_group_k($f_batch) {
   $fmt=get_int('fmt',true);
   header("Content-type: text/plain");
   $db = BoincDb::get();
-  $set = $db->do_query("select distinct(start), id, k, ofs from spt where batch=$f_batch order by k, start");
+  $set = $db->do_query("select distinct(start), id, k, ofs from spt where kind in ('spt','stpt') and batch=$f_batch order by k, start");
   $prevk=0;
   echo "# Copyright Tomas Brada, ask on forum about reuse or citation.\n";
 	echo "# where batch = $f_batch\n";
@@ -53,7 +53,7 @@ function show_by_k() {
   $minidclausule = "";
   if($minid!==null)
 		$minidclausule = "and id>$minid";
-  $set = $db->do_query("select distinct(start), id, k, ofs from spt where k=$k $minidclausule order by start");
+  $set = $db->do_query("select distinct(start), id, k, ofs from spt where kind in ('spt','stpt') and k=$k $minidclausule order by start");
   $prevk=0;
   echo "# Copyright Tomas Brada, ask on forum about reuse or citation.\n";
 	echo "# where k = $k\n";
