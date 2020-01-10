@@ -225,6 +225,7 @@ void process_result(DB_RESULT& result) {
 	try {
 		rstate.readOutput(std::move(buf));
 	} catch (EStreamOutOufBounds& e){ throw EInvalid("can't deserialize output file"); }
+	catch (std::length_error& e){ throw EInvalid("can't deserialize output file (bad vector length)"); }
 
 	CDynamicStream inbuf;
 	try {
