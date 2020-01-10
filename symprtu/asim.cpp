@@ -293,7 +293,7 @@ void process_result(DB_RESULT& result) {
 		"start="<<rstate.largest_twin_gap.p
 		<<", d="<<rstate.largest_twin_gap.d
 		<<", k=0, ofs=''"
-		" where k=0;";
+		" where k=0 and d<"<<rstate.largest_twin_gap.d<<";";
 		retval=boinc_db.do_query(qr.str().c_str());
 		if(retval) throw EDatabase("spt gap insert failed");
 	}
@@ -309,7 +309,7 @@ void process_result(DB_RESULT& result) {
 			maxd= std::max(d,maxd);
 		}
 		qr<<"', d="<<maxd
-		<<" where k>0;";
+		<<" where k>0 and d<"<<maxd<<";";
 		retval=boinc_db.do_query(qr.str().c_str());
 		if(retval) throw EDatabase("spt gap insert failed");
 	}
