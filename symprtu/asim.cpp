@@ -288,7 +288,7 @@ void process_result(DB_RESULT& result) {
 	/* insert into largest gap table */
 	if(rstate.largest_twin_gap.p) {
 		std::stringstream qr;
-		qr<<"update table spt_mgap set "
+		qr<<"update spt_mgap set "
 		"start="<<rstate.largest_twin_gap.p
 		<<", d="<<rstate.largest_twin_gap.d
 		<<", k=0, ofs=''"
@@ -298,7 +298,7 @@ void process_result(DB_RESULT& result) {
 	}
 	if(rstate.largest_twin6_gap.start) {
 		std::stringstream qr;
-		qr<<"update table spt_mgap set "
+		qr<<"update spt_mgap set "
 		"start="<<rstate.largest_twin6_gap.start
 		<<", k="<<rstate.largest_twin6_gap.k
 		<<", ofs='";
@@ -412,7 +412,7 @@ int main(int argc, char** argv) {
 	//enumerate results
 	std::stringstream enum_qr;
 	//enum_qr<<"where appid="<<spt_app.id
-	enum_qr<<"where appid in ("<<spt_app.id/*<<","<<stpt_app.id*/<<")"
+	enum_qr<<"where appid in ("<<spt_app.id<<","<<stpt_app.id<<")"
 	<<" and server_state="<<RESULT_SERVER_STATE_OVER
 	<<" and outcome="<<RESULT_OUTCOME_SUCCESS<<" and validate_state="<<VALIDATE_STATE_INIT<<" limit "<<gen_limit<<";";
 	DB_RESULT result;
@@ -451,3 +451,5 @@ int main(int argc, char** argv) {
 	return 0;
 }
 
+// pre-experiemt id: 1996184, batch: 54
+// spt id: 67154
