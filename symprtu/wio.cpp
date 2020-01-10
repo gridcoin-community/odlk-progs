@@ -166,7 +166,7 @@ void TOutput::readOutput(CStream&& s) {
 	primes.resize(len);
 	for(unsigned i=0; i<len; ++i)
 		primes[i]= s.r8();
-	TOutput__readTuples(s, tuples, 0);
+	TOutput__readTuples(s, tuples, (ident==0x64DE70FC) );
 	status= TOutput::Status(s.r1());
 	sieve_init_cs= s.r4();
 	if(ident==0x64DE70FC) {
