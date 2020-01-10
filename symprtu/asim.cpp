@@ -301,7 +301,7 @@ void process_result(DB_RESULT& result) {
 		std::stringstream qr;
 		qr<<"update spt_mgap set "
 		"start="<<rstate.largest_twin6_gap.start
-		<<", k="<<rstate.largest_twin6_gap.k
+		<<", k="<<rstate.largest_twin6_gap.ofs.size()
 		<<", ofs='";
 		short unsigned maxd =0;
 		for(auto d : rstate.largest_twin6_gap.ofs) {
