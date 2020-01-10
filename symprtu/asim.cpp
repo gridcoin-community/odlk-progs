@@ -226,7 +226,7 @@ void process_result(DB_RESULT& result) {
 		for(unsigned i=1; i<tuple.ofs.size(); ++i) {
 			if( (tuple.ofs[i]<=1) // must not be zero
 				||(tuple.ofs[i]&1)  // must be even
-			) throw EInvalid("bad tuple offset");
+			) throw EInvalid("bad SPT offset");
 		}
 	}
 	for( const auto& tuple : rstate.twins) {
@@ -242,7 +242,7 @@ void process_result(DB_RESULT& result) {
 		if(tuple.k==0)
 			throw EInvalid("bad tuple k");
 		for(unsigned i=1; i<tuple.ofs.size(); ++i) {
-			if( (tuple.ofs[i]<=1) // must be >2
+			if( (tuple.ofs[i]<=1) // must not be zero
 				||(tuple.ofs[i]&1)  // must be even
 			) throw EInvalid("bad STPT offset");
 		}
@@ -268,6 +268,35 @@ void process_result(DB_RESULT& result) {
 	insert_spt_tuples(result, rstate.tuples, "spt");
 	insert_spt_tuples(result, rstate.twins, "tpt");
 	insert_spt_tuples(result, rstate.twin_tuples, "stpt");
+
+	/* insert into largest gap table */
+	if(rstate.largest_twin_gap.p) {
+		std::stringstream qr;
+		qr<<"update table spt_mgap set "
+		"start="<<rstate.largest_twin_gap.p
+		<<", d="<<rstate.largest_twin_gap.d
+		<<", k=0, ofs=''"
+		" where k=0;";
+		retval=boinc_db.do_query(qr.str().c_str());
+		if(retval) throw EDatabase("spt gap insert failed");
+	}
+	if(rstate.largest_twin6_gap.start) {
+		std::stringstream qr;
+		qr<<"update table spt_mgap set "
+		"start="<<rstate.largest_twin6_gap.start
+		<<", k="<<rstate.largest_twin6_gap.k
+		<<", ofs='";
+		short unsigned maxd =0;
+		for(auto d : rstate.largest_twin6_gap.ofs) {
+			qr<<" "<<d;
+			maxd= std::max(d,maxd);
+		}
+		qr<<"', d="<<maxd
+		<<" where k>0;";
+		retval=boinc_db.do_query(qr.str().c_str());
+		if(retval) throw EDatabase("spt gap insert failed");
+	}
+
 
 	//TODO
 	float credit = credit_m* (rstate.last-rstate.start);
