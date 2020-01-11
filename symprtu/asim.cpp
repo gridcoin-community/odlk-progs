@@ -193,8 +193,10 @@ static void insert_spt_tuples(const DB_RESULT& result, const vector<TOutputTuple
 	std::stringstream qr;
 	for( const auto& tuple : tuples ) {
 		insert_spt_tuple(result, tuple, kind);
-		for( short k=tuple.k-2; k>=16; k-=2 ) {
-			TOutputTuple tu2= {tuple.start, k, {tuple.ofs.begin()+1,tuple.ofs.end()}};
+		TOutputTuple tu2= tuple;
+		for( tu2.k= tuple.k-2; tu2.k>=16; tu2.k-=2 ) {
+			tu2.start += tu2.ofs[0];
+			tu2.ofs .erase(tu2.ofs.begin());
 			insert_spt_tuple(result, tu2, kind);
 		}
 	}
