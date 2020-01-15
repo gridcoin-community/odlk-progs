@@ -121,6 +121,7 @@ void read_output(const char* fn) {
 			cout<<" "<<d;
 		cout<<endl;
 	}
+	#if 1
 	cout<<"twins:"<<endl;
 	for(const auto& tuple : output.twins) {
 		cout<<"W "<<tuple.start<<"("<<(tuple.ofs.size()+1)<<"):";
@@ -128,6 +129,23 @@ void read_output(const char* fn) {
 			cout<<" "<<d;
 		cout<<endl;
 	}
+	#else
+	cout<<"twin_gap_seq:"<<endl;
+	long maxgap = 0;
+	for(const auto& tuple : output.twins) {
+		long gap=0;
+		for(const auto& d : tuple.ofs)
+			if (d>gap)
+				gap= d;
+		if(gap>maxgap) {
+			cout<<"W "<<tuple.start<<"("<<(tuple.ofs.size()+1)<<"):";
+			for(const auto& d : tuple.ofs)
+				cout<<" "<<d;
+			cout<<" ["<<(gap+2)<<"]"<<endl;
+			maxgap= gap;
+		}
+	}
+	#endif
 	cout<<"twin_tuples:"<<endl;
 	for(const auto& tuple : output.twin_tuples) {
 		cout<<"U "<<tuple.start<<"("<<tuple.k<<"):";
@@ -135,11 +153,15 @@ void read_output(const char* fn) {
 			cout<<" "<<d;
 		cout<<endl;
 	}
-	cout<<"largest_twin6_gap: "<<output.largest_twin6_gap.start;
-	for(const auto& d : output.largest_twin6_gap.ofs)
-		cout<<" "<<d;
-	cout<<endl;
-	cout<<"largest_twin_gap: "<<output.largest_twin_gap.p<<" "<<output.largest_twin_gap.d<<endl;
+	cout<<"twin_gap_6d: "<<output.twin_gap_6d<<endl;
+	cout<<"twin_gap_d: "<<output.twin_gap_d<<endl;
+	cout<<"twin_gap:"<<endl;
+	for(const auto& tuple : output.twin_gap) {
+		cout<<"G "<<tuple.start<<"("<<(tuple.ofs.size()+1)<<"):";
+		for(const auto& d : tuple.ofs)
+			cout<<" "<<d;
+		cout<<endl;
+	}
 	cout<<"status: "<<int(output.status)<<endl;
 	cout<<"sieve_init_ms"<<(output.sieve_init_cs*10)<<endl;
 }
@@ -180,6 +202,8 @@ void mksample() {
 	inp.twin_k=5;
 	inp.twin_min_k=10;
 	inp.twin_gap_k=6;
+	inp.twin_gap_min=2;
+	inp.twin_gap_kmin=2;
 	write_input("sample.dat");
 }
 

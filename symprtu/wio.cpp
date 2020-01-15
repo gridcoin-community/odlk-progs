@@ -12,6 +12,8 @@ struct TInput {
 	bool out_all_primes;
 	vector<uint64_t> primes_in;
 	unsigned short twin_gap_k;
+	unsigned twin_gap_min;  // min gap for inclusion in increasing gap list
+	unsigned twin_gap_kmin; // same, but for k-filtered list
 
 	void readInput(CStream&& s);
 	void writeInput(CStream& s);
@@ -32,6 +34,7 @@ struct TOutput {
 	vector<TOutputTuple> tuples;
 	vector<TOutputTuple> twins;
 	vector<TOutputTuple> twin_tuples;
+	vector<TOutputTuple> twin_gap; // output of twin gaps
 	enum Status {
 		x_end =1,
 		x_chkpt,
@@ -40,8 +43,8 @@ struct TOutput {
 		x_abort
 	} status =x_chkpt;
 	unsigned sieve_init_cs =0; //time to init
-	TOutputTuple largest_twin6_gap ={0};
-	struct {uint64_t p; unsigned d; } largest_twin_gap ={0};
+	unsigned twin_gap_d  =0;
+	unsigned twin_gap_6d =0;
 
 	void readOutput(CStream&& s);
 	void writeOutput(CStream& s);
@@ -51,7 +54,7 @@ struct TOutput {
 
 void TInput::readInput(CStream&& s) {
 	unsigned ident= s.r4();
-	if(ident!=0x64DE70F6 && ident!=0x64DE70FB) s.fail();
+	if(ident!=0x64DE70F6 && ident!=0x64DE70FD) s.fail();
 	start= s.r8();
 	end= s.r8();
 	upload = s.r2();
@@ -63,21 +66,24 @@ void TInput::readInput(CStream&& s) {
 	out_all_primes= (flag >> 3) &1;
 	unsigned len= s.r2();
 	if(len) s.fail();
-	if(ident==0x64DE70FB) {
+	if(ident==0x64DE70FD) {
 		mino_k = s.r1();
 		twin_k = s.r1();
 		twin_min_k = s.r1();
 		twin_gap_k = s.r1();
+		twin_gap_min = s.r2();
+		twin_gap_kmin = s.r2();
 	} else {
 		mino_k=mine_k+1;
 		twin_k = 255;
 		twin_gap_k= 255;
 		twin_min_k = 255;
+		twin_gap_min= twin_gap_kmin= 65535;
 	}
 }
 
 void TInput::writeInput(CStream& s) {
-	s.w4(0x64DE70FB);
+	s.w4(0x64DE70FD);
 	s.w8(start);
 	s.w8(end);
 	s.w2(upload);
@@ -91,11 +97,13 @@ void TInput::writeInput(CStream& s) {
 	s.w1(twin_k);
 	s.w1(twin_min_k);
 	s.w1(twin_gap_k);
+	s.w2(twin_gap_min);
+	s.w2(twin_gap_kmin);
 }
 
 
 void TOutput::writeOutput(CStream& s) {
-	s.w4(0x64DE70FC);
+	s.w4(0x64DE70FE);
 	s.w8(start);
 	s.w8(chkpt);
 	s.w8(last);
@@ -126,12 +134,15 @@ void TOutput::writeOutput(CStream& s) {
 		for( const auto& o : t.ofs )
 			s.w2(o);
 	}
-	s.w8(largest_twin6_gap.start);
-	s.w2(largest_twin6_gap.ofs.size());
-	for( const auto& o : largest_twin6_gap.ofs )
-		s.w2(o);
-	s.w8(largest_twin_gap.p);
-	s.w2(largest_twin_gap.d);
+	s.w4(twin_gap.size());
+	for( const auto& t : twin_gap ) {
+		s.w8(t.start);
+		s.w2(t.ofs.size());
+		for( const auto& o : t.ofs )
+			s.w2(o);
+	}
+	s.w2(twin_gap_d);
+	s.w2(twin_gap_6d);
 	s.w4(0); //CRC here TODO
 }
 
@@ -157,7 +168,21 @@ static void TOutput__readTuples(CStream& s, vector<TOutputTuple>& tuples, int fl
 
 void TOutput::readOutput(CStream&& s) {
 	unsigned ident= s.r4();
-	if(ident!=0x64DE70F8 && ident!=0x64DE70FC) s.fail();
+	if(ident==0x64DE70F7) {
+		start= s.r8();
+		chkpt= s.r8();
+		last= s.r8();
+		nprime= s.r4();
+		unsigned len = s.r4();
+		primes.resize(len);
+		for(unsigned i=0; i<len; ++i)
+			primes[i]= s.r8();
+		TOutput__readTuples(s, tuples, 0);
+		status= TOutput::Status(s.r1());
+		sieve_init_cs= s.r4();
+	 return;
+	}
+	if(ident!=0x64DE70F8 && ident!=0x64DE70FE) s.fail();
 	start= s.r8();
 	chkpt= s.r8();
 	last= s.r8();
@@ -166,40 +191,20 @@ void TOutput::readOutput(CStream&& s) {
 	primes.resize(len);
 	for(unsigned i=0; i<len; ++i)
 		primes[i]= s.r8();
-	TOutput__readTuples(s, tuples, (ident==0x64DE70FC) );
+	TOutput__readTuples(s, tuples, (ident==0x64DE70FE) );
 	status= TOutput::Status(s.r1());
 	sieve_init_cs= s.r4();
-	if(ident==0x64DE70FC) {
+	if(ident==0x64DE70FE) {
 		TOutput__readTuples(s, twins,2);
 		TOutput__readTuples(s, twin_tuples,1);
-		largest_twin6_gap.start=s.r8();
-		largest_twin6_gap.ofs.resize(s.r2());
-		for(unsigned j=0; j<largest_twin6_gap.ofs.size(); ++j)
-			largest_twin6_gap.ofs[j]= s.r2();
-		largest_twin_gap.p=s.r8();
-		largest_twin_gap.d=s.r2();
+		TOutput__readTuples(s, twin_gap,2);
+		twin_gap_d=s.r2();
+		twin_gap_6d=s.r2();
 	} else {
 		twins.clear();
 		twin_tuples.clear();
-		largest_twin6_gap=TOutputTuple();
-		largest_twin_gap.p=0;
-		largest_twin_gap.d=0;
+		twin_gap.clear();
+		twin_gap_d= twin_gap_6d= 0;
 	}
 	//CRC
-}
-
-void TOutput::readOutput_OLD(CStream&& s) {
-	unsigned ident= s.r4();
-	if(ident!=0x64DE70F7) s.fail();
-	start= s.r8();
-	chkpt= s.r8();
-	last= s.r8();
-	nprime= s.r4();
-	unsigned len = s.r4();
-	primes.resize(len);
-	for(unsigned i=0; i<len; ++i)
-		primes[i]= s.r8();
-	TOutput__readTuples(s, tuples, 0);
-	status= TOutput::Status(s.r1());
-	sieve_init_cs= s.r4();
 }

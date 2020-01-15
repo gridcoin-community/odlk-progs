@@ -129,6 +129,8 @@ void initialize() {
 	twinz=-1;
 	twin_enable = input.twin_k<255 || input.twin_min_k<255;
 	twins_min = std::min(input.twin_k, input.twin_gap_k) - 1;
+	output.twin_gap_d=  input.twin_gap_min;
+	output.twin_gap_6d= input.twin_gap_kmin;
 	if(input.mine_k<2 || input.mino_k<3 || !input.mino_k&1 || input.mine_k&1
 		|| input.twin_min_k<4
 		|| input.twin_k<1
@@ -180,11 +182,18 @@ void process_twin_seq() {
 		el.ofs.resize( twind.size() );
 		std::copy(twind.begin(), twind.end(), el.ofs.begin());
 	}
-	if( twin_md>output.largest_twin6_gap.k && (twind.size()+1)>5 ) {
-		output.largest_twin6_gap.start = twinp;
-		output.largest_twin6_gap.k = twin_md;
-		output.largest_twin6_gap.ofs.resize(twind.size());
-		std::copy(twind.begin(), twind.end(), output.largest_twin6_gap.ofs.begin());
+	bool twin_gap_cond6 = (twin_md>output.twin_gap_6d && (twind.size()+1)>5);
+	bool twin_gap_cond1 = (twin_md>output.twin_gap_d);
+	if( twin_gap_cond6 || twin_gap_cond1 )
+	{
+		if(twin_gap_cond6) output.twin_gap_6d = twin_md;
+		if(twin_gap_cond1) output.twin_gap_d  = twin_md;
+		output.twin_gap.emplace_back();
+		auto& el = output.twin_gap.back();
+		el.start = twinp;
+		el.k = 0;
+		el.ofs.resize( twind.size() );
+		std::copy(twind.begin(), twind.end(), el.ofs.begin());
 	}
 }
 
@@ -202,15 +211,13 @@ static void check_twins() {
 			twind.push_back( d );
 			if(d>twin_md)
 				twin_md= d;
-			if( d>output.largest_twin_gap.d ) {
-				output.largest_twin_gap.d= d;
-				output.largest_twin_gap.p= primes[(z-3)%128];
-			}
 		}
 	}
 	else if( z%2 == twinz ) {
 		//end of twin prime sequence
-		if( twind.size() >= twins_min )
+		if( twind.size() >= twins_min
+			|| twin_md > output.twin_gap_d
+		  )
 			process_twin_seq();
 		twinz=-1;
 	}
