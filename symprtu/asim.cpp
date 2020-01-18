@@ -90,6 +90,8 @@ class CFileStream
 DB_APP spt_app;
 DB_APP stpt_app;
 MYSQL_STMT* spt_result_stmt;
+unsigned twin_gap_max;
+unsigned twin_gap_kmax;
 
 void initz() {
 	int retval = config.parse_file();
@@ -122,6 +124,8 @@ void initz() {
 	char stmt[] = "insert into spt_result SET id=?, input=?, output=?, uid=?";
 	if(mysql_stmt_prepare(spt_result_stmt, stmt, sizeof stmt ))
 		throw EDatabase("spt_result insert prepare");
+	twin_gap_max = 1;
+	twin_gap_kmax = 1;
 }
 
 int read_output_file(RESULT const& result, CDynamicStream& buf) {
@@ -209,6 +213,86 @@ static void insert_twin_tuples(const DB_RESULT& result, const vector<TOutputTupl
 	}
 }
 
+void result_validate(DB_RESULT& result, CDynamicStream input, TOutput output) {
+	if(output.status!=TOutput::x_end)
+		throw EInvalid("incomplete run");
+	// check if the tuple offsets are all even and nonzero
+	for( const auto& tuple : output.tuples) {
+		if(tuple.k==0)
+			throw EInvalid("bad tuple k");
+		for(unsigned i=1; i<tuple.ofs.size(); ++i) {
+			if( (tuple.ofs[i]<=1) // must not be zero
+				||(tuple.ofs[i]&1)  // must be even
+			) throw EInvalid("bad SPT offset");
+		}
+	}
+	for( const auto& tuple : output.twins) {
+		if(tuple.ofs.size()==0)
+			throw EInvalid("bad twins size");
+		for(unsigned i=1; i<tuple.ofs.size(); ++i) {
+			if( (tuple.ofs[i]<=1) // must be >2
+				||(tuple.ofs[i]&1)  // must be even
+			) throw EInvalid("bad TPT offset");
+		}
+	}
+	for( const auto& tuple : output.twin_tuples) {
+		if(tuple.k==0)
+			throw EInvalid("bad tuple k");
+		for(unsigned i=1; i<tuple.ofs.size(); ++i) {
+			if( (tuple.ofs[i]<=1) // must not be zero
+				||(tuple.ofs[i]&1)  // must be even
+			) throw EInvalid("bad STPT offset");
+		}
+	}
+	for( const auto& tuple : output.twin_gap) {
+		if(tuple.ofs.size()==0)
+			throw EInvalid("bad twin_gap size");
+		for(unsigned i=1; i<tuple.ofs.size(); ++i) {
+			if( (tuple.ofs[i]<=1) // must not be zero
+				||(tuple.ofs[i]&1)  // must be even
+			) throw EInvalid("bad TPT offset");
+		}
+	}
+	//TODO: more consistency checks
+}
+
+void result_insert(DB_RESULT& result, TOutput output) {
+	/* insert into the prime tuple db */
+	insert_spt_tuples(result, output.tuples, "spt");
+	insert_twin_tuples(result, output.twins);
+	insert_spt_tuples(result, output.twin_tuples, "stpt");
+
+	/* insert into largest gap table */
+	for( const auto& tuple : output.twin_gap ) {
+		short unsigned maxd =0;
+		uint64_t start2 = tuple.start;
+		for(auto d : tuple.ofs) {
+			maxd= std::max(d,maxd);
+			if( d > twin_gap_max ) {
+				twin_gap_max = d;
+				std::stringstream qr;
+				qr<<"insert into spt_gap set start="<<start2<<", d="<<d
+				<<", resid="<<result.id<<", k=0, ofs='";
+				for(auto o : tuple.ofs)	qr<<" "<<o;
+				qr<<"';";
+				retval=boinc_db.do_query(qr.str().c_str());
+				if(retval) throw EDatabase("spt_gap insert failed");
+			}
+			start2 = start2 + 2 + d;
+		}
+		if( tuple.ofs.size() >= 6 && twin_gap_kmax < maxd) {
+			twin_gap_kmax = maxd;
+			std::stringstream qr;
+			qr<<"insert into spt_gap set start="<<start2<<", d="<<maxd
+			<<", resid="<<result.id<<", k="<<tuple.ofs.size()<<", ofs='";
+			for(auto o : tuple.ofs)	qr<<" "<<o;
+			qr<<"';";
+			retval=boinc_db.do_query(qr.str().c_str());
+			if(retval) throw EDatabase("spt_gap insert failed");
+		}
+	}
+}
+
 void process_result(DB_RESULT& result) {
 	std::stringstream qr;
 	DB_WORKUNIT wu;
@@ -236,38 +320,7 @@ void process_result(DB_RESULT& result) {
 		inbuf = CFileStream( fn.str().c_str() );
 	} catch (EStreamOutOufBounds& e){ throw EDatabase("can't read input file"); }
 
-	if(rstate.status!=TOutput::x_end)
-		throw EInvalid("incomplete run");
-	// check if the tuple offsets are all even and nonzero
-	for( const auto& tuple : rstate.tuples) {
-		if(tuple.k==0)
-			throw EInvalid("bad tuple k");
-		for(unsigned i=1; i<tuple.ofs.size(); ++i) {
-			if( (tuple.ofs[i]<=1) // must not be zero
-				||(tuple.ofs[i]&1)  // must be even
-			) throw EInvalid("bad SPT offset");
-		}
-	}
-	for( const auto& tuple : rstate.twins) {
-		if(tuple.ofs.size()==0)
-			throw EInvalid("bad twins size");
-		for(unsigned i=1; i<tuple.ofs.size(); ++i) {
-			if( (tuple.ofs[i]<=1) // must be >2
-				||(tuple.ofs[i]&1)  // must be even
-			) throw EInvalid("bad TPT offset");
-		}
-	}
-	for( const auto& tuple : rstate.twin_tuples) {
-		if(tuple.k==0)
-			throw EInvalid("bad tuple k");
-		for(unsigned i=1; i<tuple.ofs.size(); ++i) {
-			if( (tuple.ofs[i]<=1) // must not be zero
-				||(tuple.ofs[i]&1)  // must be even
-			) throw EInvalid("bad STPT offset");
-		}
-	}
-
-	//TODO: more consistency checks
+	result_validate(result, inbuf, rstate);
 
 	/* Insert into result db */
 	unsigned long bind_2_length = inbuf.length();
@@ -283,39 +336,7 @@ void process_result(DB_RESULT& result) {
 	if(mysql_stmt_execute(spt_result_stmt))
 		throw EDatabase("spt_result insert");
 
-	/* insert into the prime tuple db */
-	insert_spt_tuples(result, rstate.tuples, "spt");
-	insert_twin_tuples(result, rstate.twins);
-	insert_spt_tuples(result, rstate.twin_tuples, "stpt");
-
-	/* insert into largest gap table */
-	if(rstate.largest_twin_gap.p) {
-		std::stringstream qr;
-		qr<<"update spt_mgap set "
-		"start="<<rstate.largest_twin_gap.p
-		<<", d="<<rstate.largest_twin_gap.d
-		<<", k=0, ofs=''"
-		" where k=0 and d<"<<rstate.largest_twin_gap.d<<";";
-		retval=boinc_db.do_query(qr.str().c_str());
-		if(retval) throw EDatabase("spt gap insert failed");
-	}
-	if(rstate.largest_twin6_gap.start) {
-		std::stringstream qr;
-		qr<<"update spt_mgap set "
-		"start="<<rstate.largest_twin6_gap.start
-		<<", k="<<rstate.largest_twin6_gap.ofs.size()
-		<<", ofs='";
-		short unsigned maxd =0;
-		for(auto d : rstate.largest_twin6_gap.ofs) {
-			qr<<" "<<d;
-			maxd= std::max(d,maxd);
-		}
-		qr<<"', d="<<maxd
-		<<" where k>0 and d<"<<maxd<<";";
-		retval=boinc_db.do_query(qr.str().c_str());
-		if(retval) throw EDatabase("spt gap insert failed");
-	}
-
+	result_insert(result, rstate);
 
 	//TODO
 	float credit = credit_m* (rstate.last-rstate.start);
