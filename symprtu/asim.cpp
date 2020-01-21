@@ -90,8 +90,6 @@ class CFileStream
 DB_APP spt_app;
 DB_APP stpt_app;
 MYSQL_STMT* spt_result_stmt;
-unsigned twin_gap_max;
-unsigned twin_gap_kmax;
 
 void initz() {
 	int retval = config.parse_file();
@@ -124,8 +122,6 @@ void initz() {
 	char stmt[] = "insert into spt_result SET id=?, input=?, output=?, uid=?";
 	if(mysql_stmt_prepare(spt_result_stmt, stmt, sizeof stmt ))
 		throw EDatabase("spt_result insert prepare");
-	twin_gap_max = 1;
-	twin_gap_kmax = 1;
 }
 
 int read_output_file(RESULT const& result, CDynamicStream& buf) {
@@ -185,6 +181,7 @@ static void insert_spt_tuple(const DB_RESULT& result, const TOutputTuple& tuple,
 		qr<<", k="<<tuple.k;
 		qr<<", kind='"<<kind<<"'";
 		qr<<", userid="<<result.userid;
+		qr<<", resid="<<result.id;
 		qr<<", ofs='"<<tuple.ofs[0];
 		for(unsigned i=1; i<tuple.ofs.size(); ++i)
 			qr<<" "<<tuple.ofs[i];
@@ -247,6 +244,8 @@ void result_validate(DB_RESULT& result, CDynamicStream input, TOutput output) {
 	for( const auto& tuple : output.twin_gap) {
 		if(tuple.ofs.size()==0)
 			throw EInvalid("bad twin_gap size");
+		if(tuple.k!=(tuple.ofs.size()+1))
+			throw EInvalid("bad twin_gap size");
 		for(unsigned i=1; i<tuple.ofs.size(); ++i) {
 			if( (tuple.ofs[i]<=1) // must not be zero
 				||(tuple.ofs[i]&1)  // must be even
@@ -263,6 +262,7 @@ void result_insert(DB_RESULT& result, TOutput output) {
 	insert_spt_tuples(result, output.twin_tuples, "stpt");
 
 	/* insert into largest gap table */
+	unsigned twin_gap_max = 2;
 	for( const auto& tuple : output.twin_gap ) {
 		short unsigned maxd =0;
 		uint64_t start2 = tuple.start;
@@ -274,19 +274,18 @@ void result_insert(DB_RESULT& result, TOutput output) {
 				qr<<"insert into spt_gap set start="<<start2<<", d="<<d
 				<<", resid="<<result.id<<", k=0, ofs='";
 				for(auto o : tuple.ofs)	qr<<" "<<o;
-				qr<<"';";
+				qr<<"' on duplicate key update d=d;";
 				retval=boinc_db.do_query(qr.str().c_str());
 				if(retval) throw EDatabase("spt_gap insert failed");
 			}
 			start2 = start2 + 2 + d;
 		}
-		if( tuple.ofs.size() >= 6 && twin_gap_kmax < maxd) {
-			twin_gap_kmax = maxd;
+		if( tuple.k > 5) {
 			std::stringstream qr;
 			qr<<"insert into spt_gap set start="<<start2<<", d="<<maxd
-			<<", resid="<<result.id<<", k="<<tuple.ofs.size()<<", ofs='";
+			<<", resid="<<result.id<<", k="<<tuple.k<<", ofs='";
 			for(auto o : tuple.ofs)	qr<<" "<<o;
-			qr<<"';";
+			qr<<"' on duplicate key update d=d;";
 			retval=boinc_db.do_query(qr.str().c_str());
 			if(retval) throw EDatabase("spt_gap insert failed");
 		}
