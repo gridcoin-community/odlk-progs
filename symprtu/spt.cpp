@@ -147,8 +147,9 @@ void initialize() {
 	clock_t t0 = clock();
 	gen = std::make_unique<primesieve::PrimeGenerator>(
 		output.chkpt+1, UINT64_MAX
-	);	
-	fill();
+	);
+	while( y < z )
+		fill();
 	output.sieve_init_cs += double(clock()-t0)*100/CLOCKS_PER_SEC;
 	// todo: verify the +1 is correct
 	/* no abort prevention logic */
@@ -311,6 +312,11 @@ int main(){
 			while ( (y-z)%128 < 32 ) {
 				fill();
 				iter++;
+			}
+
+			if(primes[(z)%128]==0) {
+				throw std::runtime_error("Zero Prime");
+				return 1;
 			}
 
 			if(input.max_k) {
