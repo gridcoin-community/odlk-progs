@@ -123,18 +123,18 @@ void submit_wu_in(uint64_t start, uint64_t end, int batch)
 
 		inp.start= start;
 		inp.end= end;
-		inp.mine_k= 16;
-		inp.mino_k= 11;
+		inp.mine_k= 12;
+		inp.mino_k= 9;
 		inp.max_k= 32;
 		inp.upload = 0;
 		inp.exit_early= 0;
-		inp.out_last_primes= 0;
+		inp.out_last_primes= 1;
 		inp.out_all_primes= 0;
 		inp.twin_k=6;
-		inp.twin_min_k=10;
+		inp.twin_min_k=8;
 		inp.twin_gap_k=6;
-		inp.twin_gap_min=490;
-		inp.twin_gap_kmin=88;
+		inp.twin_gap_min=1;
+		inp.twin_gap_kmin=1;
 		inp.primes_in.clear();
 		wu.appid = spt_app.id;
 		//14e12 is one hour on mangan-pc
@@ -142,7 +142,7 @@ void submit_wu_in(uint64_t start, uint64_t end, int batch)
 		wu.rsc_fpops_bound = wu.rsc_fpops_est * 24;
 		wu.rsc_memory_bound = 399e6;
 		wu.rsc_disk_bound = 1e8; //todo 100m
-		wu.delay_bound = 1 * 24 * 3600;
+		wu.delay_bound = 2 * 3600;
 		wu.priority = 23;
 		wu.batch= batch;
 		wu.target_nresults= wu.min_quorum = 1;
@@ -176,19 +176,19 @@ int main(int argc, char** argv) {
 	if(boinc_db.start_transaction())
 		exit(4);
 
-	uint64_t start= 530000067298180900;
-	uint64_t   end= 590000000000000000;
-	uint64_t  step=        51340000000;
+	uint64_t start= 5;
+	uint64_t   end=      1000000000000;
+	uint64_t  step=        50000000000;
 	unsigned maxcnt = 1000;
 	uint64_t next = start;
 	unsigned long count = 0;
 	while(1) {
 		uint64_t curr = next;
-		next = curr + step;
 		if(curr > end)
 			break;
 		if(count>=maxcnt)
 			break;
+		next = curr + step;
 
 		submit_wu_in(curr, next, 55);
 		count++;
