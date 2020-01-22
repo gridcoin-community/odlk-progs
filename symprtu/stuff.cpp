@@ -233,3 +233,7 @@ int main(int argc, char** argv){
 //        8556680160 - 10 s
 //       51340080960 - 47 s
 //       65500000000 -  1 min
+
+// saran 3888 FpMIPS 10918 iMIPS
+//       65500000000 -  1 min 20s
+
