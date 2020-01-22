@@ -7,7 +7,7 @@ sievetest: sievetest.cpp
 	g++ -g -o $@ -O1 -I primesieve/include sievetest.cpp primesieve/libprimesieve.so
 
 spt: spt.cpp wio.cpp Makefile
-	g++ -o $@ -static -O0 -I ../boinc/api -I ../boinc/lib -I ../boinc -I primesieve/include spt.cpp primesieve/libprimesieve.a ../boinc/api/libboinc_api.a ../boinc/lib/libboinc.a -lpthread
+	g++ -o $@ -static -O3 -I ../boinc/api -I ../boinc/lib -I ../boinc -I primesieve/include spt.cpp primesieve/libprimesieve.a ../boinc/api/libboinc_api.a ../boinc/lib/libboinc.a -lpthread
 
 stuff: stuff.cpp wio.cpp
 	g++ -g -o $@ -O0 -I primesieve/include -I ../boinc/api -I ../boinc/lib -I ../boinc stuff.cpp primesieve/libprimesieve.a ../boinc/api/libboinc_api.a ../boinc/lib/libboinc.a -lpthread
