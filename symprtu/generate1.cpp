@@ -109,10 +109,28 @@ void initz() {
 			);
 			exit(1);
 	}
-	if (spt_app.lookup("where name='spt'")) {
-		std::cerr<<"can't find app spt\n";
+	if (spt_app.lookup("where name='stpt'")) {
+		std::cerr<<"can't find app stpt\n";
 		exit(4);
 	}
+}
+
+void post_batch_msg(int batch,uint64_t first,uint64_t next,unsigned long count, const char* label, const char * msg)
+{
+	//into message
+	std::stringstream post;
+	post<<"insert into post set thread= 3055, user= 1, timestamp= UNIX_TIMESTAMP(), modified= 0, parent_post= 0, score= 0, votes= 0, signature= 1, hidden= 0, content='";
+	post<<"Batch "<<batch<<": "<<first<<" .. "<<next<<" -1\nCount: "<<count<<"\n";
+	post<<msg;
+	post<<"';";
+	retval=boinc_db.do_query(post.str().c_str());
+	if(retval) throw EDatabase("batch forum post insert failed");
+	DB_ID_TYPE message_id = boinc_db.insert_id();
+	std::stringstream qr;
+	//into batch
+	qr<<"insert into batch set id= "<<batch<<", short_descr= '"<<label<<"', forum_msg= "<<message_id<<";";
+	retval=boinc_db.do_query(post.str().c_str());
+	if(retval) throw EDatabase("batch descr insert failed");
 }
 
 void submit_wu_in(uint64_t start, uint64_t end, int batch)
@@ -124,21 +142,26 @@ void submit_wu_in(uint64_t start, uint64_t end, int batch)
 		inp.start= start;
 		inp.end= end;
 		inp.mine_k= 16;
-		inp.mino_k= inp.mine_k+1;
+		inp.mino_k= 13;
 		inp.max_k= 32;
 		inp.upload = 0;
 		inp.exit_early= 0;
-		inp.out_last_primes= 0;
+		inp.out_last_primes= 1;
 		inp.out_all_primes= 0;
+		inp.twin_k=6;
+		inp.twin_min_k=8;
+		inp.twin_gap_k=6;
+		inp.twin_gap_min=88;
+		inp.twin_gap_kmin=496;
 		inp.primes_in.clear();
 		wu.appid = spt_app.id;
 		//14e12 is one hour on mangan-pc
-		wu.rsc_fpops_est = (inp.end - inp.start) * 163;
+		wu.rsc_fpops_est = (inp.end - inp.start) * 5.0381;
 		wu.rsc_fpops_bound = wu.rsc_fpops_est * 24;
 		wu.rsc_memory_bound = 399e6;
 		wu.rsc_disk_bound = 1e8; //todo 100m
 		wu.delay_bound = 5 * 24 * 3600;
-		wu.priority = 21;
+		wu.priority = 10;
 		wu.batch= batch;
 		wu.target_nresults= wu.min_quorum = 1;
 		wu.max_error_results= wu.max_total_results= 8;
@@ -171,10 +194,6 @@ int main(int argc, char** argv) {
 	if(boinc_db.start_transaction())
 		exit(4);
 
-	uint64_t start= 524928702098180900;
-	uint64_t   end= 530000000000000000;
-	uint64_t  step=       102680000000;
-	unsigned maxcnt = 50000;
 	uint64_t next = start;
 	unsigned long count = 0;
 	while(1) {
@@ -185,9 +204,10 @@ int main(int argc, char** argv) {
 		if(count>=maxcnt)
 			break;
 
-		submit_wu_in(curr, next, 52);
+		submit_wu_in(curr, next, batch);
 		count++;
 	}
+	post_batch_msg(batch,start,next,count,"stpt-t","Continue with the new application");
 	cerr<<"Count: "<<count<<endl;
 	cerr<<"First: "<<start<<endl;
 	cerr<<"Next : "<<next<<endl;
