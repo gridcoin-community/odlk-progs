@@ -189,21 +189,21 @@ void write_output(const char* fn) {
 
 void mksample() {
 	auto& inp = input;
-	inp.start=   525725685310000000;
-	inp.end= inp.start +10268000000;
+	inp.start=    530051400000000000;
+	inp.end= inp.start  +65500000000;
 	inp.mine_k= 16;
 	inp.mino_k= 13;
 	inp.max_k= 32;
 	inp.upload = 0;
 	inp.exit_early= 0;
-	inp.out_last_primes= 0;
+	inp.out_last_primes= 1;
 	inp.out_all_primes= 0;
 	inp.primes_in.clear();
-	inp.twin_k=5;
-	inp.twin_min_k=10;
+	inp.twin_k=6;
+	inp.twin_min_k=8;
 	inp.twin_gap_k=6;
-	inp.twin_gap_min=2;
-	inp.twin_gap_kmin=2;
+	inp.twin_gap_min=88;
+	inp.twin_gap_kmin=496;
 	write_input("sample.dat");
 }
 
@@ -229,6 +229,7 @@ int main(int argc, char** argv){
 // to accomodate all returned plus the 32 chaining, 96 entry circular buffer
 // use 128 for efficient bit operations
 
-//500001189895960000
-//        8556680160 -  5 min
-//       51340080960 - 30 min
+//530051400000000000 (zirkon)
+//        8556680160 - 10 s
+//       51340080960 - 47 s
+//       65500000000 -  1 min
