@@ -169,8 +169,8 @@ int read_output_file(RESULT const& result, CDynamicStream& buf) {
     return ERR_XML_PARSE;
 }
 
-const float credit_m= 3.748e-10;
-//credit/200 = gigaflop
+const float credit_m= 2.3148E-12* 5.0381;
+//credit/200 = gigaflop (wrong)
 
 static void insert_spt_tuple(const DB_RESULT& result, const TOutputTuple& tuple, const char* kind)
 {
