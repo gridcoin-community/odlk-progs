@@ -229,11 +229,11 @@ int main(int argc, char** argv){
 // to accomodate all returned plus the 32 chaining, 96 entry circular buffer
 // use 128 for efficient bit operations
 
-//530051400000000000 (zirkon)
+//530051400000000000 (zirkon)  5469 fpMIPS 16968 iMIPS
 //        8556680160 - 10 s
 //       51340080960 - 47 s
 //       65500000000 -  1 min
 
-// saran 3888 FpMIPS 10918 iMIPS
+// mangan 3888 FpMIPS 10918 iMIPS
 //       65500000000 -  1 min 20s
 
