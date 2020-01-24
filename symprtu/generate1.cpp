@@ -129,7 +129,7 @@ void post_batch_msg(int batch,uint64_t first,uint64_t next,unsigned long count, 
 	std::stringstream qr;
 	//into batch
 	qr<<"insert into batch set id= "<<batch<<", short_descr= '"<<label<<"', forum_msg= "<<message_id<<";";
-	retval=boinc_db.do_query(post.str().c_str());
+	retval=boinc_db.do_query(qr.str().c_str());
 	if(retval) throw EDatabase("batch descr insert failed");
 }
 
@@ -148,7 +148,7 @@ void submit_wu_in(uint64_t start, uint64_t end, int batch)
 		inp.exit_early= 0;
 		inp.out_last_primes= 1;
 		inp.out_all_primes= 0;
-		inp.twin_k=6;
+		inp.twin_k=7;
 		inp.twin_min_k=8;
 		inp.twin_gap_k=6;
 		inp.twin_gap_min=88;
@@ -156,7 +156,7 @@ void submit_wu_in(uint64_t start, uint64_t end, int batch)
 		inp.primes_in.clear();
 		wu.appid = spt_app.id;
 		//14e12 is one hour on mangan-pc
-		wu.rsc_fpops_est = (inp.end - inp.start) * 5.0381;
+		wu.rsc_fpops_est = (inp.end - inp.start) * 15;
 		wu.rsc_fpops_bound = wu.rsc_fpops_est * 24;
 		wu.rsc_memory_bound = 399e6;
 		wu.rsc_disk_bound = 1e8; //todo 100m
@@ -194,25 +194,25 @@ int main(int argc, char** argv) {
 	if(boinc_db.start_transaction())
 		exit(4);
 
-	uint64_t start= 530051407000000000;
-	uint64_t   end= 550000000000000000;
+	uint64_t start= 545771407000000000;
+	uint64_t   end= 600000000000000000;
 	uint64_t  step=      1965000000000;
-	unsigned maxcnt = 8000;
-	int batch = 56;
+	unsigned maxcnt = 16000;
+	int batch = 57;
 	uint64_t next = start;
 	unsigned long count = 0;
 	while(1) {
 		uint64_t curr = next;
-		next = curr + step;
 		if(curr > end)
 			break;
 		if(count>=maxcnt)
 			break;
 
+		next = curr + step;
 		submit_wu_in(curr, next, batch);
 		count++;
 	}
-	post_batch_msg(batch,start,next,count,"stpt-t","Continue with the new application");
+	post_batch_msg(batch,start,next,count,"stpt-onv","Continue with the new application");
 	cerr<<"Count: "<<count<<endl;
 	cerr<<"First: "<<start<<endl;
 	cerr<<"Next : "<<next<<endl;
