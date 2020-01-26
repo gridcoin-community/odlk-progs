@@ -169,10 +169,10 @@ int read_output_file(RESULT const& result, CDynamicStream& buf) {
     return ERR_XML_PARSE;
 }
 
-const float credit_m= 2.3148E-12* 5.0381;
+const float credit_m= 2.3148E-12* 15;
 //credit/200 = gigaflop (wrong)
 
-static void insert_spt_tuple(const DB_RESULT& result, const TOutputTuple& tuple, const char* kind)
+static void insert_spt_tuple(const DB_RESULT& result, const TOutputTuple& tuple, const char* kind, bool deriv)
 {
 	std::stringstream qr;
 		qr=std::stringstream();
@@ -180,6 +180,7 @@ static void insert_spt_tuple(const DB_RESULT& result, const TOutputTuple& tuple,
 		qr<<", start="<<tuple.start;
 		qr<<", k="<<tuple.k;
 		qr<<", kind='"<<kind<<"'";
+		qr<<", deriv="<<deriv<<"";
 		qr<<", userid="<<result.userid;
 		qr<<", resid="<<result.id;
 		qr<<", ofs='"<<tuple.ofs[0];
@@ -193,12 +194,12 @@ static void insert_spt_tuples(const DB_RESULT& result, const vector<TOutputTuple
 {
 	std::stringstream qr;
 	for( const auto& tuple : tuples ) {
-		insert_spt_tuple(result, tuple, kind);
+		insert_spt_tuple(result, tuple, kind, 0);
 		TOutputTuple tu2= tuple;
 		for( tu2.k= tuple.k-2; tu2.k>=16; tu2.k-=2 ) {
 			tu2.start += tu2.ofs[0];
 			tu2.ofs .erase(tu2.ofs.begin());
-			insert_spt_tuple(result, tu2, kind);
+			insert_spt_tuple(result, tu2, kind, 1);
 		}
 	}
 }
@@ -206,7 +207,7 @@ static void insert_twin_tuples(const DB_RESULT& result, const vector<TOutputTupl
 {
 	std::stringstream qr;
 	for( const auto& tuple : tuples) {
-		insert_spt_tuple(result, tuple, "tpt");
+		insert_spt_tuple(result, tuple, "tpt", 0);
 	}
 }
 
