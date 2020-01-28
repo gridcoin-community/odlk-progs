@@ -143,7 +143,7 @@ void submit_wu_in(uint64_t start, uint64_t end, int batch)
 		inp.end= end;
 		inp.mine_k= 16;
 		inp.mino_k= 13;
-		inp.max_k= 32;
+		inp.max_k= 64;
 		inp.upload = 0;
 		inp.exit_early= 0;
 		inp.out_last_primes= 1;
@@ -151,8 +151,8 @@ void submit_wu_in(uint64_t start, uint64_t end, int batch)
 		inp.twin_k=7;
 		inp.twin_min_k=8;
 		inp.twin_gap_k=6;
-		inp.twin_gap_min=88;
-		inp.twin_gap_kmin=496;
+		inp.twin_gap_min=550;
+		inp.twin_gap_kmin=950;
 		inp.primes_in.clear();
 		wu.appid = spt_app.id;
 		//14e12 is one hour on mangan-pc
@@ -194,11 +194,11 @@ int main(int argc, char** argv) {
 	if(boinc_db.start_transaction())
 		exit(4);
 
-	uint64_t start= 545771407000000000;
+	uint64_t start= 577211407000000000;
 	uint64_t   end= 600000000000000000;
 	uint64_t  step=      1965000000000;
 	unsigned maxcnt = 16000;
-	int batch = 57;
+	int batch = 58;
 	uint64_t next = start;
 	unsigned long count = 0;
 	while(1) {
@@ -212,7 +212,7 @@ int main(int argc, char** argv) {
 		submit_wu_in(curr, next, batch);
 		count++;
 	}
-	post_batch_msg(batch,start,next,count,"stpt-onv","Continue with the new application");
+	post_batch_msg(batch,start,next,count,"spt-onv","Continue with the new application");
 	cerr<<"Count: "<<count<<endl;
 	cerr<<"First: "<<start<<endl;
 	cerr<<"Next : "<<next<<endl;
