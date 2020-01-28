@@ -255,7 +255,7 @@ void fill() {
 
 static long get_twin_seq_len(unsigned h)
 {
-	long h2=-1;
+	long h2=h;
 	for(long i=h; i>=0; i-=2) {
 		if(2!=disp[(z+i)%128])
 			h2=i-2;

@@ -109,7 +109,7 @@ void initz() {
 			);
 			exit(1);
 	}
-	if (spt_app.lookup("where name='stpt'")) {
+	if (spt_app.lookup("where name='spt'")) {
 		std::cerr<<"can't find app stpt\n";
 		exit(4);
 	}
