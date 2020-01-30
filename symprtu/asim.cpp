@@ -169,6 +169,49 @@ int read_output_file(RESULT const& result, CDynamicStream& buf) {
     return ERR_XML_PARSE;
 }
 
+int read_output_file_doc_in(RESULT const& result, CDynamicStream& buf) {
+    char path[MAXPATHLEN];
+		path[0]=0;
+    string name;
+		double usize = 0;
+		double usize_max = 0;
+    MIOFILE mf;
+    mf.init_buf_read(result.xml_doc_in);
+    XML_PARSER xp(&mf);
+    while (!xp.get_tag()) {
+			if (!xp.is_tag) continue;
+			if (xp.match_tag("file_info")) {
+				while(!xp.get_tag()) {
+					if (!xp.is_tag) continue;
+					if(xp.parse_string("name",name)) continue;
+					if (xp.match_tag("/file_info")) {
+						if(!name[0]) {
+							return ERR_XML_PARSE;
+						}
+						dir_hier_path(
+							name.c_str(), config.upload_dir,
+							config.uldl_dir_fanout, path
+						);
+
+						FILE* f = boinc_fopen(path, "r");
+						if(!f && ENOENT==errno) return ERR_FILE_MISSING;
+						if(!f) return ERR_READ;
+						struct stat stat_buf;
+						if(fstat(fileno(f), &stat_buf)<0) return ERR_READ;
+						buf.setpos(0);
+						buf.reserve(stat_buf.st_size);
+						if( fread(buf.getbase(), 1, stat_buf.st_size, f) !=stat_buf.st_size)
+							return ERR_READ;
+						buf.setpos(0);
+						fclose(f);
+						return 0;
+					}
+				}
+			}
+		}
+    return ERR_XML_PARSE;
+}
+
 const float credit_m= 2.3148E-12* 15;
 //credit/200 = gigaflop (wrong)
 
@@ -300,6 +343,9 @@ void process_result(DB_RESULT& result) {
 	// Read the result file
 	CDynamicStream buf;
 	retval=read_output_file(result,buf);
+	if(retval==ERR_XML_PARSE) {
+		retval=read_output_file_doc_in(result,buf);
+	}
 	/* edit: skip processing if file error */
 	if(retval && 0) {
 		cerr<<"error: Can't read the output file. "<<result.name<<endl;
