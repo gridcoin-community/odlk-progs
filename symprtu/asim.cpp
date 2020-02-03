@@ -119,7 +119,7 @@ void initz() {
 	}
 	
 	spt_result_stmt = mysql_stmt_init(boinc_db.mysql);
-	char stmt[] = "insert into spt_result SET id=?, input=?, output=?, uid=? on duplicate key update id=id";
+	char stmt[] = "insert into spt_result SET id=?, input=?, output=?, uid=?";
 	if(mysql_stmt_prepare(spt_result_stmt, stmt, sizeof stmt ))
 		throw EDatabase("spt_result insert prepare");
 }
