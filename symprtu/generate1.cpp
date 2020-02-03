@@ -141,26 +141,28 @@ void submit_wu_in(uint64_t start, uint64_t end, int batch)
 
 		inp.start= start;
 		inp.end= end;
-		inp.mine_k= 16;
-		inp.mino_k= 13;
+
+		inp.mine_k= 14;
+		inp.mino_k= 9;
 		inp.max_k= 64;
 		inp.upload = 0;
 		inp.exit_early= 0;
-		inp.out_last_primes= 1;
+		inp.out_last_primes= 0;
 		inp.out_all_primes= 0;
-		inp.twin_k=7;
-		inp.twin_min_k=8;
-		inp.twin_gap_k=6;
-		inp.twin_gap_min=550;
-		inp.twin_gap_kmin=950;
 		inp.primes_in.clear();
+		inp.twin_k=6;
+		inp.twin_min_k=8;
+		inp.twin_gap_k=255;
+		inp.twin_gap_min=249;
+		inp.twin_gap_kmin=75;
+
 		wu.appid = spt_app.id;
 		//14e12 is one hour on mangan-pc
 		wu.rsc_fpops_est = (inp.end - inp.start) * 15;
 		wu.rsc_fpops_bound = wu.rsc_fpops_est * 24;
 		wu.rsc_memory_bound = 399e6;
 		wu.rsc_disk_bound = 1e8; //todo 100m
-		wu.delay_bound = 5 * 24 * 3600;
+		wu.delay_bound = 4 * 3600;
 		wu.priority = 10;
 		wu.batch= batch;
 		wu.target_nresults= wu.min_quorum = 1;
@@ -194,11 +196,11 @@ int main(int argc, char** argv) {
 	if(boinc_db.start_transaction())
 		exit(4);
 
-	uint64_t start= 577211407000000000;
-	uint64_t   end= 600000000000000000;
-	uint64_t  step=      1965000000000;
+	uint64_t start=             5;
+	uint64_t   end= 1000000000000;
+	uint64_t  step=   10000000000;
 	unsigned maxcnt = 16000;
-	int batch = 58;
+	int batch = 59;
 	uint64_t next = start;
 	unsigned long count = 0;
 	while(1) {
@@ -212,7 +214,7 @@ int main(int argc, char** argv) {
 		submit_wu_in(curr, next, batch);
 		count++;
 	}
-	post_batch_msg(batch,start,next,count,"spt-onv","Continue with the new application");
+	post_batch_msg(batch,start,next,count,"spt-bi","Scan beginning with new App.");
 	cerr<<"Count: "<<count<<endl;
 	cerr<<"First: "<<start<<endl;
 	cerr<<"Next : "<<next<<endl;
