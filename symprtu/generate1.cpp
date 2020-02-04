@@ -151,7 +151,7 @@ void submit_wu_in(uint64_t start, uint64_t end, int batch)
 		inp.out_all_primes= 0;
 		inp.primes_in.clear();
 		inp.twin_k=6;
-		inp.twin_min_k=8;
+		inp.twin_min_k=10;
 		inp.twin_gap_k=255;
 		inp.twin_gap_min=249;
 		inp.twin_gap_kmin=75;
@@ -162,7 +162,7 @@ void submit_wu_in(uint64_t start, uint64_t end, int batch)
 		wu.rsc_fpops_bound = wu.rsc_fpops_est * 24;
 		wu.rsc_memory_bound = 399e6;
 		wu.rsc_disk_bound = 1e8; //todo 100m
-		wu.delay_bound = 4 * 3600;
+		wu.delay_bound = 8 * 3600;
 		wu.priority = 10;
 		wu.batch= batch;
 		wu.target_nresults= wu.min_quorum = 1;
@@ -196,11 +196,11 @@ int main(int argc, char** argv) {
 	if(boinc_db.start_transaction())
 		exit(4);
 
-	uint64_t start=             5;
-	uint64_t   end= 1000000000000;
-	uint64_t  step=   10000000000;
-	unsigned maxcnt = 16000;
-	int batch = 59;
+	uint64_t start=      1000000000000;
+	uint64_t   end= 600000000000000000;
+	uint64_t  step=      1965000000000;
+	unsigned maxcnt = 800;
+	int batch = 60;
 	uint64_t next = start;
 	unsigned long count = 0;
 	while(1) {
