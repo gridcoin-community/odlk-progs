@@ -119,7 +119,7 @@ void post_batch_msg(int batch,uint64_t first,uint64_t next,unsigned long count, 
 {
 	//into message
 	std::stringstream post;
-	post<<"insert into post set thread= 3055, user= 1, timestamp= UNIX_TIMESTAMP(), modified= 0, parent_post= 0, score= 0, votes= 0, signature= 1, hidden= 0, content='";
+	post<<"insert into post set thread= 3055, user= 5, timestamp= UNIX_TIMESTAMP(), modified= 0, parent_post= 0, score= 0, votes= 0, signature= 1, hidden= 0, content='";
 	post<<"Batch "<<batch<<": "<<first<<" .. "<<next<<" -1\nCount: "<<count<<"\n";
 	post<<msg;
 	post<<"';";
@@ -143,7 +143,7 @@ void submit_wu_in(uint64_t start, uint64_t end, int batch)
 		inp.end= end;
 
 		inp.mine_k= 14;
-		inp.mino_k= 9;
+		inp.mino_k= 11;
 		inp.max_k= 64;
 		inp.upload = 0;
 		inp.exit_early= 0;
@@ -196,11 +196,11 @@ int main(int argc, char** argv) {
 	if(boinc_db.start_transaction())
 		exit(4);
 
-	uint64_t start=      1000000000000;
+	uint64_t start=   1573000000000000;
 	uint64_t   end= 600000000000000000;
 	uint64_t  step=      1965000000000;
-	unsigned maxcnt = 800;
-	int batch = 60;
+	unsigned maxcnt = 2000;
+	int batch = 61;
 	uint64_t next = start;
 	unsigned long count = 0;
 	while(1) {
@@ -214,7 +214,7 @@ int main(int argc, char** argv) {
 		submit_wu_in(curr, next, batch);
 		count++;
 	}
-	post_batch_msg(batch,start,next,count,"spt-bi","Scan beginning with new App.");
+	post_batch_msg(batch,start,next,count,"spt-bi","Disable SPT(9). Continue bottom with new App.");
 	cerr<<"Count: "<<count<<endl;
 	cerr<<"First: "<<start<<endl;
 	cerr<<"Next : "<<next<<endl;
