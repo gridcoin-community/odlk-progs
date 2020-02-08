@@ -10,6 +10,7 @@ struct TInput {
 	bool exit_early;
 	bool out_last_primes;
 	bool out_all_primes;
+	bool enable_cousin;
 	vector<uint64_t> primes_in;
 	unsigned short twin_gap_k;
 	unsigned twin_gap_min;  // min gap for inclusion in increasing gap list
@@ -54,7 +55,7 @@ struct TOutput {
 
 void TInput::readInput(CStream&& s) {
 	unsigned ident= s.r4();
-	if(ident!=0x64DE70F6 && ident!=0x64DE70FD) s.fail();
+	if(ident!=0x64DE70F6 && ident!=0x64DE70FD && ident!=0x64DE7130) s.fail();
 	start= s.r8();
 	end= s.r8();
 	upload = s.r2();
@@ -64,9 +65,10 @@ void TInput::readInput(CStream&& s) {
 	exit_early= (flag >> 1) &1;
 	out_last_primes= (flag >> 2) &1;
 	out_all_primes= (flag >> 3) &1;
+	enable_cousin= (flag >> 4) &1;
 	unsigned len= s.r2();
 	if(len) s.fail();
-	if(ident==0x64DE70FD) {
+	if(ident>=0x64DE70FD) {
 		mino_k = s.r1();
 		twin_k = s.r1();
 		twin_min_k = s.r1();
@@ -83,7 +85,7 @@ void TInput::readInput(CStream&& s) {
 }
 
 void TInput::writeInput(CStream& s) {
-	s.w4(0x64DE70FD);
+	s.w4(0x64DE7130);
 	s.w8(start);
 	s.w8(end);
 	s.w2(upload);
