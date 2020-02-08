@@ -127,7 +127,7 @@ void initialize() {
 	}
 	twind.clear();
 	twinz=-1;
-	twin_enable = input.twin_k<255 || input.twin_min_k<255;
+	twin_enable = input.twin_k<255 || input.twin_gap_k<255;
 	twins_min = std::min(input.twin_k, input.twin_gap_k) - 1;
 	output.twin_gap_d=  input.twin_gap_min;
 	output.twin_gap_6d= input.twin_gap_kmin;
@@ -270,7 +270,7 @@ static unsigned get_even_seq_len()
 {
 	// even k-tuple has first d of zero and then odd length palindrome
 	unsigned h2=0;
-	for(unsigned h = 1; h < 32; ++h ) {
+	for(unsigned h = 1; h < 64; ++h ) {
 		if(disp[(z-h)%128]==disp[(z+h)%128])
 			h2= h;
 		else break;
@@ -291,7 +291,7 @@ static void check_even_tuples() {
 static void check_odd_tuples() {
 	// odd k-tuple has first d of zero and then even length palindrome
 	unsigned h2=0;
-	for(unsigned h = 1; h < 32; ++h ) {
+	for(unsigned h = 1; h < 64; ++h ) {
 		if(disp[(z+1-h)%128]==disp[(z+h)%128])
 			h2= h;
 		else break;
@@ -322,10 +322,10 @@ int main(){
 				return 1;
 			}
 
-			if(input.max_k) {
+			if(input.mine_k<254)
 				check_even_tuples();
+			if(input.mino_k<255)
 				check_odd_tuples();
-			}
 			if(twin_enable)
 				check_twins();
 
