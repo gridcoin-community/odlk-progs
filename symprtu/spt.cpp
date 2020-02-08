@@ -135,6 +135,7 @@ void initialize() {
 		|| input.twin_min_k<4
 		|| input.twin_k<1
 		|| input.max_k>64
+		|| input.enable_cousin
 		|| (input.twin_gap_k!=6 && input.twin_gap_k!=255)
 		|| (input.twin_gap_k!=255 && !twin_enable)
 		|| input.exit_early || input.out_all_primes
@@ -256,9 +257,11 @@ void fill() {
 static long get_twin_seq_len(unsigned h)
 {
 	long h2=h;
-	for(long i=h; i>=0; i-=2) {
-		if(2!=disp[(z+i)%128])
-			h2=i-2;
+	for(long i=h; i>=0; ) {
+		if(2!=disp[(z+i)%128]) {
+			h2=i= i-1;
+		}
+		else i-=2;
 	}
 	return (h2+1)*2;
 }
