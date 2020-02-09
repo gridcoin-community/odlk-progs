@@ -154,7 +154,7 @@ void submit_wu_in(uint64_t start, uint64_t end, int batch)
 		inp.twin_min_k=10;
 		inp.twin_gap_k=6;
 		inp.twin_gap_min=65535;
-		inp.twin_gap_kmin=75;
+		inp.twin_gap_kmin=76;
 
 		wu.appid = spt_app.id;
 		//14e12 is one hour on mangan-pc
@@ -162,8 +162,8 @@ void submit_wu_in(uint64_t start, uint64_t end, int batch)
 		wu.rsc_fpops_bound = wu.rsc_fpops_est * 24;
 		wu.rsc_memory_bound = 399e6;
 		wu.rsc_disk_bound = 1e8; //todo 100m
-		wu.delay_bound = 1 * 3600;
-		wu.priority = 12;
+		wu.delay_bound = 3 * 24 * 3600;
+		wu.priority = 10;
 		wu.batch= batch;
 		wu.target_nresults= wu.min_quorum = 1;
 		wu.max_error_results= wu.max_total_results= 8;
@@ -196,11 +196,11 @@ int main(int argc, char** argv) {
 	if(boinc_db.start_transaction())
 		exit(4);
 
-	uint64_t start=   1856513000000000;
-	uint64_t   end=   1865320000000000;
-	uint64_t  step=        20000000000;
-	unsigned maxcnt = 8000;
-	int batch = 63;
+	uint64_t start=                  5;
+	uint64_t   end=  21223000000000000;
+	uint64_t  step=      1965000000000;
+	unsigned maxcnt = 16000;
+	int batch = 64;
 	uint64_t next = start;
 	unsigned long count = 0;
 	while(1) {
@@ -214,7 +214,7 @@ int main(int argc, char** argv) {
 		submit_wu_in(curr, next, batch);
 		count++;
 	}
-	post_batch_msg(batch,start,next,count,"spt-ex","Test fix of get_twin_seq_len. Even twin tuples only.");
+	post_batch_msg(batch,start,next,count,"spt-ftb","Recalculate the affected interval with two fixes. Even twin tuples and twin_k6_gaps only.");
 	cerr<<"Count: "<<count<<endl;
 	cerr<<"First: "<<start<<endl;
 	cerr<<"Next : "<<next<<endl;
