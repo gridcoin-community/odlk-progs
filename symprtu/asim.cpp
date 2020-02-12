@@ -118,10 +118,12 @@ void initz() {
 		exit(4);
 	}
 	
-	spt_result_stmt = mysql_stmt_init(boinc_db.mysql);
-	char stmt[] = "insert into spt_result SET id=?, input=?, output=?, uid=?";
-	if(mysql_stmt_prepare(spt_result_stmt, stmt, sizeof stmt ))
-		throw EDatabase("spt_result insert prepare");
+	{
+		spt_result_stmt = mysql_stmt_init(boinc_db.mysql);
+		char stmt[] = "insert into spt_result SET id=?, input=?, output=?, uid=?";
+		if(mysql_stmt_prepare(spt_result_stmt, stmt, sizeof stmt ))
+			throw EDatabase("spt_result insert prepare");
+	}
 }
 
 int read_output_file(RESULT const& result, CDynamicStream& buf) {
@@ -218,20 +220,20 @@ const float credit_m= 2.3148E-12* 15;
 static void insert_spt_tuple(const DB_RESULT& result, const TOutputTuple& tuple, const char* kind, bool deriv)
 {
 	std::stringstream qr;
-		qr=std::stringstream();
-		qr<<"insert into spt set batch="<<result.batch;
-		qr<<", start="<<tuple.start;
-		qr<<", k="<<tuple.k;
-		qr<<", kind='"<<kind<<"'";
-		qr<<", deriv="<<deriv<<"";
-		qr<<", userid="<<result.userid;
-		qr<<", resid="<<result.id;
-		qr<<", ofs='"<<tuple.ofs[0];
-		for(unsigned i=1; i<tuple.ofs.size(); ++i)
-			qr<<" "<<tuple.ofs[i];
-		qr<<"' on duplicate key update id=id";
-		retval=boinc_db.do_query(qr.str().c_str());
-		if(retval) throw EDatabase("spt row insert failed");
+	qr=std::stringstream();
+	qr<<"insert into spt set batch="<<result.batch;
+	qr<<", start="<<tuple.start;
+	qr<<", k="<<tuple.k;
+	qr<<", kind='"<<kind<<"'";
+	qr<<", deriv="<<deriv<<"";
+	qr<<", userid="<<result.userid;
+	qr<<", resid="<<result.id;
+	qr<<", ofs='"<<tuple.ofs[0];
+	for(unsigned i=1; i<tuple.ofs.size(); ++i)
+		qr<<" "<<tuple.ofs[i];
+	qr<<"' on duplicate key update id=id";
+	retval=boinc_db.do_query(qr.str().c_str());
+	if(retval) throw EDatabase("spt row insert failed");
 }
 static void insert_spt_tuples(const DB_RESULT& result, const vector<TOutputTuple>& tuples, const char* kind)
 {
@@ -306,6 +308,8 @@ void result_insert(DB_RESULT& result, TOutput output) {
 	insert_spt_tuples(result, output.twin_tuples, "stpt");
 
 	/* insert into largest gap table */
+	/* check: find entry starting lower, but with larger d */
+	/* post: find entry starting higher, but with smaller d */
 	unsigned twin_gap_max = 2;
 	for( const auto& tuple : output.twin_gap ) {
 		short unsigned maxd =0;
@@ -315,10 +319,13 @@ void result_insert(DB_RESULT& result, TOutput output) {
 			if( d > twin_gap_max ) {
 				twin_gap_max = d;
 				std::stringstream qr;
-				qr<<"insert into spt_gap set start="<<start2<<", d="<<d
-				<<", resid="<<result.id<<", k=0, ofs='";
+				qr<<"insert into spt_gap (start,d,resid,k,ofs) select "
+				<<start2 <<','<<d <<','<<result.id <<",0,'";
 				for(auto o : tuple.ofs)	qr<<" "<<o;
-				qr<<"' on duplicate key update d=d;";
+				qr<<"' from dual where not exists (select * from spt_gap where start<="
+				<<start2 <<" and k=0 and d>="<<d
+				<<"); delete from spt_gap where d=0 and start>"
+				<<start2 <<" and d<="<< d <<";";
 				retval=boinc_db.do_query(qr.str().c_str());
 				if(retval) throw EDatabase("spt_gap insert failed");
 			}
@@ -326,10 +333,13 @@ void result_insert(DB_RESULT& result, TOutput output) {
 		}
 		if( tuple.k > 5) {
 			std::stringstream qr;
-			qr<<"insert into spt_gap set start="<<start2<<", d="<<maxd
-			<<", resid="<<result.id<<", k="<<tuple.k<<", ofs='";
+			qr<<"insert into spt_gap (start,d,resid,k,ofs) select "
+			<<start2 <<','<<maxd <<','<<result.id <<","<<tuple.k <<",'";
 			for(auto o : tuple.ofs)	qr<<" "<<o;
-			qr<<"' on duplicate key update d=d;";
+			qr<<"' from dual where not exists (select * from spt_gap where start<="
+			<<start2 <<" and k="<<tuple.k <<" and d>="<<maxd
+			<<"); delete from spt_gap where d>5 and start>"
+			<<start2 <<" and d<="<< maxd <<";";
 			retval=boinc_db.do_query(qr.str().c_str());
 			if(retval) throw EDatabase("spt_gap insert failed");
 		}
