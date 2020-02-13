@@ -323,11 +323,14 @@ void result_insert(DB_RESULT& result, TOutput output) {
 				<<start2 <<','<<d <<','<<result.id <<",0,'";
 				for(auto o : tuple.ofs)	qr<<" "<<o;
 				qr<<"' from dual where not exists (select * from spt_gap where start<="
-				<<start2 <<" and k=0 and d>="<<d
-				<<"); delete from spt_gap where k=0 and start>"
+				<<start2 <<" and k=0 and d>="<<d <<");";
+				retval=boinc_db.do_query(qr.str().c_str());
+				if(retval) throw EDatabase("spt_gap insert select failed");
+				qr.clear();
+				qr<<"delete from spt_gap where k=0 and start>"
 				<<start2 <<" and d<="<< d <<";";
 				retval=boinc_db.do_query(qr.str().c_str());
-				if(retval) throw EDatabase("spt_gap insert failed");
+				if(retval) throw EDatabase("spt_gap delete failed");
 			}
 			start2 = start2 + 2 + d;
 		}
@@ -337,11 +340,14 @@ void result_insert(DB_RESULT& result, TOutput output) {
 			<<start2 <<','<<maxd <<','<<result.id <<","<<tuple.k <<",'";
 			for(auto o : tuple.ofs)	qr<<" "<<o;
 			qr<<"' from dual where not exists (select * from spt_gap where start<="
-			<<start2 <<" and k="<<tuple.k <<" and d>="<<maxd
-			<<"); delete from spt_gap where k>5 and start>"
+			<<start2 <<" and k="<<tuple.k <<" and d>="<<maxd <<");";
+			retval=boinc_db.do_query(qr.str().c_str());
+			if(retval) throw EDatabase("spt_gap insert select failed");
+			qr.clear();
+			qr<<"delete from spt_gap where k>5 and start>"
 			<<start2 <<" and d<="<< maxd <<";";
 			retval=boinc_db.do_query(qr.str().c_str());
-			if(retval) throw EDatabase("spt_gap insert failed");
+			if(retval) throw EDatabase("spt_gap delete failed");
 		}
 	}
 }
