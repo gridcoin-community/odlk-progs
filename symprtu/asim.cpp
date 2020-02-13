@@ -324,7 +324,7 @@ void result_insert(DB_RESULT& result, TOutput output) {
 				for(auto o : tuple.ofs)	qr<<" "<<o;
 				qr<<"' from dual where not exists (select * from spt_gap where start<="
 				<<start2 <<" and k=0 and d>="<<d
-				<<"); delete from spt_gap where d=0 and start>"
+				<<"); delete from spt_gap where k=0 and start>"
 				<<start2 <<" and d<="<< d <<";";
 				retval=boinc_db.do_query(qr.str().c_str());
 				if(retval) throw EDatabase("spt_gap insert failed");
@@ -338,7 +338,7 @@ void result_insert(DB_RESULT& result, TOutput output) {
 			for(auto o : tuple.ofs)	qr<<" "<<o;
 			qr<<"' from dual where not exists (select * from spt_gap where start<="
 			<<start2 <<" and k="<<tuple.k <<" and d>="<<maxd
-			<<"); delete from spt_gap where d>5 and start>"
+			<<"); delete from spt_gap where k>5 and start>"
 			<<start2 <<" and d<="<< maxd <<";";
 			retval=boinc_db.do_query(qr.str().c_str());
 			if(retval) throw EDatabase("spt_gap insert failed");
