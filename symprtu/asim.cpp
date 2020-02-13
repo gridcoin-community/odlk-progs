@@ -326,7 +326,7 @@ void result_insert(DB_RESULT& result, TOutput output) {
 				<<start2 <<" and k=0 and d>="<<d <<");";
 				retval=boinc_db.do_query(qr.str().c_str());
 				if(retval) throw EDatabase("spt_gap insert select failed");
-				qr.clear();
+				qr=std::stringstream();
 				qr<<"delete from spt_gap where k=0 and start>"
 				<<start2 <<" and d<="<< d <<";";
 				retval=boinc_db.do_query(qr.str().c_str());
@@ -343,7 +343,7 @@ void result_insert(DB_RESULT& result, TOutput output) {
 			<<start2 <<" and k="<<tuple.k <<" and d>="<<maxd <<");";
 			retval=boinc_db.do_query(qr.str().c_str());
 			if(retval) throw EDatabase("spt_gap insert select failed");
-			qr.clear();
+			qr=std::stringstream();
 			qr<<"delete from spt_gap where k>5 and start>"
 			<<start2 <<" and d<="<< maxd <<";";
 			retval=boinc_db.do_query(qr.str().c_str());
